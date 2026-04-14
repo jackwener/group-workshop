@@ -1,0 +1,65 @@
+.input-area {
+  height: var(--input-height);
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-color);
+  padding: 16px 24px;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+}
+
+.query-input {
+  flex: 1;
+  min-height: 60px;
+  max-height: 80px;
+  padding: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.query-input:disabled {
+  background: var(--bg-secondary);
+  cursor: not-allowed;
+}
+
+.input-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.char-count {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.char-count.over-limit {
+  color: var(--error-color);
+  font-weight: 500;
+}
+
+.send-btn {
+  min-width: 90px;
+  gap: 6px;
+}
+
+.send-btn .spinner {
+  width: 14px;
+  height: 14px;
+  border-width: 2px;
+  border-color: rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+}
+
+.send-btn .shortcut {
+  font-size: 12px;
+  opacity: 0.7;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
