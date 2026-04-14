@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>认证状态管理 - React Login App</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --color-primary: #003B7F;
+            --color-primary-dark: #002D62;
+            --color-secondary: #E60012;
+            --color-gold: #D4A843;
+            --color-text-dark: #333333;
+            --color-text-base: #666666;
+            --color-border: #E5E5E5;
+            --color-background: #F5F7FA;
+            --color-white: #FFFFFF;
+            --font-family-zh: "PingFang SC", "Microsoft YaHei", sans-serif;
+            --font-size-h1: 36px;
+            --font-size-h2: 28px;
+            --font-size-h3: 24px;
+            --font-size-h4: 20px;
+            --font-size-base: 16px;
+            --font-size-sm: 14px;
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-xxl: 48px;
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-family-zh);
+            font-size: var(--font-size-base);
+            color: var(--color-text-dark);
+            background-color: var(--color-background);
+            line-height: 1.6;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        .header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            color: var(--color-white);
+            padding: var(--spacing-xl) 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .header h1 { font-size: var(--font-size-h1); font-weight: 600; margin-bottom: var(--spacing-sm); }
+        .header .subtitle { font-size: var(--font-size-base); opacity: 0.9; }
+
+        .nav {
+            background-color: var(--color-white);
+            border-bottom: 1px solid var(--color-border);
+            padding: var(--spacing-md) 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-content { display: flex; justify-content: space-between; align-items: center; }
+        .nav-brand { font-size: var(--font-size-h4); font-weight: 600; color: var(--color-primary); }
+        .nav-links { display: flex; gap: var(--spacing-lg); }
+        .nav-link { color: var(--color-text-base); text-decoration: none; font-size: var(--font-size-sm); transition: color 0.3s ease; }
+        .nav-link:hover { color: var(--color-primary); }
+
+        .main { padding: var(--spacing-xxl) 0; }
+
+        .section {
+            background-color: var(--color-white);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .section h2 {
+            font-size: var(--font-size-h2);
+            color: var(--color-primary);
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .section h3 { font-size: var(--font-size-h3); color: var(--color-text-dark); margin-top: var(--spacing-xl); margin-bottom: var(--spacing-md); }
+        .section p { margin-bottom: var(--spacing-md); color: var(--color-text-base); }
+
+        .citation {
+            background-color: var(--color-background);
+            border-left: 4px solid var(--color-primary);
+            padding: var(--spacing-md);
+            margin: var(--spacing-md) 0;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+        }
+
+        .citation-title { font-weight: 600; color: var(--color-primary); margin-bottom: var(--spacing-sm); }
+        .citation ul { list-style: none; padding-left: 0; }
+        .citation a { color: var(--color-primary); text-decoration: none; }
+
+        ul, ol { margin-left: var(--spacing-lg); margin-bottom: var(--spacing-md); }
+        li { margin-bottom: var(--spacing-xs); color: var(--color-text-base); }
+
+        pre { background-color: #f4f4f4; border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: var(--spacing-md); overflow-x: auto; margin: var(--spacing-md) 0; }
+        code { font-family: "Consolas", "Monaco", monospace; font-size: var(--font-size-sm); color: var(--color-text-dark); }
+
+        .mermaid { text-align: center; margin: var(--spacing-lg) 0; }
+
+        .toc { background-color: var(--color-background); border-radius: var(--radius-md); padding: var(--spacing-lg); margin-bottom: var(--spacing-xl); }
+        .toc h3 { font-size: var(--font-size-h4); color: var(--color-primary); margin-bottom: var(--spacing-md); margin-top: 0; }
+        .toc ul { list-style: none; margin-left: 0; }
+        .toc a { color: var(--color-text-base); text-decoration: none; }
+        .toc a:hover { color: var(--color-primary); }
+
+        .disclaimer {
+            background: linear-gradient(135deg, #FFF8E1 0%, #FFF3CD 100%);
+            border: 1px solid var(--color-gold);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            margin-top: var(--spacing-xxl);
+        }
+
+        .disclaimer-title { font-size: var(--font-size-h4); color: var(--color-secondary); font-weight: 600; margin-bottom: var(--spacing-sm); display: flex; align-items: center; gap: var(--spacing-sm); }
+        .disclaimer-title::before { content: "⚠️"; }
+        .disclaimer-content { color: var(--color-text-base); font-size: var(--font-size-sm); line-height: 1.8; }
+
+        .footer { background-color: var(--color-primary); color: var(--color-white); padding: var(--spacing-xl) 0; text-align: center; margin-top: var(--spacing-xxl); }
+        .footer p { opacity: 0.8; font-size: var(--font-size-sm); }
+
+        @media (max-width: 768px) {
+            .container { padding: 0 16px; }
+            .header h1 { font-size: var(--font-size-h2); }
+            .section { padding: var(--spacing-md); }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>认证状态管理</h1>
+            <p class="subtitle">React Login App 认证状态详细说明</p>
+        </div>
+    </header>
+
+    <nav class="nav">
+        <div class="container nav-content">
+            <div class="nav-brand">React Login App</div>
+            <div class="nav-links">
+                <a href="../项目概述.html" class="nav-link">项目概述</a>
+                <a href="../快速开始.html" class="nav-link">快速开始</a>
+                <a href="../架构设计/架构设计.html" class="nav-link">架构设计</a>
+                <a href="认证系统.html" class="nav-link">认证系统</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main">
+        <div class="container">
+            <div class="toc">
+                <h3>目录</h3>
+                <ul>
+                    <li><a href="#状态结构">1. 状态结构</a></li>
+                    <li><a href="#状态操作">2. 状态操作</a></li>
+                    <li><a href="#持久化">3. 持久化机制</a></li>
+                    <li><a href="#使用示例">4. 使用示例</a></li>
+                </ul>
+            </div>
+
+            <section class="section" id="状态结构">
+                <h2>状态结构</h2>
+                <pre><code>{
+  user: null | Object,        // 当前用户信息
+  isAuthenticated: boolean,   // 认证状态
+  loading: boolean,          // 加载状态
+  error: null | string       // 错误信息
+}</code></pre>
+            </section>
+
+            <section class="section" id="状态操作">
+                <h2>状态操作</h2>
+                <h3>login</h3>
+                <p>执行用户登录验证</p>
+                <pre><code>const login = async (username, password) => {
+  set({ loading: true, error: null });
+  // 验证逻辑
+  // 成功: set({ user, isAuthenticated: true, loading: false })
+  // 失败: set({ error, loading: false })
+}</code></pre>
+
+                <h3>logout</h3>
+                <p>执行用户登出</p>
+                <pre><code>const logout = () => {
+  localStorage.removeItem('user');
+  set({ user: null, isAuthenticated: false });
+}</code></pre>
+
+                <h3>initialize</h3>
+                <p>从 localStorage 恢复会话</p>
+                <pre><code>const initialize = () => {
+  const user = localStorage.getItem('user');
+  if (user) {
+    set({ user: JSON.parse(user), isAuthenticated: true });
+  }
+}</code></pre>
+            </section>
+
+            <section class="section" id="持久化">
+                <h2>持久化机制</h2>
+                <div class="mermaid">
+sequenceDiagram
+    participant User as 用户
+    participant Store as authStore
+    participant Storage as localStorage
+    
+    User->>Store: 登录
+    Store->>Store: 验证成功
+    Store->>Storage: 存储用户信息
+    Store-->>User: 更新状态
+    
+    User->>Store: 刷新页面
+    Store->>Storage: 读取用户信息
+    Storage-->>Store: 返回数据
+    Store-->>User: 恢复登录状态
+                </div>
+            </section>
+
+            <section class="section" id="使用示例">
+                <h2>使用示例</h2>
+                <pre><code>import useAuthStore from '../store/authStore';
+
+function MyComponent() {
+  const { user, isAuthenticated, login, logout } = useAuthStore();
+  
+  if (!isAuthenticated) {
+    return <div>请登录</div>;
+  }
+  
+  return (
+    <div>
+      <p>欢迎, {user.username}</p>
+      <button onClick={logout}>退出</button>
+    </div>
+  );
+}</code></pre>
+            </section>
+
+            <div class="disclaimer">
+                <div class="disclaimer-title">基金免责声明</div>
+                <div class="disclaimer-content">
+                    <p>本报告仅供参考，不构成任何投资建议。投资者应独立判断，自行承担投资风险。过往业绩不代表未来表现，基金投资有风险，入市需谨慎。</p>
+                    <p>本材料中的信息均来源于公开资料，我们力求信息准确可靠，但不保证其完整性、准确性和及时性。任何人不得将本材料用于商业目的或未经授权的传播。</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 React Login App. 保留所有权利。</p>
+        </div>
+    </footer>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: { useMaxWidth: true, htmlLabels: true }
+        });
+    </script>
+</body>
+</html>
