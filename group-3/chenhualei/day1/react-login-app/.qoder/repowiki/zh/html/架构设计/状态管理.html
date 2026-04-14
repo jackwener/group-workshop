@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>状态管理 - React Login App 文档</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>📚 项目文档</h1>
+      </div>
+      <nav class="sidebar-nav">
+        <ul><li><a href="项目概述.html">项目概述</a></li><li><a href="快速开始.html">快速开始</a></li><li class="has-submenu"><span class="submenu-title">架构设计</span><ul class="submenu"><li><a href="架构设计/组件架构.html">组件架构</a></li><li><a href="架构设计/状态管理.html">状态管理</a></li><li><a href="架构设计/路由系统.html">路由系统</a></li><li><a href="架构设计/构建配置.html">构建配置</a></li></ul></li><li class="has-submenu"><span class="submenu-title">认证系统</span><ul class="submenu"><li><a href="认证系统/认证状态管理.html">认证状态管理</a></li><li><a href="认证系统/登录表单验证.html">登录表单验证</a></li><li><a href="认证系统/路由保护机制.html">路由保护机制</a></li><li><a href="认证系统/认证流程详解.html">认证流程详解</a></li></ul></li><li><a href="仪表板功能.html">仪表板功能</a></li><li class="has-submenu"><span class="submenu-title">俄罗斯方块游戏</span><ul class="submenu"><li><a href="俄罗斯方块游戏/游戏引擎核心.html">游戏引擎核心</a></li><li><a href="俄罗斯方块游戏/方块系统.html">方块系统</a></li><li><a href="俄罗斯方块游戏/物理机制.html">物理机制</a></li><li><a href="俄罗斯方块游戏/输入处理.html">输入处理</a></li><li><a href="俄罗斯方块游戏/界面渲染.html">界面渲染</a></li><li><a href="俄罗斯方块游戏/游戏状态管理.html">游戏状态管理</a></li></ul></li><li class="has-submenu"><span class="submenu-title">开发工具配置</span><ul class="submenu"><li><a href="开发工具配置/Vite 构建配置.html">Vite 构建配置</a></li><li><a href="开发工具配置/ESLint 代码规范.html">ESLint 代码规范</a></li><li><a href="开发工具配置/包依赖管理.html">包依赖管理</a></li><li><a href="开发工具配置/版本控制忽略规则.html">版本控制忽略规则</a></li></ul></li><li><a href="样式系统.html">样式系统</a></li><li><a href="部署指南.html">部署指南</a></li></ul>
+      </nav>
+    </aside>
+    
+    <main class="main-content">
+      <div class="breadcrumb">
+        <a href="index.html">首页</a> / <span>架构设计\状态管理</span>
+      </div>
+      
+      <article class="content">
+        <h1>状态管理</h1>
+<div class="cite-block">
+<strong>本文引用的文件</strong>
+<ul><li><a href="file://src/store/authStore.js">authStore.js</a></li><li><a href="file://src/App.jsx">App.jsx</a></li><li><a href="file://src/pages/LoginPage.jsx">LoginPage.jsx</a></li><li><a href="file://src/components/LoginForm.jsx">LoginForm.jsx</a></li><li><a href="file://src/routes/ProtectedRoute.jsx">ProtectedRoute.jsx</a></li><li><a href="file://src/pages/DashboardPage.jsx">DashboardPage.jsx</a></li><li><a href="file://src/main.jsx">main.jsx</a></li><li><a href="file://package.json">package.json</a></li></ul>
+</div>
+<h2>目录</h2>
+1. <a href="#简介">简介</a>
+2. <a href="#项目结构">项目结构</a>
+3. <a href="#核心组件">核心组件</a>
+4. <a href="#架构总览">架构总览</a>
+5. <a href="#详细组件分析">详细组件分析</a>
+6. <a href="#依赖分析">依赖分析</a>
+7. <a href="#性能考虑">性能考虑</a>
+8. <a href="#故障排查指南">故障排查指南</a>
+9. <a href="#结论">结论</a>
+10. <a href="#附录">附录</a>
+<h2>简介</h2>
+本项目采用 Zustand 作为轻量级状态管理方案，围绕认证状态（用户、登录态、加载与错误）构建了完整的全局状态模型，并通过路由守卫实现受保护页面访问控制。状态持久化采用浏览器本地存储，确保刷新后仍能保持登录态。本文档将系统性解析状态结构、更新机制、订阅模式、认证流程与状态同步策略，并提供最佳实践与性能优化建议。
+<h2>项目结构</h2>
+项目采用按功能分层组织，状态逻辑集中在 store 目录，页面与组件分别位于 pages 与 components，路由守卫位于 routes，入口文件位于 main.jsx。Zustand 的状态容器集中于认证状态，避免跨模块耦合。
+<div class="mermaid">graph TB
+subgraph "入口"
+MAIN["main.jsx"]
+APP["App.jsx"]
+end
+subgraph "状态层"
+AUTH["authStore.js"]
+end
+subgraph "页面与组件"
+LOGIN<em>PAGE["LoginPage.jsx"]
+DASHBOARD</em>PAGE["DashboardPage.jsx"]
+LOGIN<em>FORM["LoginForm.jsx"]
+PROTECT</em>ROUTE["ProtectedRoute.jsx"]
+end
+MAIN --> APP
+APP --> LOGIN<em>PAGE
+APP --> DASHBOARD</em>PAGE
+APP --> PROTECT<em>ROUTE
+LOGIN</em>PAGE --> LOGIN<em>FORM
+DASHBOARD</em>PAGE --> PROTECT<em>ROUTE
+LOGIN</em>FORM --> AUTH
+PROTECT<em>ROUTE --> AUTH
+APP --> AUTH</div>
+<p>图表来源
+<ul><li><a href="file://src/main.jsx#L1-L11">main.jsx:1-11</a></li><li><a href="file://src/App.jsx#L1-L44">App.jsx:1-44</a></li><li><a href="file://src/store/authStore.js#L1-L44">authStore.js:1-44</a></li><li><a href="file://src/pages/LoginPage.jsx#L1-L18">LoginPage.jsx:1-18</a></li><li><a href="file://src/components/LoginForm.jsx#L1-L78">LoginForm.jsx:1-78</a></li><li><a href="file://src/routes/ProtectedRoute.jsx#L1-L15">ProtectedRoute.jsx:1-15</a></li><li><a href="file://src/pages/DashboardPage.jsx#L1-L57">DashboardPage.jsx:1-57</a></li></ul></p>
+<p>章节来源
+<ul><li><a href="file://src/main.jsx#L1-L11">main.jsx:1-11</a></li><li><a href="file://src/App.jsx#L1-L44">App.jsx:1-44</a></li><li><a href="file://src/store/authStore.js#L1-L44">authStore.js:1-44</a></li></ul></p>
+<h2>核心组件</h2>
+<ul><li>认证状态容器（useAuthStore）</li><li>状态字段：用户信息、是否已认证、加载状态、错误信息</li><li>动作方法：登录（异步）、登出、初始化（从本地存储恢复）</li><li>登录表单组件（LoginForm）</li><li>使用表单库进行校验，调用登录动作并导航到仪表板</li><li>受保护路由（ProtectedRoute）</li><li>基于认证状态决定是否放行</li><li>应用入口（App）</li><li>启动时执行初始化，检查本地存储恢复登录态</li></ul>
+<p>章节来源
+<ul><li><a href="file://src/store/authStore.js#L1-L44">authStore.js:1-44</a></li><li><a href="file://src/components/LoginForm.jsx#L1-L78">LoginForm.jsx:1-78</a></li><li><a href="file://src/routes/ProtectedRoute.jsx#L1-L15">ProtectedRoute.jsx:1-15</a></li><li><a href="file://src/App.jsx#L1-L44">App.jsx:1-44</a></li></ul></p>
+<h2>架构总览</h2>
+Zustand 在本项目中承担“单一真相源”的角色，所有需要共享的认证状态由该容器统一管理。组件通过选择器订阅所需状态片段，减少不必要重渲染；动作函数负责状态更新与副作用（如本地存储、导航）。
+<div class="mermaid">graph TB
+AUTH["useAuthStore<br/>状态: user/isAuthenticated/loading/error<br/>动作: login/logout/initialize"]
+LOGIN</em>FORM["LoginForm.jsx<br/>触发 login() 并处理结果"]
+DASHBOARD["DashboardPage.jsx<br/>读取 user 并触发 logout()"]
+PROTECT["ProtectedRoute.jsx<br/>基于 isAuthenticated 决策"]
+APP<em>INIT["App.jsx<br/>启动时调用 initialize()"]
+LOGIN</em>FORM --> AUTH
+DASHBOARD --> AUTH
+PROTECT --> AUTH
+APP<em>INIT --> AUTH</div>
+<p>图表来源
+<ul><li><a href="file://src/store/authStore.js#L1-L44">authStore.js:1-44</a></li><li><a href="file://src/components/LoginForm.jsx#L1-L78">LoginForm.jsx:1-78</a></li><li><a href="file://src/pages/DashboardPage.jsx#L1-L57">DashboardPage.jsx:1-57</a></li><li><a href="file://src/routes/ProtectedRoute.jsx#L1-L15">ProtectedRoute.jsx:1-15</a></li><li><a href="file://src/App.jsx#L1-L44">App.jsx:1-44</a></li></ul></p>
+<h2>详细组件分析</h2>
+<h3>认证状态容器（useAuthStore）</h3>
+<ul><li>设计原则</li><li>单一职责：仅管理认证相关状态与动作</li><li>明确边界：登录为异步动作，包含加载与错误处理</li><li>可恢复性：初始化时从本地存储恢复登录态</li><li>状态结构</li><li>user：当前用户对象或空</li><li>isAuthenticated：布尔值，表示登录态</li><li>loading：布尔值，表示登录请求进行中</li><li>error：字符串或空，表示最近一次错误</li><li>动作实现要点</li><li>login(username, password)：设置加载状态，模拟异步验证，成功写入本地存储并更新状态，失败设置错误信息</li><li>logout()：移除本地存储并清空认证状态</li><li>initialize()：从本地存储读取用户信息并恢复登录态</li><li>订阅模式</li><li>组件通过选择器订阅所需字段，例如 LoginForm 订阅 login、loading、error；DashboardPage 订阅 user、logout；ProtectedRoute 订阅 isAuthenticated</li></ul>
+<div class="mermaid">classDiagram
+class useAuthStore {
++object user
++boolean isAuthenticated
++boolean loading
++string error
++login(username, password) Promise
++logout() void
++initialize() void
+}</div>
+<p>图表来源
+<ul><li><a href="file://src/store/authStore.js#L1-L44">authStore.js:1-44</a></li></ul></p>
+<p>章节来源
+<ul><li><a href="file://src/store/authStore.js#L1-L44">authStore.js:1-44</a></li></ul></p>
+<h3>登录流程（序列图）</h3>
+展示从用户提交表单到登录完成的完整状态流转。
+<div class="mermaid">sequenceDiagram
+participant U as "用户"
+participant LF as "LoginForm"
+participant AS as "useAuthStore"
+participant LS as "localStorage"
+U->>LF : 提交登录表单
+LF->>AS : 调用 login(username,password)
+AS->>AS : 设置 loading=true, 清空 error
+AS->>AS : 模拟异步验证
+alt 验证成功
+AS->>LS : 写入用户信息
+AS->>AS : 更新 user/isAuthenticated, 设置 loading=false, error=null
+LF-->>U : 导航到仪表板
+else 验证失败
+AS->>AS : 设置 loading=false, error="用户名或密码错误"
+LF-->>U : 展示错误信息
+end</div>
+<p>图表来源
+<ul><li><a href="file://src/components/LoginForm.jsx#L1-L78">LoginForm.jsx:1-78</a></li><li><a href="file://src/store/authStore.js#L1-L44">authStore.js:1-44</a></li></ul></p>
+<p>章节来源
+<ul><li><a href="file://src/components/LoginForm.jsx#L1-L78">LoginForm.jsx:1-78</a></li><li><a href="file://src/store/authStore.js#L1-L44">authStore.js:1-44</a></li></ul></p>
+<h3>登出流程（序列图）</h3>
+展示登出时的状态清理与导航。
+<div class="mermaid">sequenceDiagram
+participant U as "用户"
+participant DP as "DashboardPage"
+participant AS as "useAuthStore"
+participant LS as "localStorage"
+U->>DP : 点击退出登录
+DP->>AS : 调用 logout()
+AS->>LS : 移除用户信息
+AS->>AS : 清空 user/isAuthenticated/error
+DP-->>U : 导航到登录页</div>
+<p>图表来源
+<ul><li><a href="file://src/pages/DashboardPage.jsx#L1-L57">DashboardPage.jsx:1-57</a></li><li><a href="file://src/store/authStore.js#L1-L44">authStore.js:1-44</a></li></ul></p>
+<p>章节来源
+<ul><li><a href="file://src/pages/DashboardPage.jsx#L1-L57">DashboardPage.jsx:1-57</a></li><li><a href="file://src/store/authStore.js#L1-L44">authStore.js:1-44</a></li></ul></p>
+<h3>初始化与状态恢复（流程图）</h3>
+展示应用启动时如何从本地存储恢复登录态。
+<div class="mermaid">flowchart TD
+Start(["应用启动"]) --> CallInit["调用 initialize()"]
+CallInit --> ReadLS["读取本地存储中的用户信息"]
+ReadLS --> HasUser{"存在用户信息？"}
+HasUser --> |是| Restore["设置 user/isAuthenticated"]
+HasUser --> |否| End(["结束"])
+Restore --> End</div>
+<p>图表来源
+<ul><li><a href="file://src/App.jsx#L1-L44">App.jsx:1-44</a></li><li><a href="file://src/store/authStore.js#L1-L44">authStore.js:1-44</a></li></ul></p>
+<p>章节来源
+<ul><li><a href="file://src/App.jsx#L1-L44">App.jsx:1-44</a></li><li><a href="file://src/store/authStore.js#L1-L44">authStore.js:1-44</a></li></ul></p>
+<h3>受保护路由（流程图）</h3>
+展示受保护页面的访问控制逻辑。
+<div class="mermaid">flowchart TD
+Enter(["进入受保护路由"]) --> CheckAuth["读取 isAuthenticated"]
+CheckAuth --> AuthOK{"已认证？"}
+AuthOK --> |是| Allow["放行子组件"]
+AuthOK --> |否| Redirect["重定向到登录页"]</div>
+<p>图表来源
+<ul><li><a href="file://src/routes/ProtectedRoute.jsx#L1-L15">ProtectedRoute.jsx:1-15</a></li><li><a href="file://src/store/authStore.js#L1-L44">authStore.js:1-44</a></li></ul></p>
+<p>章节来源
+<ul><li><a href="file://src/routes/ProtectedRoute.jsx#L1-L15">ProtectedRoute.jsx:1-15</a></li><li><a href="file://src/store/authStore.js#L1-L44">authStore.js:1-44</a></li></ul></p>
+<h2>依赖分析</h2>
+<ul><li>外部依赖</li><li>Zustand：提供轻量状态容器与动作函数</li><li>react-router-dom：提供路由与导航能力</li><li>react-hook-form + zod：提供表单校验与错误提示</li><li>内部依赖关系</li><li>LoginForm 依赖 useAuthStore 的 login 动作</li><li>DashboardPage 依赖 useAuthStore 的 user 与 logout 动作</li><li>ProtectedRoute 依赖 useAuthStore 的 isAuthenticated</li><li>App 在启动时调用 useAuthStore 的 initialize 动作</li></ul>
+<div class="mermaid">graph LR
+ZUSTAND["zustand"] --> AUTH["authStore.js"]
+ROUTER["react-router-dom"] --> APP["App.jsx"]
+ROUTER --> LOGIN</em>PAGE["LoginPage.jsx"]
+ROUTER --> DASHBOARD<em>PAGE["DashboardPage.jsx"]
+ROUTER --> PROTECT["ProtectedRoute.jsx"]
+FORM["react-hook-form + zod"] --> LOGIN</em>FORM["LoginForm.jsx"]
+LOGIN<em>FORM --> AUTH
+DASHBOARD</em>PAGE --> AUTH
+PROTECT --> AUTH
+APP --> AUTH</div>
+<p>图表来源
+<ul><li><a href="file://package.json#L12-L31">package.json:12-31</a></li><li><a href="file://src/store/authStore.js#L1-L44">authStore.js:1-44</a></li><li><a href="file://src/components/LoginForm.jsx#L1-L78">LoginForm.jsx:1-78</a></li><li><a href="file://src/pages/DashboardPage.jsx#L1-L57">DashboardPage.jsx:1-57</a></li><li><a href="file://src/routes/ProtectedRoute.jsx#L1-L15">ProtectedRoute.jsx:1-15</a></li><li><a href="file://src/App.jsx#L1-L44">App.jsx:1-44</a></li></ul></p>
+<p>章节来源
+<ul><li><a href="file://package.json#L12-L31">package.json:12-31</a></li><li><a href="file://src/store/authStore.js#L1-L44">authStore.js:1-44</a></li></ul></p>
+<h2>性能考虑</h2>
+<ul><li>选择器订阅</li><li>组件仅订阅所需字段，避免不必要的重渲染</li><li>将选择器提取为稳定引用可进一步降低重渲染风险</li><li>异步动作</li><li>login 动作内部设置 loading 与错误，避免组件重复处理状态</li><li>使用 Promise 返回值简化调用端逻辑</li><li>本地存储</li><li>初始化时一次性读取，避免频繁 IO</li><li>登录成功后写入本地存储，便于刷新后恢复</li><li>路由守卫</li><li>受保护路由仅订阅 isAuthenticated，保证判断逻辑轻量</li></ul>
+<h2>故障排查指南</h2>
+<ul><li>登录失败</li><li>检查登录动作是否正确设置 loading 与 error</li><li>确认表单校验规则与错误提示显示正常</li><li>无法进入受保护页面</li><li>检查 isAuthenticated 是否被正确更新</li><li>确认 App 启动时已调用 initialize</li><li>刷新后未保持登录态</li><li>检查本地存储中是否存在用户信息</li><li>确认 initialize 动作已从本地存储恢复状态</li><li>登出后仍可访问受保护页面</li><li>检查 logout 动作是否清除本地存储并清空认证状态</li></ul>
+<p>章节来源
+<ul><li><a href="file://src/store/authStore.js#L1-L44">authStore.js:1-44</a></li><li><a href="file://src/components/LoginForm.jsx#L1-L78">LoginForm.jsx:1-78</a></li><li><a href="file://src/routes/ProtectedRoute.jsx#L1-L15">ProtectedRoute.jsx:1-15</a></li><li><a href="file://src/App.jsx#L1-L44">App.jsx:1-44</a></li></ul></p>
+<h2>结论</h2>
+本项目以 Zustand 为核心，构建了简洁高效的认证状态管理方案。通过明确的状态结构、清晰的动作边界与本地存储持久化，实现了登录、登出与状态恢复的完整闭环。配合受保护路由与表单校验，提供了良好的用户体验与可维护性。建议在后续扩展中引入更细粒度的选择器与中间件，以进一步提升性能与可观测性。
+<h2>附录</h2>
+<ul><li>最佳实践</li><li>将状态与动作分离，保持容器职责单一</li><li>使用选择器订阅最小必要状态，避免全量订阅</li><li>在动作中集中处理副作用（如本地存储、导航），保持组件纯净</li><li>对异步动作提供统一的加载与错误处理模式</li><li>扩展方向</li><li>引入中间件记录状态变更日志</li><li>将本地存储封装为独立服务，便于替换与测试</li><li>为复杂场景引入派生状态与批量更新工具</li></ul>
+      </article>
+      
+      <footer class="page-footer">
+        <p>React Login App 项目文档</p>
+      </footer>
+    </main>
+  </div>
+  
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true
+      }
+    });
+  </script>
+</body>
+</html>
