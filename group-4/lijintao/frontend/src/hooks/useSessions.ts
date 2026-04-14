@@ -20,8 +20,8 @@ export function useSessions() {
     setError(null);
     try {
       const response = await sessionApi.list(page, pageSize);
-      setSessions(response.data.items);
-      return response.data.items;
+      setSessions(response.data.sessions);
+      return response.data.sessions;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '获取会话列表失败';
       setError(errorMessage);

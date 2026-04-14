@@ -2,7 +2,7 @@ import { apiClient } from './api';
 import { Session, ApiResponse } from '@/types';
 
 interface SessionsResponse {
-  items: Session[];
+  sessions: Session[];
   total: number;
   page: number;
   page_size: number;

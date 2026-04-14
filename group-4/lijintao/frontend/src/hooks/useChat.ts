@@ -155,8 +155,8 @@ export function useChat(sessionId: number) {
 
     try {
       const response = await messageApi.getMessages(sessionId, page, pageSize);
-      setMessages(response.data.items);
-      return response.data.items;
+      setMessages(response.data.messages);
+      return response.data.messages;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '获取消息失败';
       setError(errorMessage);

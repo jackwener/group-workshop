@@ -4,7 +4,7 @@ import { Message, ApiResponse } from '@/types';
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 interface MessagesResponse {
-  items: Message[];
+  messages: Message[];
   total: number;
   page: number;
   page_size: number;

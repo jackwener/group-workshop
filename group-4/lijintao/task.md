@@ -36,14 +36,19 @@
 
 #### Task 1: 全栈项目初始化（2h）
 
-- **后端**: FastAPI + SQLite + SQLAlchemy + Pydantic
-- **前端**: `npx create-next-app` + Tailwind CSS + shadcn/ui
+- **后端**: FastAPI + SQLite + SQLAlchemy（同步模式） + Pydantic
+  - 配置 CORS middleware（允许 localhost:3000）
+  - 创建 `.env` 文件（`OPENAI_API_KEY`、`DATABASE_URL`）
+- **前端**: `npx create-next-app` + Tailwind CSS + shadcn/ui + Vercel AI SDK
+  - 创建 `.env.local`（`NEXT_PUBLIC_API_URL=http://localhost:8000`）
+- **注意**: MVP 阶段后端使用同步模式（非 async），P1 迁移 PG 时切换 async
 - **DoD**:
   - [ ] `uvicorn main:app --reload` 可启动
   - [ ] `npm run dev` 可启动
-  - [ ] 前端可请求后端 `/api/v1/health`
+  - [ ] 前端可跨域请求后端 `/api/v1/health`
+  - [ ] `.env` 配置完整，API Key 可用
 
-#### Task 2: 数据模型 + 会话 API（3h）
+#### Task 2: 数据模型 + 会话 API（2h）
 
 - 2 张表：`sessions`、`messages`（User 表 MVP 跳过，硬编码 user_id）
 - API 实现：
@@ -83,22 +88,21 @@
 
 #### Task 5: 前端消息展示 + 流式渲染（3h）
 
+- 使用 **Vercel AI SDK** 的 `useChat` hook（开箱即用 SSE 解析 + 状态管理）
 - MessageList 组件：
   - 用户消息（右侧蓝色气泡）
   - AI 消息（左侧白色气泡）
-  - Markdown 渲染支持
+  - Markdown 渲染（react-markdown）
 - InputArea 组件：
   - 文本输入框 + 发送按钮
   - Enter 发送 / Shift+Enter 换行
-- SSE 流式渲染：
-  - EventSource 接收流式数据
-  - 逐字显示 AI 回复
-  - 打字机效果
+- 流式渲染由 `useChat` 自动处理，无需手写 EventSource
+- **注意**: 后端 SSE 格式需兼容 Vercel AI SDK 协议（或使用自定义 fetch）
 - **DoD**:
   - [ ] 完整链路：输入 → 流式显示 AI 回答
   - [ ] 切换会话可加载历史消息
 
-#### Task 6: MVP 联调与打磨（1h）
+#### Task 6: MVP 联调与打磨（2h）
 
 - 前后端联调修 bug
 - 基础样式调整（南方基金配色 `#004098` / `#E72521`）
@@ -112,32 +116,33 @@
 
 ## P1 任务（Day 3-5，体验提升）
 
-#### Task 7: 多 LLM Provider + 降级策略（4h）
+#### Task 7: 数据库迁移 SQLite → PostgreSQL（2h）
+
+- 配置 PostgreSQL + asyncpg（后端切换到 async 模式）
+- 配置 Alembic 迁移工具
+- 数据迁移脚本
+- **注意**: 此任务是 Task 9（搜索）的前置依赖
+- **关联 Spec**: `10` §DDL
+
+#### Task 8: 多 LLM Provider + 降级策略（4h）
 
 - Provider 抽象接口 + 工厂模式
 - 降级链：Azure OpenAI → OpenAI → Claude → 本地模型
 - 降级时前端显示橙色标签提示
 - **关联 Spec**: `08` §LLM 集成、`07` §1.3 降级策略
 
-#### Task 8: 历史消息分页加载（3h）
+#### Task 9: 历史消息分页加载（3h）
 
 - 游标分页（cursor-based pagination）
 - 前端滚动到顶部自动加载更多
 - **关联 Spec**: `09` §3.3 消息接口
 
-#### Task 9: 全文搜索功能（4h）
+#### Task 10: 全文搜索功能（4h）
 
-- 迁移到 PostgreSQL + tsvector 全文搜索
+- PostgreSQL tsvector 全文搜索（依赖 Task 7 PG 迁移）
 - `GET /api/v1/sessions/search` 搜索接口
 - 前端搜索框 + 结果高亮显示
 - **关联 Spec**: `09` §3.4 历史搜索接口
-
-#### Task 10: 数据库迁移 SQLite → PostgreSQL（2h）
-
-- 配置 PostgreSQL + asyncpg
-- 配置 Alembic 迁移工具
-- 数据迁移脚本
-- **关联 Spec**: `10` §DDL
 
 #### Task 11: 健康检查 + 状态指示器（2h）
 
@@ -187,16 +192,16 @@
 
 | 优先级 | 任务ID | 任务名称 | 预估 | 状态 |
 |--------|--------|----------|------|------|
-| **MVP** | T1 | 全栈项目初始化 | 2h | 未开始 |
-| **MVP** | T2 | 数据模型 + 会话 API | 3h | 未开始 |
+| **MVP** | T1 | 全栈项目初始化 + env 配置 | 2h | 未开始 |
+| **MVP** | T2 | 数据模型 + 会话 API | 2h | 未开始 |
 | **MVP** | T3 | 前端布局 + 会话侧栏 | 3h | 未开始 |
 | **MVP** | T4 | LLM 集成 + 消息 API | 4h | 未开始 |
-| **MVP** | T5 | 前端消息展示 + 流式渲染 | 3h | 未开始 |
-| **MVP** | T6 | MVP 联调与打磨 | 1h | 未开始 |
-| P1 | T7 | 多 Provider + 降级策略 | 4h | 未开始 |
-| P1 | T8 | 历史消息分页加载 | 3h | 未开始 |
-| P1 | T9 | 全文搜索功能 | 4h | 未开始 |
-| P1 | T10 | 迁移到 PostgreSQL | 2h | 未开始 |
+| **MVP** | T5 | 前端消息展示 + 流式渲染(useChat) | 3h | 未开始 |
+| **MVP** | T6 | MVP 联调与打磨 | 2h | 未开始 |
+| P1 | T7 | 迁移到 PostgreSQL + async | 2h | 未开始 |
+| P1 | T8 | 多 Provider + 降级策略 | 4h | 未开始 |
+| P1 | T9 | 历史消息分页加载 | 3h | 未开始 |
+| P1 | T10 | 全文搜索功能(依赖T7) | 4h | 未开始 |
 | P1 | T11 | 健康检查 + 状态指示器 | 2h | 未开始 |
 | P2 | T12 | 安全加固 | 4h | 未开始 |
 | P2 | T13 | 性能优化 | 4h | 未开始 |
