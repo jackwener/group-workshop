@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>包依赖管理 - React Login App 文档</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>📚 项目文档</h1>
+      </div>
+      <nav class="sidebar-nav">
+        <ul><li><a href="项目概述.html">项目概述</a></li><li><a href="快速开始.html">快速开始</a></li><li class="has-submenu"><span class="submenu-title">架构设计</span><ul class="submenu"><li><a href="架构设计/组件架构.html">组件架构</a></li><li><a href="架构设计/状态管理.html">状态管理</a></li><li><a href="架构设计/路由系统.html">路由系统</a></li><li><a href="架构设计/构建配置.html">构建配置</a></li></ul></li><li class="has-submenu"><span class="submenu-title">认证系统</span><ul class="submenu"><li><a href="认证系统/认证状态管理.html">认证状态管理</a></li><li><a href="认证系统/登录表单验证.html">登录表单验证</a></li><li><a href="认证系统/路由保护机制.html">路由保护机制</a></li><li><a href="认证系统/认证流程详解.html">认证流程详解</a></li></ul></li><li><a href="仪表板功能.html">仪表板功能</a></li><li class="has-submenu"><span class="submenu-title">俄罗斯方块游戏</span><ul class="submenu"><li><a href="俄罗斯方块游戏/游戏引擎核心.html">游戏引擎核心</a></li><li><a href="俄罗斯方块游戏/方块系统.html">方块系统</a></li><li><a href="俄罗斯方块游戏/物理机制.html">物理机制</a></li><li><a href="俄罗斯方块游戏/输入处理.html">输入处理</a></li><li><a href="俄罗斯方块游戏/界面渲染.html">界面渲染</a></li><li><a href="俄罗斯方块游戏/游戏状态管理.html">游戏状态管理</a></li></ul></li><li class="has-submenu"><span class="submenu-title">开发工具配置</span><ul class="submenu"><li><a href="开发工具配置/Vite 构建配置.html">Vite 构建配置</a></li><li><a href="开发工具配置/ESLint 代码规范.html">ESLint 代码规范</a></li><li><a href="开发工具配置/包依赖管理.html">包依赖管理</a></li><li><a href="开发工具配置/版本控制忽略规则.html">版本控制忽略规则</a></li></ul></li><li><a href="样式系统.html">样式系统</a></li><li><a href="部署指南.html">部署指南</a></li></ul>
+      </nav>
+    </aside>
+    
+    <main class="main-content">
+      <div class="breadcrumb">
+        <a href="index.html">首页</a> / <span>开发工具配置\包依赖管理</span>
+      </div>
+      
+      <article class="content">
+        <h1>包依赖管理</h1>
+<div class="cite-block">
+<strong>本文引用的文件</strong>
+<ul><li><a href="file://package.json">package.json</a></li><li><a href="file://package-lock.json">package-lock.json</a></li><li><a href="file://vite.config.js">vite.config.js</a></li><li><a href="file://eslint.config.js">eslint.config.js</a></li><li><a href="file://README.md">README.md</a></li><li><a href="file://src/App.jsx">src/App.jsx</a></li><li><a href="file://src/main.jsx">src/main.jsx</a></li><li><a href="file://src/components/LoginForm.jsx">src/components/LoginForm.jsx</a></li><li><a href="file://src/store/authStore.js">src/store/authStore.js</a></li><li><a href="file://src/routes/ProtectedRoute.jsx">src/routes/ProtectedRoute.jsx</a></li><li><a href="file://src/pages/LoginPage.jsx">src/pages/LoginPage.jsx</a></li><li><a href="file://index.html">index.html</a></li><li><a href="file://.gitignore">.gitignore</a></li></ul>
+</div>
+<h2>目录</h2>
+1. <a href="#简介">简介</a>
+2. <a href="#项目结构">项目结构</a>
+3. <a href="#核心组件">核心组件</a>
+4. <a href="#架构总览">架构总览</a>
+5. <a href="#详细组件分析">详细组件分析</a>
+6. <a href="#依赖关系分析">依赖关系分析</a>
+7. <a href="#性能考量">性能考量</a>
+8. <a href="#故障排查指南">故障排查指南</a>
+9. <a href="#结论">结论</a>
+10. <a href="#附录">附录</a>
+<h2>简介</h2>
+本指南围绕 React 登录应用的包依赖管理展开，系统讲解 package.json 中的脚本命令、依赖声明与版本管理策略；深入剖析开发依赖与生产依赖的区别、版本锁定机制与依赖树优化；阐述 npm 脚本命令的使用方法、构建流程自动化与开发工作流配置；提供依赖更新策略、安全漏洞扫描与版本兼容性管理建议；涵盖项目初始化、依赖安装优化与团队协作最佳实践，并解释 package-lock.json 的作用、版本锁定机制与部署一致性保障。
+<h2>项目结构</h2>
+该 React 应用采用 Vite 作为构建工具，ESLint 进行代码质量控制，使用 React Router 实现路由保护，Zustand 管理状态，配合 Zod 和 react-hook-form 完成表单校验与状态绑定。项目通过 package.json 统一管理脚本与依赖，vite.config.js 配置 React 插件，eslint.config.js 提供扁平化配置，README.md 提供模板说明与扩展建议。
+<div class="mermaid">graph TB
+subgraph "前端源码"
+A["src/main.jsx"]
+B["src/App.jsx"]
+C["src/pages/LoginPage.jsx"]
+D["src/components/LoginForm.jsx"]
+E["src/routes/ProtectedRoute.jsx"]
+F["src/store/authStore.js"]
+end
+subgraph "构建与配置"
+G["vite.config.js"]
+H["eslint.config.js"]
+I["index.html"]
+end
+subgraph "包管理"
+J["package.json"]
+K["package-lock.json"]
+L[".gitignore"]
+end
+A --> B
+B --> C
+B --> E
+C --> D
+E --> F
+A --> I
+G --> A
+H --> D
+J --> G
+J --> H
+K --> J
+L --> J</div>
+<p>图表来源
+<ul><li><a href="file://src/main.jsx#L1-L11">src/main.jsx:1-11</a></li><li><a href="file://src/App.jsx#L1-L44">src/App.jsx:1-44</a></li><li><a href="file://src/pages/LoginPage.jsx#L1-L18">src/pages/LoginPage.jsx:1-18</a></li><li><a href="file://src/components/LoginForm.jsx#L1-L78">src/components/LoginForm.jsx:1-78</a></li><li><a href="file://src/routes/ProtectedRoute.jsx#L1-L15">src/routes/ProtectedRoute.jsx:1-15</a></li><li><a href="file://src/store/authStore.js#L1-L44">src/store/authStore.js:1-44</a></li><li><a href="file://vite.config.js#L1-L8">vite.config.js:1-8</a></li><li><a href="file://eslint.config.js#L1-L30">eslint.config.js:1-30</a></li><li><a href="file://index.html#L1-L14">index.html:1-14</a></li><li><a href="file://package.json#L1-L33">package.json:1-33</a></li><li><a href="file://package-lock.json#L1-L800">package-lock.json:1-800</a></li><li><a href="file://.gitignore#L1-L25">.gitignore:1-25</a></li></ul></p>
+<p>章节来源
+<ul><li><a href="file://package.json#L1-L33">package.json:1-33</a></li><li><a href="file://vite.config.js#L1-L8">vite.config.js:1-8</a></li><li><a href="file://eslint.config.js#L1-L30">eslint.config.js:1-30</a></li><li><a href="file://README.md#L1-L17">README.md:1-17</a></li><li><a href="file://index.html#L1-L14">index.html:1-14</a></li><li><a href="file://.gitignore#L1-L25">.gitignore:1-25</a></li></ul></p>
+<h2>核心组件</h2>
+<ul><li>构建与脚本</li><li>开发服务器：dev</li><li>生产构建：build</li><li>代码检查：lint</li><li>预览构建：preview</li><li>依赖与版本</li><li>生产依赖：React 生态、路由、表单与状态管理等</li><li>开发依赖：Vite、ESLint 及其插件、类型定义等</li><li>工作流配置</li><li>Vite 插件：@vitejs/plugin-react</li><li>ESLint 扁平化配置：推荐规则、hooks 规则、刷新规则、浏览器全局</li></ul>
+<p>章节来源
+<ul><li><a href="file://package.json#L6-L11">package.json:6-11</a></li><li><a href="file://package.json#L12-L20">package.json:12-20</a></li><li><a href="file://package.json#L21-L31">package.json:21-31</a></li><li><a href="file://vite.config.js#L1-L8">vite.config.js:1-8</a></li><li><a href="file://eslint.config.js#L1-L30">eslint.config.js:1-30</a></li></ul></p>
+<h2>架构总览</h2>
+下图展示从脚本到构建、从配置到运行的整体流程，体现 package.json 脚本如何驱动 Vite 与 ESLint，以及应用入口如何组织路由与状态。
+<div class="mermaid">sequenceDiagram
+participant Dev as "开发者"
+participant NPM as "npm 脚本"
+participant Vite as "Vite 构建器"
+participant ESLint as "ESLint"
+participant Browser as "浏览器"
+Dev->>NPM : 运行 "dev"
+NPM->>Vite : 启动开发服务器
+Vite-->>Browser : 提供 HMR 与静态资源
+Dev->>NPM : 运行 "build"
+NPM->>Vite : 生成生产包
+Vite-->>Dev : 输出 dist 目录
+Dev->>NPM : 运行 "lint"
+NPM->>ESLint : 扫描代码
+ESLint-->>Dev : 输出报告
+Dev->>NPM : 运行 "preview"
+NPM->>Vite : 预览生产包
+Vite-->>Browser : 展示构建产物</div>
+<p>图表来源
+<ul><li><a href="file://package.json#L6-L11">package.json:6-11</a></li><li><a href="file://vite.config.js#L1-L8">vite.config.js:1-8</a></li><li><a href="file://eslint.config.js#L1-L30">eslint.config.js:1-30</a></li></ul></p>
+<h2>详细组件分析</h2>
+<h3>1) package.json 脚本命令与依赖管理</h3>
+<ul><li>脚本命令</li><li>dev：启动 Vite 开发服务器，支持热更新与快速预览</li><li>build：调用 Vite 进行生产构建，输出 dist 目录</li><li>lint：执行 ESLint 对项目进行静态检查</li><li>preview：在本地预览生产构建结果</li><li>依赖声明</li><li>生产依赖：React、React DOM、React Router DOM、Zustand、react-hook-form、@hookform/resolvers、Zod</li><li>开发依赖：Vite、@vitejs/plugin-react、ESLint、@eslint/js、eslint-plugin-react-hooks、eslint-plugin-react-refresh、@types/react、@types/react-dom、globals</li><li>版本策略</li><li>使用语义化版本范围（^）以允许补丁与次版本更新，平衡稳定性与新特性</li><li>通过 package-lock.json 锁定具体版本，确保团队与 CI/CD 一致性</li></ul>
+<p>章节来源
+<ul><li><a href="file://package.json#L6-L11">package.json:6-11</a></li><li><a href="file://package.json#L12-L20">package.json:12-20</a></li><li><a href="file://package.json#L21-L31">package.json:21-31</a></li></ul></p>
+<h3>2) 开发依赖与生产依赖的区别</h3>
+<ul><li>生产依赖</li><li>运行期必需：React、React DOM、路由、状态管理、表单与校验库</li><li>影响最终包体积与运行时行为</li><li>开发依赖</li><li>构建期与开发期使用：Vite、ESLint、类型定义、React 插件</li><li>不随应用打包进入生产环境，降低生产包体积</li><li>最佳实践</li><li>将仅用于构建或开发的工具放入 devDependencies</li><li>严格区分运行时与构建时依赖，避免污染生产环境</li></ul>
+<p>章节来源
+<ul><li><a href="file://package.json#L12-L20">package.json:12-20</a></li><li><a href="file://package.json#L21-L31">package.json:21-31</a></li></ul></p>
+<h3>3) 版本锁定机制与依赖树优化</h3>
+<ul><li>package-lock.json 的作用</li><li>锁定所有依赖的确切版本，确保不同环境安装一致</li><li>记录依赖树结构，避免因版本范围导致的不一致</li><li>依赖树优化</li><li>合理使用 ^ 与 ~，优先允许安全更新</li><li>定期清理未使用的依赖，减少包体积与安全风险</li><li>使用 npm ls 查看依赖树，识别重复或冲突模块</li><li>部署一致性</li><li>CI/CD 使用 npm ci（基于锁文件）替代 npm install，提升速度与一致性</li><li>在 .gitignore 中忽略 node<em>modules，仅提交 package-lock.json</li></ul>
+<p>章节来源
+<ul><li><a href="file://package-lock.json#L1-L800">package-lock.json:1-800</a></li><li><a href="file://.gitignore#L10">.gitignore:10</a></li></ul></p>
+<h3>4) npm 脚本命令与构建流程自动化</h3>
+<ul><li>命令解析</li><li>dev：由 Vite 提供 HMR 与开发服务器</li><li>build：Vite 执行打包，生成静态资源</li><li>lint：ESLint 扫描代码风格与潜在问题</li><li>preview：本地预览生产构建效果</li><li>自动化建议</li><li>在 CI 中集成 lint 与构建步骤，失败即阻断合并</li><li>使用 pre-commit 钩子自动执行 lint 与格式化，减少代码审查负担</li></ul>
+<p>章节来源
+<ul><li><a href="file://package.json#L6-L11">package.json:6-11</a></li><li><a href="file://eslint.config.js#L1-L30">eslint.config.js:1-30</a></li></ul></p>
+<h3>5) 开发工作流配置</h3>
+<ul><li>Vite 配置</li><li>通过 @vitejs/plugin-react 加速开发体验</li><li>支持 Oxc 解析器，提升性能与兼容性</li><li>ESLint 配置</li><li>推荐规则、React Hooks 规则、React Refresh 规则</li><li>浏览器全局变量启用，适配前端开发场景</li><li>忽略 dist 目录，避免对构建产物进行检查</li></ul>
+<p>章节来源
+<ul><li><a href="file://vite.config.js#L1-L8">vite.config.js:1-8</a></li><li><a href="file://eslint.config.js#L1-L30">eslint.config.js:1-30</a></li><li><a href="file://README.md#L7-L16">README.md:7-16</a></li></ul></p>
+<h3>6) 依赖更新策略与版本兼容性管理</h3>
+<ul><li>更新策略</li><li>先更新 devDependencies，再更新生产依赖</li><li>使用 npm outdated 检查过期依赖，按风险排序升级</li><li>分批升级，结合单元测试与端到端测试验证兼容性</li><li>兼容性管理</li><li>关注 React 与 React DOM 的主版本一致性</li><li>路由、表单与状态管理库需保持生态链版本匹配</li><li>安全扫描</li><li>使用 npm audit 或第三方工具定期扫描安全漏洞</li><li>结合 CI 自动化扫描，阻断高危依赖合并</li></ul>
+<p>章节来源
+<ul><li><a href="file://package.json#L12-L31">package.json:12-31</a></li><li><a href="file://README.md#L10-L16">README.md:10-16</a></li></ul></p>
+<h3>7) 项目初始化与依赖安装优化</h3>
+<ul><li>初始化要点</li><li>明确脚本命令与构建目标，统一团队约定</li><li>在 README 中记录模板特性与扩展建议</li><li>安装优化</li><li>使用 npm ci 进行生产环境安装，确保一致性</li><li>在 CI 中缓存 node</em>modules 或使用 package-lock 缓存策略</li><li>合理拆分依赖，避免一次性安装过多包</li></ul>
+<p>章节来源
+<ul><li><a href="file://README.md#L1-L17">README.md:1-17</a></li><li><a href="file://package.json#L6-L11">package.json:6-11</a></li></ul></p>
+<h3>8) 团队协作最佳实践</h3>
+<ul><li>规范与工具</li><li>统一 ESLint 规则与 Prettier 配置，减少风格分歧</li><li>在 PR 中强制执行 lint 与构建检查</li><li>依赖治理</li><li>建立依赖审批流程，避免引入高风险或过时库</li><li>定期回顾依赖树，移除不再使用的库</li><li>文档与沟通</li><li>在 README 中说明模板特性与扩展路径</li><li>在变更日志中标注重大依赖升级与破坏性变更</li></ul>
+<p>章节来源
+<ul><li><a href="file://eslint.config.js#L1-L30">eslint.config.js:1-30</a></li><li><a href="file://README.md#L14-L16">README.md:14-16</a></li></ul></p>
+<h3>9) 应用层依赖与数据流（代码级）</h3>
+<ul><li>登录流程</li><li>LoginForm 使用 react-hook-form 与 Zod 进行表单校验</li><li>调用 Zustand 的 authStore.login 执行登录逻辑</li><li>成功后通过 React Router 导航至仪表盘</li><li>路由保护</li><li>ProtectedRoute 读取认证状态，未认证则重定向至登录页</li><li>状态初始化</li><li>App 在挂载时调用 authStore.initialize，从 localStorage 恢复会话</li></ul>
+<div class="mermaid">sequenceDiagram
+participant U as "用户"
+participant LF as "LoginForm"
+participant Z as "Zod Schema"
+participant HF as "react-hook-form"
+participant AS as "authStore(Zustand)"
+participant RR as "React Router"
+participant PR as "ProtectedRoute"
+U->>LF : 输入用户名/密码并提交
+LF->>HF : 触发表单提交
+HF->>Z : 使用 zodResolver 校验
+Z-->>HF : 返回校验结果
+HF-->>LF : 校验通过
+LF->>AS : 调用 login(username,password)
+AS-->>LF : 返回登录结果
+LF->>RR : 登录成功后导航到 /dashboard
+U->>PR : 访问受保护页面
+PR->>AS : 读取 isAuthenticated
+AS-->>PR : 返回认证状态
+PR-->>U : 放行或重定向到 /login</div>
+<p>图表来源
+<ul><li><a href="file://src/components/LoginForm.jsx#L1-L78">src/components/LoginForm.jsx:1-78</a></li><li><a href="file://src/store/authStore.js#L1-L44">src/store/authStore.js:1-44</a></li><li><a href="file://src/routes/ProtectedRoute.jsx#L1-L15">src/routes/ProtectedRoute.jsx:1-15</a></li><li><a href="file://src/App.jsx#L1-L44">src/App.jsx:1-44</a></li></ul></p>
+<p>章节来源
+<ul><li><a href="file://src/components/LoginForm.jsx#L1-L78">src/components/LoginForm.jsx:1-78</a></li><li><a href="file://src/store/authStore.js#L1-L44">src/store/authStore.js:1-44</a></li><li><a href="file://src/routes/ProtectedRoute.jsx#L1-L15">src/routes/ProtectedRoute.jsx:1-15</a></li><li><a href="file://src/App.jsx#L1-L44">src/App.jsx:1-44</a></li></ul></p>
+<h2>依赖关系分析</h2>
+<ul><li>直接依赖</li><li>生产依赖：react、react-dom、react-router-dom、zustand、react-hook-form、@hookform/resolvers、zod</li><li>开发依赖：vite、@vitejs/plugin-react、eslint、@eslint/js、eslint-plugin-react-hooks、eslint-plugin-react-refresh、@types/react、@types/react-dom、globals</li><li>间接依赖</li><li>通过生产与开发依赖传递引入的大量子依赖，详见 package-lock.json</li><li>依赖树可视化（节选）</li></ul>
+<div class="mermaid">graph TB
+PJ["package.json"]
+V8["vite@^8.0.4"]
+VR["@vitejs/plugin-react@^6.0.1"]
+ES["eslint@^9.39.4"]
+EJ["@eslint/js@^9.39.4"]
+ERH["eslint-plugin-react-hooks@^7.0.1"]
+ERR["eslint-plugin-react-refresh@^0.5.2"]
+TS["globals@^17.4.0"]
+PJ --> V8
+PJ --> VR
+PJ --> ES
+PJ --> EJ
+PJ --> ERH
+PJ --> ERR
+PJ --> TS</div>
+<p>图表来源
+<ul><li><a href="file://package.json#L21-L31">package.json:21-31</a></li></ul></p>
+<p>章节来源
+<ul><li><a href="file://package.json#L12-L31">package.json:12-31</a></li><li><a href="file://package-lock.json#L1-L800">package-lock.json:1-800</a></li></ul></p>
+<h2>性能考量</h2>
+<ul><li>构建性能</li><li>使用 Vite 的原生 ESM 与插件体系，减少打包时间</li><li>在 README 中明确 React Compiler 默认关闭，避免影响开发与构建性能</li><li>运行性能</li><li>合理拆分依赖，避免一次性加载过多模块</li><li>使用 Zustand 精简状态管理，减少不必要的渲染</li><li>开发体验</li><li>HMR 与快速预览缩短反馈周期</li><li>ESLint 扁平化配置减少规则冲突，提升检查效率</li></ul>
+<p>章节来源
+<ul><li><a href="file://README.md#L10-L12">README.md:10-12</a></li><li><a href="file://vite.config.js#L1-L8">vite.config.js:1-8</a></li><li><a href="file://eslint.config.js#L1-L30">eslint.config.js:1-30</a></li></ul></p>
+<h2>故障排查指南</h2>
+<ul><li>常见问题</li><li>依赖安装不一致：确认使用 npm ci 并提交 package-lock.json</li><li>构建失败：检查 Vite 插件与配置是否正确</li><li>ESLint 报错：根据规则调整代码或补充配置</li><li>定位手段</li><li>使用 npm ls 查看依赖树</li><li>使用 npm audit 扫描安全漏洞</li><li>在 CI 中开启 lint 与构建步骤，尽早发现问题</li></ul>
+<p>章节来源
+<ul><li><a href="file://package.json#L6-L11">package.json:6-11</a></li><li><a href="file://eslint.config.js#L1-L30">eslint.config.js:1-30</a></li><li><a href="file://.gitignore#L10">.gitignore:10</a></li></ul></p>
+<h2>结论</h2>
+本指南从脚本命令、依赖声明、版本管理到构建流程与团队协作，全面梳理了 React 登录应用的包依赖管理体系。通过合理划分开发与生产依赖、利用 package-lock.json 保证一致性、结合 ESLint 与 Vite 提升开发与构建效率，并建立依赖更新与安全扫描机制，可有效提升项目的稳定性、可维护性与团队协作效率。
+<h2>附录</h2>
+<ul><li>术语</li><li>语义化版本：主版本.次版本.修订号，遵循 ^ 与 ~ 的范围策略</li><li>锁定文件：package-lock.json 记录精确版本，确保安装一致性</li><li>开发依赖：仅在开发与构建阶段使用，不打入生产包</li><li>生产依赖：运行期必需，随应用一起发布</li><li>参考文件</li><li><a href="file://package.json">package.json</a></li><li><a href="file://package-lock.json">package-lock.json</a></li><li><a href="file://vite.config.js">vite.config.js</a></li><li><a href="file://eslint.config.js">eslint.config.js</a></li><li><a href="file://README.md">README.md</a></li><li><a href="file://index.html">index.html</a></li><li><a href="file://.gitignore">.gitignore</a></li></ul>
+      </article>
+      
+      <footer class="page-footer">
+        <p>React Login App 项目文档</p>
+      </footer>
+    </main>
+  </div>
+  
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true
+      }
+    });
+  </script>
+</body>
+</html>
