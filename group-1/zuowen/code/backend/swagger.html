@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>投研问答助手 — Swagger API 文档</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:"微软雅黑","Microsoft YaHei",Arial,sans-serif;font-size:12pt;color:#000;background:#f4f6fa}
+    .page{max-width:960px;margin:32px auto;background:#fff;padding:48px 56px 64px;box-shadow:0 2px 12px rgba(0,0,0,.1)}
+    h1{font-size:22pt;color:#004098;text-align:center;padding-bottom:10px;border-bottom:3px solid #004098;margin-bottom:6px}
+    .meta{text-align:center;color:#666;font-size:10pt;margin-bottom:32px}
+    h2{font-size:16pt;color:#004098;border-left:4px solid #004098;padding-left:10px;margin:36px 0 14px}
+    h3{font-size:13pt;color:#004098;font-weight:bold;margin:22px 0 8px}
+    h4{font-size:12pt;color:#004098;font-weight:bold;margin:14px 0 6px}
+    p{line-height:1.8;margin-bottom:10px;text-indent:2em}
+    p.ni{text-indent:0}
+    .info{background:#E8F0FE;border-left:4px solid #004098;padding:8px 14px;margin:8px 0 14px;border-radius:0 4px 4px 0;font-size:10.5pt;color:#333;line-height:1.7}
+    table{width:100%;border-collapse:collapse;margin:10px 0 16px;font-size:10.5pt}
+    thead th{background:#E8F0FE;color:#004098;text-align:center;padding:7px 10px;border:1px solid #D0D5DD}
+    tbody td{padding:6px 10px;border:1px solid #D0D5DD;vertical-align:top;line-height:1.5;text-align:left}
+    tbody tr:nth-child(even){background:#F8FAFC}
+    code{font-family:"Courier New",monospace;background:#f4f6fa;border:1px solid #D0D5DD;border-radius:3px;padding:1px 5px;font-size:10pt}
+    pre{background:#1e1e2e;color:#cdd6f4;border-radius:6px;padding:14px 18px;font-family:"Courier New",monospace;font-size:9.5pt;line-height:1.7;overflow-x:auto;margin:8px 0 14px}
+    .b{display:inline-block;font-size:9pt;font-weight:bold;padding:2px 9px;border-radius:3px;color:#fff;vertical-align:middle;letter-spacing:.5px;min-width:58px;text-align:center}
+    .bg{background:#0062CC}.bp{background:#28a745}.bd{background:#dc3545}
+    .ep{border:1px solid #D0D5DD;border-radius:6px;margin-bottom:28px;overflow:hidden}
+    .eh{display:flex;align-items:center;gap:12px;background:#E8F0FE;padding:10px 16px;border-bottom:1px solid #D0D5DD}
+    .eh .pa{font-family:"Courier New",monospace;font-size:12pt;color:#000;font-weight:bold}
+    .eh .su{color:#666;font-size:10.5pt;margin-left:auto}
+    .eb{padding:16px 20px}
+    hr{border:none;border-top:1px solid #D0D5DD;margin:40px 0 20px}
+    .toc{margin:0 0 28px 20px}.toc li{margin:4px 0;font-size:11pt}.toc a{color:#0062CC;text-decoration:none}.toc a:hover{text-decoration:underline}
+    .req{color:#dc3545;font-weight:bold;font-size:9pt}
+    .opt{color:#888;font-size:9pt}
+  </style>
+</head>
+<body>
+<div class="page">
+
+<h1>投研问答助手 — Swagger API 文档</h1>
+<p class="meta">版本 v1.0 &nbsp;|&nbsp; OpenAPI 3.0 &nbsp;|&nbsp; Base URL：<code>/api/v1/agent</code></p>
+
+<h2>一、概述</h2>
+<p>本文档描述投研问答助手后端全部 6 个 REST API 端点，覆盖能力探测、问答提交、会话管理三大功能域。服务采用 Flask 框架，三级降级编排（CoPaw → 百炼 → Demo）。</p>
+<div class="info">
+  <strong>服务地址：</strong><code>http://localhost:5000</code>（开发环境）<br>
+  <strong>接口前缀：</strong><code>/api/v1/agent</code><br>
+  <strong>数据格式：</strong>请求体 &amp; 响应体均为 <code>application/json</code>，UTF-8 编码<br>
+  <strong>CORS：</strong>已启用，允许所有来源跨域访问
+</div>
+
+<h2>二、接口目录</h2>
+<ol class="toc">
+  <li><a href="#ep1"><span class="b bg">GET</span> /capabilities — 能力探测</a></li>
+  <li><a href="#ep2"><span class="b bp">POST</span> /ask — 问答提交</a></li>
+  <li><a href="#ep3"><span class="b bg">GET</span> /sessions — 会话列表</a></li>
+  <li><a href="#ep4"><span class="b bp">POST</span> /sessions — 新建会话</a></li>
+  <li><a href="#ep5"><span class="b bd">DELETE</span> /sessions/{session_id} — 删除会话</a></li>
+  <li><a href="#ep6"><span class="b bg">GET</span> /sessions/{session_id}/records — 问答记录</a></li>
+</ol>
+
+<h2>三、通用错误格式</h2>
+<pre>{
+  "error": {
+    "code":    "ERROR_CODE",
+    "message": "可读描述",
+    "details": {},
+    "traceId": "tr_xxxxxxxxxxxx"
+  }
+}</pre>
+<table>
+  <thead><tr><th>HTTP 状态码</th><th>错误 code</th><th>含义</th></tr></thead>
+  <tbody>
+    <tr><td>400</td><td><code>EMPTY_QUERY</code></td><td>query 为空或全为空白字符</td></tr>
+    <tr><td>400</td><td><code>INVALID_QUERY</code></td><td>query 超过 500 字符 / 缺少 session_id</td></tr>
+    <tr><td>400</td><td><code>INVALID_TITLE</code></td><td>会话标题超过 23 字符</td></tr>
+    <tr><td>400 / 404</td><td><code>SESSION_NOT_FOUND</code></td><td>session_id 不存在</td></tr>
+    <tr><td>500</td><td><code>UPSTREAM_ERROR</code></td><td>上游 LLM 服务异常</td></tr>
+  </tbody>
+</table>
+
+<h2>四、接口详情</h2>
+
+<!-- ── EP1 ── -->
+<div class="ep" id="ep1">
+  <div class="eh"><span class="b bg">GET</span><span class="pa">/api/v1/agent/capabilities</span><span class="su">能力探测</span></div>
+  <div class="eb">
+    <p class="ni">返回当前服务已配置的 LLM 能力状态，前端据此判断是否展示「演示模式」提示。</p>
+    <h4>请求参数</h4><p class="ni">无</p>
+    <h4>成功响应 — 200</h4>
+<pre>{
+  "copaw_configured":  false,
+  "bailian_configured": true,
+  "model":  "qwen-plus",
+  "traceId": "tr_xxxxxxxxxxxx"
+}</pre>
+    <table>
+      <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><code>copaw_configured</code></td><td>boolean</td><td>IRA_COPAW_CHAT_URL 是否已配置</td></tr>
+        <tr><td><code>bailian_configured</code></td><td>boolean</td><td>DASHSCOPE_API_KEY 是否已配置</td></tr>
+        <tr><td><code>model</code></td><td>string | null</td><td>当前生效模型名，未配置时为 null</td></tr>
+        <tr><td><code>traceId</code></td><td>string</td><td>请求追踪 ID</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── EP2 ── -->
+<div class="ep" id="ep2">
+  <div class="eh"><span class="b bp">POST</span><span class="pa">/api/v1/agent/ask</span><span class="su">问答提交</span></div>
+  <div class="eb">
+    <p class="ni">提交投研问题，系统按 CoPaw → 百炼 → Demo 三级降级编排返回答案。</p>
+    <h4>请求体</h4>
+<pre>{
+  "query":      "茅台近期研报摘要",
+  "session_id": "uuid-string"
+}</pre>
+    <table>
+      <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>约束</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><code>query</code></td><td>string</td><td><span class="req">是</span></td><td>1–500 字符，非空</td><td>用户问题</td></tr>
+        <tr><td><code>session_id</code></td><td>string</td><td><span class="req">是</span></td><td>需为已存在会话</td><td>会话 ID</td></tr>
+      </tbody>
+    </table>
+    <h4>成功响应 — 200</h4>
+<pre>{
+  "answer":          "茅台近期研报显示...",
+  "llm_used":        true,
+  "model":           "qwen-plus",
+  "response_time_ms": 1234,
+  "answer_source":   "bailian",
+  "traceId":         "tr_xxxxxxxxxxxx"
+}</pre>
+    <table>
+      <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><code>answer</code></td><td>string</td><td>回答内容</td></tr>
+        <tr><td><code>llm_used</code></td><td>boolean</td><td>是否使用了 LLM</td></tr>
+        <tr><td><code>model</code></td><td>string | null</td><td>模型名（Demo 模式为 null）</td></tr>
+        <tr><td><code>response_time_ms</code></td><td>integer</td><td>响应耗时（毫秒）</td></tr>
+        <tr><td><code>answer_source</code></td><td>string</td><td>回答来源：<code>copaw</code> / <code>bailian</code> / <code>demo</code></td></tr>
+        <tr><td><code>traceId</code></td><td>string</td><td>请求追踪 ID</td></tr>
+      </tbody>
+    </table>
+    <h4>错误响应</h4>
+    <table>
+      <thead><tr><th>状态码</th><th>code</th><th>触发条件</th></tr></thead>
+      <tbody>
+        <tr><td>400</td><td><code>EMPTY_QUERY</code></td><td>query 为空</td></tr>
+        <tr><td>400</td><td><code>INVALID_QUERY</code></td><td>query &gt; 500 字符 / 缺少 session_id</td></tr>
+        <tr><td>400</td><td><code>SESSION_NOT_FOUND</code></td><td>session_id 不存在</td></tr>
+        <tr><td>500</td><td><code>UPSTREAM_ERROR</code></td><td>LLM 调用异常</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── EP3 ── -->
+<div class="ep" id="ep3">
+  <div class="eh"><span class="b bg">GET</span><span class="pa">/api/v1/agent/sessions</span><span class="su">会话列表</span></div>
+  <div class="eb">
+    <p class="ni">获取全部会话列表，按 <code>updated_at</code> 倒序排列。</p>
+    <h4>请求参数</h4><p class="ni">无</p>
+    <h4>成功响应 — 200</h4>
+<pre>{
+  "traceId": "tr_xxxxxxxxxxxx",
+  "sessions": [
+    {
+      "session_id": "uuid-string",
+      "title":      "茅台近期研报摘...",
+      "created_at": "2026-04-14T06:00:00Z",
+      "updated_at": "2026-04-14T06:05:00Z",
+      "query_count": 3
+    }
+  ]
+}</pre>
+    <table>
+      <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><code>session_id</code></td><td>string</td><td>会话唯一标识</td></tr>
+        <tr><td><code>title</code></td><td>string</td><td>会话标题（≤23 字符，首次问答自动命名）</td></tr>
+        <tr><td><code>created_at</code></td><td>string</td><td>创建时间（ISO 8601 UTC）</td></tr>
+        <tr><td><code>updated_at</code></td><td>string</td><td>最后更新时间</td></tr>
+        <tr><td><code>query_count</code></td><td>integer</td><td>问答次数</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── EP4 ── -->
+<div class="ep" id="ep4">
+  <div class="eh"><span class="b bp">POST</span><span class="pa">/api/v1/agent/sessions</span><span class="su">新建会话</span></div>
+  <div class="eb">
+    <p class="ni">创建新的问答会话。</p>
+    <h4>请求体</h4>
+<pre>{
+  "title": "我的投研会话"
+}</pre>
+    <table>
+      <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>约束</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><code>title</code></td><td>string</td><td><span class="opt">否</span></td><td>≤ 23 字符</td><td>会话标题，默认"新会话"</td></tr>
+      </tbody>
+    </table>
+    <h4>成功响应 — 201</h4>
+<pre>{
+  "traceId":     "tr_xxxxxxxxxxxx",
+  "session_id":  "uuid-string",
+  "title":       "我的投研会话",
+  "created_at":  "2026-04-14T06:00:00Z",
+  "query_count": 0
+}</pre>
+    <h4>错误响应</h4>
+    <table>
+      <thead><tr><th>状态码</th><th>code</th><th>触发条件</th></tr></thead>
+      <tbody>
+        <tr><td>400</td><td><code>INVALID_TITLE</code></td><td>标题超过 23 字符</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── EP5 ── -->
+<div class="ep" id="ep5">
+  <div class="eh"><span class="b bd">DELETE</span><span class="pa">/api/v1/agent/sessions/{session_id}</span><span class="su">删除会话</span></div>
+  <div class="eb">
+    <p class="ni">删除指定会话及其所有关联的问答记录（级联删除）。</p>
+    <h4>路径参数</h4>
+    <table>
+      <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><code>session_id</code></td><td>string</td><td>会话唯一标识</td></tr>
+      </tbody>
+    </table>
+    <h4>成功响应 — 200</h4>
+<pre>{
+  "traceId":         "tr_xxxxxxxxxxxx",
+  "message":         "会话已删除",
+  "deleted_records": 5
+}</pre>
+    <h4>错误响应</h4>
+    <table>
+      <thead><tr><th>状态码</th><th>code</th><th>触发条件</th></tr></thead>
+      <tbody>
+        <tr><td>404</td><td><code>SESSION_NOT_FOUND</code></td><td>session_id 不存在</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── EP6 ── -->
+<div class="ep" id="ep6">
+  <div class="eh"><span class="b bg">GET</span><span class="pa">/api/v1/agent/sessions/{session_id}/records</span><span class="su">问答记录</span></div>
+  <div class="eb">
+    <p class="ni">获取指定会话下的全部问答记录，按时间正序排列。</p>
+    <h4>路径参数</h4>
+    <table>
+      <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><code>session_id</code></td><td>string</td><td>会话唯一标识</td></tr>
+      </tbody>
+    </table>
+    <h4>成功响应 — 200</h4>
+<pre>{
+  "traceId": "tr_xxxxxxxxxxxx",
+  "records": [
+    {
+      "id":               "rec_1713081600000",
+      "session_id":       "uuid-string",
+      "query":            "茅台近期研报摘要",
+      "answer":           "茅台近期研报显示...",
+      "llm_used":         true,
+      "model":            "qwen-plus",
+      "response_time_ms": 1234,
+      "answer_source":    "bailian",
+      "timestamp":        "2026-04-14T06:00:00Z"
+    }
+  ]
+}</pre>
+    <table>
+      <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><code>id</code></td><td>string</td><td>记录唯一标识（<code>rec_</code> + 毫秒时间戳）</td></tr>
+        <tr><td><code>session_id</code></td><td>string</td><td>所属会话 ID</td></tr>
+        <tr><td><code>query</code></td><td>string</td><td>用户问题</td></tr>
+        <tr><td><code>answer</code></td><td>string</td><td>回答内容</td></tr>
+        <tr><td><code>llm_used</code></td><td>boolean</td><td>是否使用了 LLM</td></tr>
+        <tr><td><code>model</code></td><td>string | null</td><td>模型名</td></tr>
+        <tr><td><code>response_time_ms</code></td><td>integer</td><td>响应耗时（毫秒）</td></tr>
+        <tr><td><code>answer_source</code></td><td>string</td><td>来源：copaw / bailian / demo</td></tr>
+        <tr><td><code>timestamp</code></td><td>string</td><td>记录创建时间（ISO 8601 UTC）</td></tr>
+      </tbody>
+    </table>
+    <h4>错误响应</h4>
+    <table>
+      <thead><tr><th>状态码</th><th>code</th><th>触发条件</th></tr></thead>
+      <tbody>
+        <tr><td>404</td><td><code>SESSION_NOT_FOUND</code></td><td>session_id 不存在</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<h2>五、数据模型</h2>
+<h3>Session 对象</h3>
+<table>
+  <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><code>session_id</code></td><td>string (UUID)</td><td>会话唯一标识</td></tr>
+    <tr><td><code>title</code></td><td>string</td><td>≤23 字符，首次问答自动以 query 前 20 字命名</td></tr>
+    <tr><td><code>created_at</code></td><td>string (ISO 8601)</td><td>创建时间</td></tr>
+    <tr><td><code>updated_at</code></td><td>string (ISO 8601)</td><td>最后更新时间</td></tr>
+    <tr><td><code>query_count</code></td><td>integer</td><td>累计问答次数</td></tr>
+  </tbody>
+</table>
+
+<h3>QA Record 对象</h3>
+<table>
+  <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><code>id</code></td><td>string</td><td><code>rec_</code> + 毫秒时间戳</td></tr>
+    <tr><td><code>session_id</code></td><td>string</td><td>所属会话 ID</td></tr>
+    <tr><td><code>query</code></td><td>string</td><td>用户问题</td></tr>
+    <tr><td><code>answer</code></td><td>string</td><td>回答内容</td></tr>
+    <tr><td><code>llm_used</code></td><td>boolean</td><td>是否使用 LLM</td></tr>
+    <tr><td><code>model</code></td><td>string | null</td><td>模型名</td></tr>
+    <tr><td><code>response_time_ms</code></td><td>integer</td><td>响应耗时（毫秒）</td></tr>
+    <tr><td><code>answer_source</code></td><td>string</td><td>copaw / bailian / demo</td></tr>
+    <tr><td><code>timestamp</code></td><td>string (ISO 8601)</td><td>记录时间</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>免责声明</h2>
+<p>本报告内容仅供参考，不构成任何投资建议或业务决策依据。报告中涉及的技术方案、架构设计及功能描述基于项目代码分析得出，可能随项目版本更新而发生变化。读者在实际应用中应结合自身需求进行独立判断，并自行承担相关风险。作者及所属机构对因使用本报告内容所引发的任何直接或间接损失不承担任何责任。</p>
+
+</div>
+</body>
+</html>
