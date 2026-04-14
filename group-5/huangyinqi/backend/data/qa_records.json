@@ -1,0 +1,112 @@
+[
+  {
+    "id": "rec_1712736000001",
+    "session_id": "seed-session-001",
+    "query": "贵州茅台最新的投资评级是什么？",
+    "answer": "[离线演示模式] 根据最新券商研报，贵州茅台（600519）维持\"买入\"评级。\n\n核心逻辑：\n1. 公司品牌护城河深厚，提价能力强\n2. 直销渠道占比持续提升，利润率改善\n3. 系列酒增长强劲，产品结构优化\n4. 目标价2200元，当前估值合理",
+    "llm_used": false,
+    "model": null,
+    "response_time_ms": 5,
+    "answer_source": "demo",
+    "timestamp": "2026-04-10T08:15:00.000Z"
+  },
+  {
+    "id": "rec_1712736000002",
+    "session_id": "seed-session-001",
+    "query": "茅台的财务数据表现如何？",
+    "answer": "[离线演示模式] 贵州茅台2025年度关键财务指标：\n\n1. 营业收入：约1850亿元，同比增长15%\n2. 净利润：约900亿元，同比增长18%\n3. 毛利率：91.5%，行业领先\n4. ROE：约35%，盈利能力突出\n5. 经营现金流充沛，分红率提升至60%",
+    "llm_used": false,
+    "model": null,
+    "response_time_ms": 3,
+    "answer_source": "demo",
+    "timestamp": "2026-04-10T08:30:00.000Z"
+  },
+  {
+    "id": "rec_1712736000003",
+    "session_id": "seed-session-001",
+    "query": "茅台面临的主要风险有哪些？",
+    "answer": "[离线演示模式] 贵州茅台主要风险因素：\n\n1. 宏观经济下行可能影响高端消费需求\n2. 白酒行业政策调控风险\n3. 社会消费习惯变化，年轻化趋势挑战\n4. 产能扩张进度不及预期\n5. 市场竞争加剧，次高端品牌崛起",
+    "llm_used": false,
+    "model": null,
+    "response_time_ms": 4,
+    "answer_source": "demo",
+    "timestamp": "2026-04-10T09:30:00.000Z"
+  },
+  {
+    "id": "rec_1712736000004",
+    "session_id": "seed-session-002",
+    "query": "比亚迪2025年销量预测如何？",
+    "answer": "[离线演示模式] 比亚迪（002594）2025年销量展望：\n\n1. 预计全年销量突破450万辆，同比增长30%+\n2. 新能源车渗透率持续提升\n3. 海外市场成为新增长极\n4. 高端品牌「仰望」贡献增量\n5. 评级：强烈推荐，目标价380元",
+    "llm_used": false,
+    "model": null,
+    "response_time_ms": 6,
+    "answer_source": "demo",
+    "timestamp": "2026-04-11T10:20:00.000Z"
+  },
+  {
+    "id": "rec_1712736000005",
+    "session_id": "seed-session-002",
+    "query": "比亚迪的技术优势是什么？",
+    "answer": "[离线演示模式] 比亚迪核心技术优势：\n\n1. 刀片电池技术领先，安全性和能量密度优异\n2. DM-i超级混动系统，百公里油耗低至3.8L\n3. 全产业链垂直整合，成本控制能力强\n4. 智能驾驶芯片自研，减少外部依赖\n5. 云辇智能车身控制系统，行业首创",
+    "llm_used": false,
+    "model": null,
+    "response_time_ms": 5,
+    "answer_source": "demo",
+    "timestamp": "2026-04-11T11:00:00.000Z"
+  },
+  {
+    "id": "rec_1712736000006",
+    "session_id": "seed-session-003",
+    "query": "宁德时代在全球动力电池市场的份额是多少？",
+    "answer": "[离线演示模式] 宁德时代（300750）全球市场地位：\n\n1. 全球动力电池市场份额约37%，连续多年第一\n2. 储能电池出货量全球领先\n3. 主要客户覆盖特斯拉、宝马、大众等\n4. 海外产能布局加速（匈牙利、美国）\n5. 评级：买入，目标价280元",
+    "llm_used": false,
+    "model": null,
+    "response_time_ms": 4,
+    "answer_source": "demo",
+    "timestamp": "2026-04-12T14:30:00.000Z"
+  },
+  {
+    "id": "rec_1712736000007",
+    "session_id": "seed-session-003",
+    "query": "电池产业链上下游分析",
+    "answer": "[离线演示模式] 电池产业链分析：\n\n上游原材料：\n- 碳酸锂价格趋于稳定，利好中游企业\n- 钴、镍等金属供给改善\n\n中游制造：\n- 正极材料：磷酸铁锂vs三元路线并行\n- 负极材料：硅碳负极渗透率提升\n\n下游应用：\n- 新能源汽车需求持续增长\n- 储能市场爆发式增长",
+    "llm_used": false,
+    "model": null,
+    "response_time_ms": 7,
+    "answer_source": "demo",
+    "timestamp": "2026-04-12T15:00:00.000Z"
+  },
+  {
+    "id": "rec_1712736000008",
+    "session_id": "seed-session-004",
+    "query": "半导体行业当前处于什么周期阶段？",
+    "answer": "[离线演示模式] 半导体行业周期分析：\n\n1. 当前处于复苏期后半段，库存去化接近尾声\n2. AI芯片需求强劲，带动行业景气度回升\n3. 消费电子需求边际改善\n4. 设备国产替代加速\n5. 建议关注：中芯国际、北方华创、韦尔股份",
+    "llm_used": false,
+    "model": null,
+    "response_time_ms": 5,
+    "answer_source": "demo",
+    "timestamp": "2026-04-13T09:30:00.000Z"
+  },
+  {
+    "id": "rec_1712736000009",
+    "session_id": "seed-session-004",
+    "query": "国产替代进展如何？",
+    "answer": "[离线演示模式] 半导体国产替代进展：\n\n1. 成熟制程（28nm以上）国产化率超60%\n2. 先进制程仍受限，但持续突破中\n3. EDA工具国产化取得阶段性成果\n4. 封装测试环节全球领先\n5. 政策支持力度持续加大，大基金三期启动",
+    "llm_used": false,
+    "model": null,
+    "response_time_ms": 4,
+    "answer_source": "demo",
+    "timestamp": "2026-04-13T10:00:00.000Z"
+  },
+  {
+    "id": "rec_1712736000010",
+    "session_id": "seed-session-005",
+    "query": "医药行业最新政策对投资有什么影响？",
+    "answer": "[离线演示模式] 医药行业政策影响评估：\n\n1. 集采常态化，仿制药利润空间压缩\n2. 创新药审评加速，鼓励源头创新\n3. 医保谈判机制优化，创新药准入更快\n4. 中药传承创新政策利好头部企业\n5. 建议关注创新药龙头：恒瑞医药、百济神州",
+    "llm_used": false,
+    "model": null,
+    "response_time_ms": 6,
+    "answer_source": "demo",
+    "timestamp": "2026-04-14T08:30:00.000Z"
+  }
+]

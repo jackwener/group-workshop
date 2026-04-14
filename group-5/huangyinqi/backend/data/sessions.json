@@ -1,0 +1,37 @@
+[
+  {
+    "session_id": "seed-session-001",
+    "title": "贵州茅台投资分析",
+    "created_at": "2026-04-10T08:00:00.000Z",
+    "updated_at": "2026-04-10T09:30:00.000Z",
+    "query_count": 3
+  },
+  {
+    "session_id": "seed-session-002",
+    "title": "比亚迪新能源汽车研究",
+    "created_at": "2026-04-11T10:00:00.000Z",
+    "updated_at": "2026-04-11T11:00:00.000Z",
+    "query_count": 2
+  },
+  {
+    "session_id": "seed-session-003",
+    "title": "宁德时代电池产业链...",
+    "created_at": "2026-04-12T14:00:00.000Z",
+    "updated_at": "2026-04-12T15:00:00.000Z",
+    "query_count": 2
+  },
+  {
+    "session_id": "seed-session-004",
+    "title": "半导体行业周期分析",
+    "created_at": "2026-04-13T09:00:00.000Z",
+    "updated_at": "2026-04-13T10:00:00.000Z",
+    "query_count": 2
+  },
+  {
+    "session_id": "seed-session-005",
+    "title": "医药行业政策影响评估",
+    "created_at": "2026-04-14T08:00:00.000Z",
+    "updated_at": "2026-04-14T08:30:00.000Z",
+    "query_count": 1
+  }
+]
