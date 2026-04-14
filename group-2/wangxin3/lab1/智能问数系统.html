@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智能问数系统 - AI数据查询助手</title>
+  <meta name="description" content="智能问数系统，通过自然语言查询数据，AI驱动的数据分析助手">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ===== Design System Tokens ===== */
+    :root {
+      --bg-base: #f5f6fa;
+      --bg-surface: #ffffff;
+      --bg-elevated: #ffffff;
+      --bg-chat: linear-gradient(180deg, #f5f6fa 0%, #eef0f8 100%);
+
+      --text-primary: #1a1d2e;
+      --text-secondary: #6b7194;
+      --text-tertiary: #9da3c0;
+      --text-inverse: #ffffff;
+
+      --brand-500: #4f46e5;
+      --brand-600: #4338ca;
+      --brand-400: #6366f1;
+      --brand-300: #818cf8;
+      --brand-100: #e0e7ff;
+      --brand-50: #eef2ff;
+
+      --gradient-brand: linear-gradient(135deg, #4f46e5, #7c3aed, #a855f7);
+      --gradient-header: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+
+      --border-light: #e5e7f0;
+      --border-focus: #4f46e5;
+
+      --shadow-sm: 0 1px 2px rgba(26, 29, 46, 0.04);
+      --shadow-md: 0 2px 8px rgba(26, 29, 46, 0.06), 0 1px 2px rgba(26, 29, 46, 0.04);
+      --shadow-lg: 0 4px 16px rgba(26, 29, 46, 0.08), 0 2px 4px rgba(26, 29, 46, 0.04);
+      --shadow-brand: 0 4px 14px rgba(79, 70, 229, 0.25);
+      --shadow-glow: 0 0 24px rgba(99, 102, 241, 0.3);
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+      --radius-full: 9999px;
+
+      --font-sans: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+      --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-bounce: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ===== Reset & Base ===== */
+    *, *::before, *::after {
+      margin: 0; padding: 0; box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-base);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ===== App Layout ===== */
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* ===== Header ===== */
+    .app-header {
+      background: var(--gradient-header);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 10;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      background: rgba(255,255,255,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(8px);
+    }
+
+    .header-icon svg {
+      width: 20px;
+      height: 20px;
+      color: var(--text-inverse);
+    }
+
+    .header-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text-inverse);
+      letter-spacing: -0.01em;
+    }
+
+    .header-subtitle {
+      font-size: 12px;
+      color: rgba(255,255,255,0.7);
+      margin-top: 1px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: rgba(255,255,255,0.6);
+      font-size: 12px;
+    }
+
+    .header-right svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* ===== Chat Area ===== */
+    .chat-area {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--bg-chat);
+      scroll-behavior: smooth;
+    }
+
+    .chat-area::-webkit-scrollbar { width: 6px; }
+    .chat-area::-webkit-scrollbar-track { background: transparent; }
+    .chat-area::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: var(--radius-full); }
+    .chat-area::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+
+    /* ===== Welcome Screen ===== */
+    .welcome {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      padding: 24px;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .welcome-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-xl);
+      background: var(--gradient-brand);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-glow);
+      animation: pulseRing 2.5s ease-in-out infinite;
+    }
+
+    .welcome-icon svg {
+      width: 32px;
+      height: 32px;
+      color: var(--text-inverse);
+    }
+
+    .welcome h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .welcome p {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-bottom: 32px;
+      text-align: center;
+      max-width: 420px;
+      line-height: 1.6;
+    }
+
+    .suggestions {
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .suggestions-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 10px;
+    }
+
+    .suggestion-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      background: var(--bg-surface);
+      font-size: 14px;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      text-align: left;
+      margin-bottom: 8px;
+      font-family: var(--font-sans);
+    }
+
+    .suggestion-btn:hover {
+      border-color: var(--brand-300);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .suggestion-btn:active {
+      transform: translateY(0);
+    }
+
+    .suggestion-btn .icon {
+      width: 20px;
+      height: 20px;
+      color: var(--brand-400);
+      flex-shrink: 0;
+    }
+
+    /* ===== Messages ===== */
+    .messages {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .message {
+      display: flex;
+      gap: 12px;
+      animation: slideUp 0.4s ease-out;
+    }
+
+    .message-user {
+      justify-content: flex-end;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .message-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .message-avatar svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .avatar-bot {
+      background: var(--gradient-header);
+    }
+
+    .avatar-bot svg { color: var(--text-inverse); }
+
+    .avatar-user {
+      background: var(--bg-base);
+      border: 1px solid var(--border-light);
+    }
+
+    .avatar-user svg { color: var(--text-secondary); }
+
+    .message-body {
+      max-width: 85%;
+    }
+
+    .message-user .message-body {
+      max-width: 75%;
+    }
+
+    .bubble-user {
+      background: var(--gradient-brand);
+      border-radius: var(--radius-lg) var(--radius-sm) var(--radius-lg) var(--radius-lg);
+      padding: 14px 18px;
+      color: var(--text-inverse);
+      font-size: 14px;
+      line-height: 1.6;
+      box-shadow: var(--shadow-brand);
+    }
+
+    .bubble-bot {
+      background: var(--bg-surface);
+      border-radius: var(--radius-sm) var(--radius-lg) var(--radius-lg) var(--radius-lg);
+      padding: 16px 20px;
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text-primary);
+      box-shadow: var(--shadow-md);
+      border: 1px solid rgba(229, 231, 240, 0.6);
+    }
+
+    .bubble-bot strong {
+      color: var(--brand-500);
+      font-weight: 600;
+    }
+
+    .message-time {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 6px;
+      opacity: 0.7;
+    }
+
+    .message-user .message-time {
+      text-align: right;
+    }
+
+    /* ===== Data Table ===== */
+    .data-table-wrapper {
+      margin-top: 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+      overflow: hidden;
+      background: var(--bg-surface);
+    }
+
+    .data-table-scroll {
+      overflow-x: auto;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .data-table thead th {
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: var(--brand-50);
+      border-bottom: 1px solid var(--border-light);
+      white-space: nowrap;
+      letter-spacing: 0.01em;
+    }
+
+    .data-table tbody td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(229, 231, 240, 0.5);
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .data-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .data-table tbody tr {
+      transition: var(--transition-smooth);
+    }
+
+    .data-table tbody tr:hover {
+      background: var(--brand-50);
+    }
+
+    .cell-positive { color: var(--success); font-weight: 500; }
+    .cell-negative { color: var(--danger); font-weight: 500; }
+    .cell-number { color: var(--text-primary); font-weight: 500; }
+
+    /* ===== Typing Indicator ===== */
+    .typing {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .typing-bubble {
+      background: var(--bg-surface);
+      border-radius: var(--radius-sm) var(--radius-lg) var(--radius-lg) var(--radius-lg);
+      padding: 14px 20px;
+      box-shadow: var(--shadow-md);
+      border: 1px solid rgba(229, 231, 240, 0.6);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .typing-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .typing-dots {
+      display: flex;
+      gap: 4px;
+    }
+
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--brand-400);
+    }
+
+    .typing-dot:nth-child(1) { animation: typingDot 1.4s ease-in-out infinite; }
+    .typing-dot:nth-child(2) { animation: typingDot 1.4s ease-in-out 0.2s infinite; }
+    .typing-dot:nth-child(3) { animation: typingDot 1.4s ease-in-out 0.4s infinite; }
+
+    /* ===== Input Area ===== */
+    .input-area {
+      border-top: 1px solid var(--border-light);
+      background: var(--bg-surface);
+      padding: 12px 16px;
+      flex-shrink: 0;
+    }
+
+    .input-form {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .input-field {
+      flex: 1;
+      height: 44px;
+      padding: 0 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+      background: var(--bg-base);
+      font-size: 14px;
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      transition: var(--transition-smooth);
+      outline: none;
+    }
+
+    .input-field::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    .input-field:focus {
+      border-color: var(--brand-400);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+      background: var(--bg-surface);
+    }
+
+    .input-field:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .send-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      border: none;
+      background: var(--gradient-brand);
+      color: var(--text-inverse);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition-smooth);
+      flex-shrink: 0;
+      box-shadow: var(--shadow-brand);
+    }
+
+    .send-btn:hover:not(:disabled) {
+      box-shadow: var(--shadow-glow);
+      transform: translateY(-1px);
+    }
+
+    .send-btn:active:not(:disabled) {
+      transform: scale(0.96);
+    }
+
+    .send-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .send-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .input-hint {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 8px;
+      opacity: 0.7;
+    }
+
+    /* ===== Animations ===== */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes typingDot {
+      0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); }
+      30% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes pulseRing {
+      0% { transform: scale(0.96); box-shadow: 0 0 24px rgba(99, 102, 241, 0.3); }
+      50% { transform: scale(1); box-shadow: 0 0 32px rgba(99, 102, 241, 0.45); }
+      100% { transform: scale(0.96); box-shadow: 0 0 24px rgba(99, 102, 241, 0.3); }
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 640px) {
+      .app-header { padding: 12px 16px; }
+      .header-right { display: none; }
+      .welcome h2 { font-size: 20px; }
+      .messages { padding: 16px 12px; }
+      .message-body { max-width: 90% !important; }
+      .bubble-bot, .bubble-user { padding: 12px 14px; }
+      .data-table { font-size: 12px; }
+      .data-table thead th, .data-table tbody td { padding: 8px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <ellipse cx="12" cy="5" rx="9" ry="3"/>
+          <path d="M3 5v14a9 3 0 0 0 18 0V5"/>
+          <path d="M3 12a9 3 0 0 0 18 0"/>
+        </svg>
+      </div>
+      <div>
+        <div class="header-title">智能问数系统</div>
+        <div class="header-subtitle">AI 驱动的数据查询助手</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>
+      </svg>
+      <span>数据已更新至 2026年3月</span>
+    </div>
+  </header>
+
+  <!-- Chat Area -->
+  <div class="chat-area" id="chatArea">
+    <!-- Welcome screen shown by default -->
+    <div class="welcome" id="welcomeScreen">
+      <div class="welcome-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <ellipse cx="12" cy="5" rx="9" ry="3"/>
+          <path d="M3 5v14a9 3 0 0 0 18 0V5"/>
+          <path d="M3 12a9 3 0 0 0 18 0"/>
+        </svg>
+      </div>
+      <h2>你好，我是数据助手</h2>
+      <p>输入你的数据问题，我会从系统中检索并分析相关数据，以文字和表格的形式为你呈现结果。</p>
+      <div class="suggestions">
+        <div class="suggestions-label">试试这些问题</div>
+        <div id="suggestionList"></div>
+      </div>
+    </div>
+
+    <!-- Messages container (hidden initially) -->
+    <div class="messages" id="messagesContainer" style="display:none;"></div>
+  </div>
+
+  <!-- Input Area -->
+  <div class="input-area">
+    <form class="input-form" id="chatForm">
+      <input type="text" class="input-field" id="chatInput" placeholder="输入你的数据问题，如：上个月销售额是多少？" autocomplete="off">
+      <button type="submit" class="send-btn" id="sendBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3.714 3.048a.498.498 0 0 0-.683.627l2.843 7.627a2 2 0 0 1 0 1.396l-2.842 7.627a.498.498 0 0 0 .682.627l18-8.5a.5.5 0 0 0 0-.904z"/>
+          <path d="M6 12h16"/>
+        </svg>
+      </button>
+    </form>
+    <div class="input-hint">数据基于模拟生成，仅供演示使用</div>
+  </div>
+</div>
+
+<script>
+// ===== SVG Icons =====
+const ICONS = {
+  dollar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+  trending: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>',
+  package: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"/></svg>',
+  refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>',
+  user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>',
+  bot: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>',
+};
+
+// ===== Mock Data =====
+const SUGGESTED_QUESTIONS = [
+  { text: '上个月销售额是多少？', icon: 'dollar' },
+  { text: '用户增长趋势如何？', icon: 'trending' },
+  { text: '当前库存状况怎样？', icon: 'package' },
+  { text: '第一季度利润分析', icon: 'dollar' },
+  { text: '退货退款数据汇总', icon: 'refresh' },
+];
+
+const MOCK_RESPONSES = {
+  '销售': {
+    content: '根据系统数据分析，上月（2026年3月）总销售额为 <strong>1,283.6 万元</strong>，环比增长 12.4%，同比增长 23.1%。其中线上渠道贡献 68%，线下渠道贡献 32%。华东区域表现最为突出，占总销售额的 35.2%。以下是各区域的销售明细：',
+    table: {
+      headers: ['区域', '销售额(万元)', '环比增长', '同比增长', '订单数', '客单价(元)'],
+      rows: [
+        ['华东区', '451.8', '+15.2%', '+28.3%', '12,680', '3,562'],
+        ['华南区', '328.5', '+10.8%', '+19.7%', '9,420', '3,487'],
+        ['华北区', '256.2', '+8.6%', '+21.5%', '7,350', '3,486'],
+        ['西南区', '148.9', '+18.3%', '+32.1%', '4,280', '3,478'],
+        ['华中区', '98.2', '+5.4%', '+12.8%', '2,860', '3,434'],
+      ],
+    },
+  },
+  '用户': {
+    content: '截至 2026年3月底，平台注册用户总数达到 <strong>186.3 万</strong>，月活跃用户 <strong>42.8 万</strong>，月活率为 22.9%。新增用户中，25-35岁年龄段占比最高（41.2%），移动端用户占比持续提升至 78.5%。以下是各渠道用户增长详情：',
+    table: {
+      headers: ['渠道来源', '新增用户', '占比', '次日留存率', '7日留存率', '月均消费(元)'],
+      rows: [
+        ['自然搜索', '28,500', '32.1%', '45.6%', '22.3%', '286'],
+        ['社交媒体', '22,800', '25.7%', '38.2%', '18.7%', '195'],
+        ['付费投放', '18,600', '20.9%', '42.1%', '20.5%', '312'],
+        ['老用户推荐', '12,400', '14.0%', '56.8%', '35.2%', '428'],
+        ['线下活动', '6,500', '7.3%', '52.3%', '28.6%', '356'],
+      ],
+    },
+  },
+  '库存': {
+    content: '当前仓库总库存量为 <strong>52,680 件</strong>，库存周转天数为 18.5 天，较上月优化 2.3 天。其中有 12 个 SKU 库存预警（低于安全库存线），建议及时补货。以下是各品类库存状况：',
+    table: {
+      headers: ['品类', '库存量(件)', '库存金额(万元)', '周转天数', '缺货SKU', '状态'],
+      rows: [
+        ['电子产品', '8,520', '1,280.5', '12.3', '2', '正常'],
+        ['服装鞋帽', '18,600', '560.8', '22.5', '5', '预警'],
+        ['食品饮料', '12,400', '186.2', '8.6', '1', '正常'],
+        ['家居日用', '8,960', '320.4', '25.8', '3', '预警'],
+        ['美妆个护', '4,200', '210.6', '15.2', '1', '正常'],
+      ],
+    },
+  },
+  '利润': {
+    content: '2026年第一季度（1-3月）整体毛利润为 <strong>3,862.5 万元</strong>，毛利率 32.8%，净利润 <strong>1,245.8 万元</strong>，净利率 10.6%。与去年同期相比，毛利率提升 1.5 个百分点，主要得益于供应链成本优化和高毛利品类占比提升。',
+    table: {
+      headers: ['月份', '营收(万元)', '成本(万元)', '毛利(万元)', '毛利率', '净利润(万元)'],
+      rows: [
+        ['2026年1月', '3,580.2', '2,425.6', '1,154.6', '32.2%', '368.5'],
+        ['2026年2月', '3,865.8', '2,586.2', '1,279.6', '33.1%', '412.8'],
+        ['2026年3月', '4,320.5', '2,892.2', '1,428.3', '33.1%', '464.5'],
+      ],
+    },
+  },
+  '退货': {
+    content: '上月退货退款总计 <strong>1,286 单</strong>，退货率为 3.2%，较上月下降 0.4 个百分点。主要退货原因为尺码不合（35.2%）、与描述不符（22.8%）和质量问题（18.5%）。以下是各品类退货情况：',
+    table: {
+      headers: ['品类', '退货单数', '退货率', '退款金额(万元)', '主要原因', '处理时效(天)'],
+      rows: [
+        ['服装鞋帽', '586', '5.8%', '42.3', '尺码不合', '2.1'],
+        ['电子产品', '245', '2.6%', '68.5', '功能故障', '3.5'],
+        ['家居日用', '198', '2.1%', '12.8', '与描述不符', '1.8'],
+        ['美妆个护', '156', '3.4%', '8.6', '过敏反应', '1.5'],
+        ['食品饮料', '101', '0.8%', '3.2', '临期到期', '1.2'],
+      ],
+    },
+  },
+};
+
+const DEFAULT_RESPONSE = {
+  content: '根据数据分析结果，以下是您查询的相关数据汇总。系统已从多个数据源中提取了最新信息，涵盖核心业务指标和趋势变化：',
+  table: {
+    headers: ['指标名称', '当前值', '上月值', '环比变化', '目标值', '达成率'],
+    rows: [
+      ['日均订单量', '3,256单', '2,980单', '+9.3%', '3,000单', '108.5%'],
+      ['平均响应时间', '1.2秒', '1.5秒', '-20.0%', '2.0秒', '达标'],
+      ['客户满意度', '4.6分', '4.5分', '+2.2%', '4.5分', '102.2%'],
+      ['系统可用率', '99.97%', '99.95%', '+0.02%', '99.9%', '达标'],
+      ['数据覆盖率', '96.8%', '95.2%', '+1.6%', '95.0%', '101.9%'],
+    ],
+  },
+};
+
+// ===== App State =====
+let messages = [];
+let isTyping = false;
+
+// ===== DOM =====
+const chatArea = document.getElementById('chatArea');
+const welcomeScreen = document.getElementById('welcomeScreen');
+const messagesContainer = document.getElementById('messagesContainer');
+const chatForm = document.getElementById('chatForm');
+const chatInput = document.getElementById('chatInput');
+const sendBtn = document.getElementById('sendBtn');
+const suggestionList = document.getElementById('suggestionList');
+
+// ===== Init =====
+function init() {
+  renderSuggestions();
+  chatForm.addEventListener('submit', handleSubmit);
+  chatInput.focus();
+}
+
+function renderSuggestions() {
+  suggestionList.innerHTML = SUGGESTED_QUESTIONS.map(q => `
+    <button type="button" class="suggestion-btn" onclick="handleSuggestionClick('${q.text}')">
+      <span class="icon">${ICONS[q.icon]}</span>
+      ${q.text}
+    </button>
+  `).join('');
+}
+
+// ===== Handlers =====
+function handleSubmit(e) {
+  e.preventDefault();
+  const text = chatInput.value.trim();
+  if (!text || isTyping) return;
+  sendMessage(text);
+  chatInput.value = '';
+}
+
+function handleSuggestionClick(text) {
+  if (isTyping) return;
+  sendMessage(text);
+}
+
+function sendMessage(text) {
+  // Hide welcome, show messages
+  welcomeScreen.style.display = 'none';
+  messagesContainer.style.display = 'flex';
+
+  // Add user message
+  addMessage('user', text);
+
+  // Show typing
+  isTyping = true;
+  updateInputState();
+  showTyping();
+
+  // Simulate response delay
+  const delay = 800 + Math.random() * 800;
+  setTimeout(() => {
+    hideTyping();
+    const response = matchResponse(text);
+    addMessage('bot', response.content, response.table);
+    isTyping = false;
+    updateInputState();
+    chatInput.focus();
+  }, delay);
+}
+
+function matchResponse(query) {
+  for (const [keyword, response] of Object.entries(MOCK_RESPONSES)) {
+    if (query.includes(keyword)) return response;
+  }
+  return DEFAULT_RESPONSE;
+}
+
+// ===== Rendering =====
+function formatTime() {
+  const now = new Date();
+  return now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+}
+
+function addMessage(role, content, table) {
+  const time = formatTime();
+  const msgEl = document.createElement('div');
+  msgEl.className = `message message-${role}`;
+
+  if (role === 'user') {
+    msgEl.innerHTML = `
+      <div class="message-body">
+        <div class="bubble-user">${escapeHtml(content)}</div>
+        <div class="message-time">${time}</div>
+      </div>
+      <div class="message-avatar avatar-user">${ICONS.user}</div>
+    `;
+  } else {
+    let tableHtml = '';
+    if (table) {
+      tableHtml = `
+        <div class="data-table-wrapper">
+          <div class="data-table-scroll">
+            <table class="data-table">
+              <thead><tr>${table.headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+              <tbody>${table.rows.map(row => `<tr>${row.map((cell, i) => `<td class="${getCellClass(cell, i)}">${cell}</td>`).join('')}</tr>`).join('')}</tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+    msgEl.innerHTML = `
+      <div class="message-avatar avatar-bot">${ICONS.bot}</div>
+      <div class="message-body">
+        <div class="bubble-bot">${content}${tableHtml}</div>
+        <div class="message-time">${time}</div>
+      </div>
+    `;
+  }
+
+  messagesContainer.appendChild(msgEl);
+  scrollToBottom();
+}
+
+function getCellClass(cell, colIndex) {
+  if (typeof cell === 'string') {
+    if (cell.startsWith('+')) return 'cell-positive';
+    if (cell.startsWith('-') && cell.includes('%')) return 'cell-negative';
+    if (cell === '预警') return 'cell-negative';
+    if (cell === '达标' || cell === '正常') return 'cell-positive';
+  }
+  return '';
+}
+
+function showTyping() {
+  const el = document.createElement('div');
+  el.className = 'typing';
+  el.id = 'typingIndicator';
+  el.innerHTML = `
+    <div class="message-avatar avatar-bot">${ICONS.bot}</div>
+    <div class="typing-bubble">
+      <span class="typing-text">分析中</span>
+      <div class="typing-dots">
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+      </div>
+    </div>
+  `;
+  messagesContainer.appendChild(el);
+  scrollToBottom();
+}
+
+function hideTyping() {
+  const el = document.getElementById('typingIndicator');
+  if (el) el.remove();
+}
+
+function updateInputState() {
+  chatInput.disabled = isTyping;
+  sendBtn.disabled = isTyping;
+}
+
+function scrollToBottom() {
+  requestAnimationFrame(() => {
+    chatArea.scrollTop = chatArea.scrollHeight;
+  });
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ===== Start =====
+init();
+</script>
+</body>
+</html>
