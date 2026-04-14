@@ -1,0 +1,292 @@
+.tetris-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #fff;
+}
+
+.tetris-wrapper {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.tetris-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tetris-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.tetris-board {
+  border: 3px solid #5f5f8a;
+  border-radius: 4px;
+  background: #1a1a2e;
+  box-shadow: 0 0 30px rgba(95, 95, 138, 0.3);
+  display: grid;
+  grid-template-columns: repeat(10, 30px);
+  grid-template-rows: repeat(20, 30px);
+}
+
+.tetris-cell {
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  box-sizing: border-box;
+}
+
+.tetris-cell.filled {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 2px;
+}
+
+.tetris-cell.I { background: #00f0f0; box-shadow: inset 0 0 8px rgba(255,255,255,0.3); }
+.tetris-cell.O { background: #f0f000; box-shadow: inset 0 0 8px rgba(255,255,255,0.3); }
+.tetris-cell.T { background: #a000f0; box-shadow: inset 0 0 8px rgba(255,255,255,0.3); }
+.tetris-cell.S { background: #00f000; box-shadow: inset 0 0 8px rgba(255,255,255,0.3); }
+.tetris-cell.Z { background: #f00000; box-shadow: inset 0 0 8px rgba(255,255,255,0.3); }
+.tetris-cell.J { background: #0000f0; box-shadow: inset 0 0 8px rgba(255,255,255,0.3); }
+.tetris-cell.L { background: #f0a000; box-shadow: inset 0 0 8px rgba(255,255,255,0.3); }
+
+.tetris-cell.ghost {
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+}
+.tetris-cell.ghost.I { background: rgba(0, 240, 240, 0.15); }
+.tetris-cell.ghost.O { background: rgba(240, 240, 0, 0.15); }
+.tetris-cell.ghost.T { background: rgba(160, 0, 240, 0.15); }
+.tetris-cell.ghost.S { background: rgba(0, 240, 0, 0.15); }
+.tetris-cell.ghost.Z { background: rgba(240, 0, 0, 0.15); }
+.tetris-cell.ghost.J { background: rgba(0, 0, 240, 0.15); }
+.tetris-cell.ghost.L { background: rgba(240, 160, 0, 0.15); }
+
+.tetris-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 160px;
+}
+
+.side-panel {
+  background: rgba(26, 26, 46, 0.9);
+  border: 2px solid #5f5f8a;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.side-panel h3 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #9f9fcc;
+  margin: 0 0 10px 0;
+  text-align: center;
+}
+
+.next-piece-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 24px);
+  grid-template-rows: repeat(4, 24px);
+  justify-content: center;
+}
+
+.next-cell {
+  width: 24px;
+  height: 24px;
+  box-sizing: border-box;
+}
+
+.next-cell.filled {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 2px;
+}
+
+.next-cell.I { background: #00f0f0; box-shadow: inset 0 0 6px rgba(255,255,255,0.3); }
+.next-cell.O { background: #f0f000; box-shadow: inset 0 0 6px rgba(255,255,255,0.3); }
+.next-cell.T { background: #a000f0; box-shadow: inset 0 0 6px rgba(255,255,255,0.3); }
+.next-cell.S { background: #00f000; box-shadow: inset 0 0 6px rgba(255,255,255,0.3); }
+.next-cell.Z { background: #f00000; box-shadow: inset 0 0 6px rgba(255,255,255,0.3); }
+.next-cell.J { background: #0000f0; box-shadow: inset 0 0 6px rgba(255,255,255,0.3); }
+.next-cell.L { background: #f0a000; box-shadow: inset 0 0 6px rgba(255,255,255,0.3); }
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.stat-row .label {
+  font-size: 12px;
+  color: #9f9fcc;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.stat-row .value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #feca57;
+}
+
+.tetris-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.tetris-controls button {
+  padding: 8px 18px;
+  border: 2px solid #5f5f8a;
+  border-radius: 6px;
+  background: rgba(26, 26, 46, 0.9);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 1px;
+}
+
+.tetris-controls button:hover {
+  background: #5f5f8a;
+  border-color: #9f9fcc;
+}
+
+.tetris-controls button.primary {
+  background: #48dbfb;
+  border-color: #48dbfb;
+  color: #1a1a2e;
+}
+
+.tetris-controls button.primary:hover {
+  background: #0abde3;
+}
+
+.game-over-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  z-index: 10;
+}
+
+.game-over-overlay h2 {
+  font-size: 32px;
+  color: #ff6b6b;
+  margin: 0 0 8px 0;
+}
+
+.game-over-overlay p {
+  font-size: 16px;
+  color: #feca57;
+  margin: 0 0 16px 0;
+}
+
+.game-over-overlay button {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 6px;
+  background: #48dbfb;
+  color: #1a1a2e;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.game-over-overlay button:hover {
+  background: #0abde3;
+}
+
+.board-wrapper {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.pause-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  z-index: 10;
+}
+
+.pause-overlay h2 {
+  font-size: 28px;
+  color: #48dbfb;
+  letter-spacing: 4px;
+}
+
+.key-hints {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 4px 12px;
+  font-size: 11px;
+}
+
+.key-hints .key {
+  background: rgba(95, 95, 138, 0.4);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: monospace;
+  text-align: center;
+  color: #48dbfb;
+}
+
+.key-hints .desc {
+  color: #9f9fcc;
+}
+
+.back-link {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  color: #9f9fcc;
+  text-decoration: none;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s;
+}
+
+.back-link:hover {
+  color: #fff;
+}
+
+.line-clear-flash .tetris-cell.clearing {
+  animation: clearFlash 0.3s ease-out;
+}
+
+@keyframes clearFlash {
+  0% { background: #fff; }
+  100% { background: transparent; }
+}
