@@ -2,8 +2,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.session import engine
 from app.db.base import Base
+from app.api.v1.router import api_router
+from app.core.exceptions import AppException, app_exception_handler, generic_exception_handler
 
 app = FastAPI(title="投研问答助手 API", version="0.1.0", docs_url="/docs")
+
+# 注册异常处理器
+app.add_exception_handler(AppException, app_exception_handler)
+app.add_exception_handler(Exception, generic_exception_handler)
 
 app.add_middleware(
     CORSMiddleware,
@@ -33,6 +39,10 @@ async def startup():
             db.commit()
     finally:
         db.close()
+
+# 注册 v1 路由
+app.include_router(api_router, prefix="/api/v1")
+
 
 @app.get("/")
 async def root():
