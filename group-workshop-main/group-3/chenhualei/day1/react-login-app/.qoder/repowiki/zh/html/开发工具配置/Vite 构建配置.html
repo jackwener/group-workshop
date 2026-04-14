@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vite 构建配置 - React Login App 文档</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>📚 项目文档</h1>
+      </div>
+      <nav class="sidebar-nav">
+        <ul><li><a href="项目概述.html">项目概述</a></li><li><a href="快速开始.html">快速开始</a></li><li class="has-submenu"><span class="submenu-title">架构设计</span><ul class="submenu"><li><a href="架构设计/组件架构.html">组件架构</a></li><li><a href="架构设计/状态管理.html">状态管理</a></li><li><a href="架构设计/路由系统.html">路由系统</a></li><li><a href="架构设计/构建配置.html">构建配置</a></li></ul></li><li class="has-submenu"><span class="submenu-title">认证系统</span><ul class="submenu"><li><a href="认证系统/认证状态管理.html">认证状态管理</a></li><li><a href="认证系统/登录表单验证.html">登录表单验证</a></li><li><a href="认证系统/路由保护机制.html">路由保护机制</a></li><li><a href="认证系统/认证流程详解.html">认证流程详解</a></li></ul></li><li><a href="仪表板功能.html">仪表板功能</a></li><li class="has-submenu"><span class="submenu-title">俄罗斯方块游戏</span><ul class="submenu"><li><a href="俄罗斯方块游戏/游戏引擎核心.html">游戏引擎核心</a></li><li><a href="俄罗斯方块游戏/方块系统.html">方块系统</a></li><li><a href="俄罗斯方块游戏/物理机制.html">物理机制</a></li><li><a href="俄罗斯方块游戏/输入处理.html">输入处理</a></li><li><a href="俄罗斯方块游戏/界面渲染.html">界面渲染</a></li><li><a href="俄罗斯方块游戏/游戏状态管理.html">游戏状态管理</a></li></ul></li><li class="has-submenu"><span class="submenu-title">开发工具配置</span><ul class="submenu"><li><a href="开发工具配置/Vite 构建配置.html">Vite 构建配置</a></li><li><a href="开发工具配置/ESLint 代码规范.html">ESLint 代码规范</a></li><li><a href="开发工具配置/包依赖管理.html">包依赖管理</a></li><li><a href="开发工具配置/版本控制忽略规则.html">版本控制忽略规则</a></li></ul></li><li><a href="样式系统.html">样式系统</a></li><li><a href="部署指南.html">部署指南</a></li></ul>
+      </nav>
+    </aside>
+    
+    <main class="main-content">
+      <div class="breadcrumb">
+        <a href="index.html">首页</a> / <span>开发工具配置\Vite 构建配置</span>
+      </div>
+      
+      <article class="content">
+        <h1>Vite 构建配置</h1>
+<div class="cite-block">
+<strong>本文档引用的文件</strong>
+<ul><li><a href="file://vite.config.js">vite.config.js</a></li><li><a href="file://package.json">package.json</a></li><li><a href="file://index.html">index.html</a></li><li><a href="file://src/main.jsx">src/main.jsx</a></li><li><a href="file://src/App.jsx">src/App.jsx</a></li><li><a href="file://src/components/LoginForm.jsx">src/components/LoginForm.jsx</a></li><li><a href="file://src/store/authStore.js">src/store/authStore.js</a></li><li><a href="file://src/routes/ProtectedRoute.jsx">src/routes/ProtectedRoute.jsx</a></li><li><a href="file://src/pages/DashboardPage.jsx">src/pages/DashboardPage.jsx</a></li><li><a href="file://src/index.css">src/index.css</a></li><li><a href="file://eslint.config.js">eslint.config.js</a></li></ul>
+</div>
+<h2>目录</h2>
+1. <a href="#简介">简介</a>
+2. <a href="#项目结构">项目结构</a>
+3. <a href="#核心组件">核心组件</a>
+4. <a href="#架构概览">架构概览</a>
+5. <a href="#详细组件分析">详细组件分析</a>
+6. <a href="#依赖关系分析">依赖关系分析</a>
+7. <a href="#性能考虑">性能考虑</a>
+8. <a href="#故障排除指南">故障排除指南</a>
+9. <a href="#结论">结论</a>
+10. <a href="#附录">附录</a>
+<h2>简介</h2>
+<p>本项目是一个基于 React 19 和 Vite 的现代化前端应用，实现了用户登录认证功能。项目采用模块化架构设计，包含完整的开发工具链配置，支持热重载、代码分割和生产环境优化。</p>
+<p>该应用的核心特性包括：
+<ul><li>基于 React Router 的路由管理</li><li>Zustand 状态管理</li><li>React Hook Form 表单处理</li><li>Zod 数据验证</li><li>响应式设计和现代 CSS 实现</li></ul></p>
+<h2>项目结构</h2>
+<p>项目采用标准的 Vite + React 项目结构，主要目录组织如下：</p>
+<div class="mermaid">graph TB
+subgraph "根目录"
+VITE[vite.config.js]
+PKG[package.json]
+HTML[index.html]
+ESL[eslint.config.js]
+end
+subgraph "源代码目录"
+SRC[src/]
+PUB[public/]
+end
+subgraph "src 子目录"
+MAIN[main.jsx]
+APP[App.jsx]
+ASSETS[assets/]
+COMPONENTS[components/]
+PAGES[pages/]
+ROUTES[routes/]
+STORE[store/]
+CSS[index.css]
+end
+VITE --> SRC
+PKG --> SRC
+HTML --> MAIN
+MAIN --> APP
+APP --> COMPONENTS
+APP --> PAGES
+APP --> ROUTES
+APP --> STORE</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://vite.config.js#L1-L8">vite.config.js:1-8</a></li><li><a href="file://package.json#L1-L33">package.json:1-33</a></li><li><a href="file://index.html#L1-L14">index.html:1-14</a></li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://vite.config.js#L1-L8">vite.config.js:1-8</a></li><li><a href="file://package.json#L1-L33">package.json:1-33</a></li><li><a href="file://index.html#L1-L14">index.html:1-14</a></li></ul>
+<h2>核心组件</h2>
+<h3>Vite 配置系统</h3>
+<p>当前项目使用最小化的 Vite 配置，仅启用 React 插件支持：</p>
+<div class="mermaid">classDiagram
+class ViteConfig {
++plugins : Array
++defineConfig() Object
++export default Config
+}
+class ReactPlugin {
++name : "@vitejs/plugin-react"
++react() Plugin
++automaticRuntime : true
++babel : Object
+}
+ViteConfig --> ReactPlugin : "uses"</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://vite.config.js#L5-L7">vite.config.js:5-7</a></li></ul>
+<h3>React 应用架构</h3>
+<p>应用采用分层架构设计，各组件职责明确：</p>
+<div class="mermaid">graph TD
+subgraph "应用入口"
+MAIN[src/main.jsx]
+ROOT[ReactDOM Root]
+end
+subgraph "路由层"
+APP[src/App.jsx]
+ROUTER[React Router]
+end
+subgraph "页面层"
+LOGIN[LoginPage]
+DASHBOARD[DashboardPage]
+TETRIS[TetrisPage]
+end
+subgraph "组件层"
+FORM[LoginForm]
+PROTECTED[ProtectedRoute]
+end
+subgraph "状态管理层"
+AUTHSTORE[authStore]
+ZUSTAND[Zustand Store]
+end
+MAIN --> ROOT
+ROOT --> APP
+APP --> ROUTER
+APP --> LOGIN
+APP --> DASHBOARD
+APP --> TETRIS
+LOGIN --> FORM
+DASHBOARD --> PROTECTED
+PROTECTED --> AUTHSTORE
+AUTHSTORE --> ZUSTAND</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/main.jsx#L1-L11">src/main.jsx:1-11</a></li><li><a href="file://src/App.jsx#L1-L44">src/App.jsx:1-44</a></li><li><a href="file://src/store/authStore.js#L1-L44">src/store/authStore.js:1-44</a></li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://vite.config.js#L1-L8">vite.config.js:1-8</a></li><li><a href="file://src/main.jsx#L1-L11">src/main.jsx:1-11</a></li><li><a href="file://src/App.jsx#L1-L44">src/App.jsx:1-44</a></li></ul>
+<h2>架构概览</h2>
+<h3>开发服务器架构</h3>
+<div class="mermaid">sequenceDiagram
+participant Dev as "开发者"
+participant Vite as "Vite 服务器"
+participant React as "React 插件"
+participant Browser as "浏览器"
+Dev->>Vite : 启动开发服务器
+Vite->>React : 加载 React 插件
+React->>Vite : 注册 HMR 处理器
+Vite->>Browser : 建立 WebSocket 连接
+Browser->>Vite : 请求入口文件
+Vite->>Browser : 返回编译后的代码
+Browser->>React : 执行代码并渲染
+Dev->>Dev : 修改源代码
+Dev->>React : 触发热重载
+React->>Vite : 重新编译变更模块
+Vite->>Browser : 推送 HMR 更新
+Browser->>React : 应用热更新</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://vite.config.js#L5-L7">vite.config.js:5-7</a></li><li><a href="file://src/main.jsx#L1-L11">src/main.jsx:1-11</a></li></ul>
+<h3>生产构建流程</h3>
+<div class="mermaid">flowchart TD
+Start([开始构建]) --> LoadConfig["加载 Vite 配置"]
+LoadConfig --> ScanFiles["扫描源代码文件"]
+ScanFiles --> TransformJSX["转换 JSX 语法"]
+TransformJSX --> OptimizeCSS["优化 CSS 代码"]
+OptimizeCSS --> BundleJS["打包 JavaScript"]
+BundleJS --> SplitChunks["代码分割"]
+SplitChunks --> MinifyJS["压缩 JavaScript"]
+MinifyJS --> GenerateAssets["生成静态资源"]
+GenerateAssets --> WriteOutput["写入输出目录"]
+WriteOutput --> End([构建完成])</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://vite.config.js#L5-L7">vite.config.js:5-7</a></li><li><a href="file://package.json#L6-L11">package.json:6-11</a></li></ul>
+<h2>详细组件分析</h2>
+<h3>@vitejs/plugin-react 插件详解</h3>
+<h4>插件作用机制</h4>
+<div class="mermaid">classDiagram
+class ReactPlugin {
++name : "@vitejs/plugin-react"
++transform() Function
++load() Function
++resolveId() Function
++handleHotUpdate() Function
+}
+class JSXTransformer {
++transformJSX() String
++optimizeComponents() String
++addDevTools() String
+}
+class HMRHandler {
++handleComponentUpdate() Void
++updateStyles() Void
++preserveState() Void
+}
+ReactPlugin --> JSXTransformer : "使用"
+ReactPlugin --> HMRHandler : "集成"</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://vite.config.js#L2">vite.config.js:2</a></li></ul>
+<h4>配置参数说明</h4>
+<p>当前配置采用默认设置，支持以下特性：
+<ul><li>自动 JSX 转换</li><li>React Refresh 热重载</li><li>开发环境调试工具</li><li>生产环境优化</li></ul></p>
+<strong>章节来源</strong>
+<ul><li><a href="file://vite.config.js#L1-L8">vite.config.js:1-8</a></li></ul>
+<h3>开发服务器配置</h3>
+<h4>端口和网络设置</h4>
+<p>虽然当前配置未显式指定端口，但可以通过以下方式配置：</p>
+<div class="mermaid">flowchart LR
+subgraph "开发服务器配置"
+PORT[端口设置]
+HOST[主机地址]
+HTTPS[HTTPS 支持]
+OPEN[自动打开浏览器]
+end
+subgraph "网络配置"
+ORIGIN[跨域设置]
+PROXY[代理配置]
+HOST<em>HEADER[Host 头部]
+end
+PORT --> HOST
+HOST --> HTTPS
+HTTPS --> OPEN
+ORIGIN --> PROXY
+PROXY --> HOST</em>HEADER</div>
+<h4>路径别名配置</h4>
+<p>项目结构中未配置路径别名，可通过以下方式扩展：</p>
+<strong>章节来源</strong>
+<ul><li><a href="file://vite.config.js#L5-L7">vite.config.js:5-7</a></li></ul>
+<h3>构建优化策略</h3>
+<h4>代码分割实现</h4>
+<div class="mermaid">graph TB
+subgraph "代码分割策略"
+ROUTE<em>BASED[按路由分割]
+LAZY</em>LOADING[懒加载组件]
+CHUNK<em>OPTIMIZATION[块优化]
+end
+subgraph "分割结果"
+LOGIN</em>CHUNK[登录页面块]
+DASHBOARD<em>CHUNK[仪表板块]
+COMMON</em>CHUNK[公共依赖块]
+end
+ROUTE<em>BASED --> LOGIN</em>CHUNK
+ROUTE<em>BASED --> DASHBOARD</em>CHUNK
+LAZY<em>LOADING --> COMMON</em>CHUNK
+CHUNK<em>OPTIMIZATION --> COMMON</em>CHUNK</div>
+<h4>生产环境优化</h4>
+<div class="mermaid">flowchart TD
+subgraph "构建优化"
+MINIFY[代码压缩]
+TREE<em>SHAKE[摇树优化]
+CACHE</em>BUSTING[缓存失效]
+ASSET<em>OPTIMIZATION[资源优化]
+end
+subgraph "输出优化"
+SMALLER</em>BUNDLE[更小包体]
+FASTER<em>LOAD[更快加载]
+BETTER</em>CACHE[更好缓存]
+OPTIMAL<em>PERFORMANCE[最佳性能]
+end
+MINIFY --> SMALLER</em>BUNDLE
+TREE<em>SHAKE --> SMALLER</em>BUNDLE
+CACHE<em>BUSTING --> BETTER</em>CACHE
+ASSET<em>OPTIMIZATION --> OPTIMAL</em>PERFORMANCE</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://package.json#L8">package.json:8</a></li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://package.json#L6-L11">package.json:6-11</a></li></ul>
+<h3>热重载机制</h3>
+<h4>HMR 工作原理</h4>
+<div class="mermaid">sequenceDiagram
+participant Dev as "开发者编辑器"
+participant FS as "文件系统监听"
+participant HMR as "HMR 服务器"
+participant Client as "客户端 HMR 客户端"
+participant React as "React 组件"
+Dev->>FS : 保存文件更改
+FS->>HMR : 发送文件变更事件
+HMR->>Client : 推送更新消息
+Client->>Client : 计算更新范围
+Client->>React : 协调更新
+React->>React : 保持组件状态
+React->>React : 重新渲染受影响部分
+Client->>Dev : 显示更新结果</div>
+<h4>状态保持策略</h4>
+<p>React Refresh 插件确保在热重载过程中保持组件状态：
+<ul><li>函数组件状态保持</li><li>Hooks 状态持久化</li><li>错误边界处理</li><li>性能优化提示</li></ul></p>
+<strong>章节来源</strong>
+<ul><li><a href="file://vite.config.js#L2">vite.config.js:2</a></li></ul>
+<h3>静态资源处理</h3>
+<h4>资源类型支持</h4>
+<div class="mermaid">graph LR
+subgraph "静态资源类型"
+IMG[图片资源]
+CSS[样式文件]
+FONT[字体文件]
+MEDIA[媒体文件]
+end
+subgraph "处理流程"
+LOADER[资源加载器]
+TRANSFORM[内容转换]
+OPTIMIZE[资源优化]
+EMBED[内联嵌入]
+end
+subgraph "输出结果"
+ASSETS[构建产物]
+CACHE[缓存标识]
+end
+IMG --> LOADER
+CSS --> LOADER
+FONT --> LOADER
+MEDIA --> LOADER
+LOADER --> TRANSFORM
+TRANSFORM --> OPTIMIZE
+OPTIMIZE --> EMBED
+EMBED --> ASSETS
+ASSETS --> CACHE</div>
+<strong>章节来源</strong>
+<ul><li><a href="file://index.html#L5">index.html:5</a></li></ul>
+<h3>环境变量处理</h3>
+<h4>变量命名规范</h4>
+<p>项目使用 Vite 的环境变量约定：
+<ul><li><code>VITE<em></code> 前缀的变量在客户端可用</li><li>其他变量仅在服务端可用</li><li>默认值通过 <code>??</code> 操作符设置</li></ul></p>
+<strong>章节来源</strong>
+<ul><li><a href="file://package.json#L12-L20">package.json:12-20</a></li></ul>
+<h2>依赖关系分析</h2>
+<h3>核心依赖关系</h3>
+<div class="mermaid">graph TB
+subgraph "运行时依赖"
+REACT[react ^19.2.4]
+REACTDOM[react-dom ^19.2.4]
+ROUTER[react-router-dom ^7.14.0]
+ZUSTAND[zustand ^5.0.12]
+HOOKFORM[react-hook-form ^7.72.1]
+ZOD[zod ^4.3.6]
+RESOLVERS[@hookform/resolvers ^5.2.2]
+end
+subgraph "开发依赖"
+VITE[vite ^8.0.4]
+REACT</em>PLUGIN[@vitejs/plugin-react ^6.0.1]
+ESLINT[eslint ^9.39.4]
+TYPES[@types/react ^19.2.14]
+REFRESH[react-refresh ^0.5.2]
+end
+subgraph "工具链"
+ESLINT<em>CONFIG[eslint.config.js]
+VITE</em>CONFIG[vite.config.js]
+PACKAGE<em>JSON[package.json]
+end
+REACT --> REACTDOM
+REACT --> ROUTER
+REACT --> HOOKFORM
+HOOKFORM --> RESOLVERS
+HOOKFORM --> ZOD
+ZUSTAND --> REACT
+VITE --> REACT</em>PLUGIN
+ESLINT --> ESLINT<em>CONFIG
+VITE</em>CONFIG --> VITE
+PACKAGE<em>JSON --> VITE
+PACKAGE</em>JSON --> ESLINT</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://package.json#L12-L31">package.json:12-31</a></li></ul>
+<h3>版本兼容性</h3>
+<h4>React 19 兼容性</h4>
+<p>项目已升级到 React 19.2.4，主要兼容性改进：
+<ul><li>新的并发特性支持</li><li>改进的 Suspense 行为</li><li>更好的错误边界处理</li><li>优化的渲染性能</li></ul></p>
+<strong>章节来源</strong>
+<ul><li><a href="file://package.json#L14-L19">package.json:14-19</a></li></ul>
+<h2>性能考虑</h2>
+<h3>构建性能优化</h3>
+<h4>缓存策略</h4>
+<div class="mermaid">flowchart TD
+subgraph "构建缓存"
+FILE<em>CACHE[文件系统缓存]
+MODULE</em>CACHE[模块依赖缓存]
+TRANSFORM<em>CACHE[转换结果缓存]
+end
+subgraph "缓存优化"
+HASH</em>INVALIDATION[哈希失效检测]
+PARTIAL<em>REBUILD[部分重建]
+CONCURRENT</em>BUILD[并发构建]
+end
+subgraph "性能指标"
+BUILD<em>TIME[构建时间减少]
+MEMORY</em>USAGE[内存使用优化]
+CPU<em>USAGE[CPU 使用率降低]
+end
+FILE</em>CACHE --> HASH<em>INVALIDATION
+MODULE</em>CACHE --> PARTIAL<em>REBUILD
+TRANSFORM</em>CACHE --> CONCURRENT<em>BUILD
+HASH</em>INVALIDATION --> BUILD<em>TIME
+PARTIAL</em>REBUILD --> MEMORY<em>USAGE
+CONCURRENT</em>BUILD --> CPU<em>USAGE</div>
+<h4>内存管理</h4>
+<ul><li>模块图缓存</li><li>AST 解析缓存</li><li>转换结果缓存</li><li>文件内容缓存</li></ul>
+<h3>运行时性能</h3>
+<h4>代码分割策略</h4>
+<div class="mermaid">graph LR
+subgraph "路由级分割"
+LOGIN[登录路由]
+DASHBOARD[仪表板路由]
+TETRIS[游戏路由]
+end
+subgraph "组件级分割"
+LOGIN</em>FORM[登录表单组件]
+PROTECTED<em>ROUTE[受保护路由]
+STATS</em>CARD[统计卡片组件]
+end
+subgraph "状态管理分割"
+AUTH<em>STORE[认证状态]
+UI</em>STORE[界面状态]
+end
+LOGIN --> LOGIN<em>FORM
+DASHBOARD --> STATS</em>CARD
+DASHBOARD --> PROTECTED<em>ROUTE
+AUTH</em>STORE --> UI<em>STORE</div>
+<h2>故障排除指南</h2>
+<h3>常见问题诊断</h3>
+<h4>热重载不工作</h4>
+<div class="mermaid">flowchart TD
+ISSUE[热重载问题] --> CHECK</em>HMR{检查 HMR 设置}
+CHECK<em>HMR --> |正常| CHECK</em>PLUGIN{检查插件配置}
+CHECK<em>HMR --> |异常| FIX</em>PORT[修复端口配置]
+CHECK<em>PLUGIN --> |正常| CHECK</em>BROWSER{检查浏览器兼容性}
+CHECK<em>PLUGIN --> |异常| UPDATE</em>PLUGIN[更新插件版本]
+CHECK<em>BROWSER --> |正常| CHECK</em>NETWORK{检查网络连接}
+CHECK<em>BROWSER --> |异常| FIX</em>BROWSER[修复浏览器问题]
+CHECK<em>NETWORK --> |正常| CHECK</em>FIREWALL{检查防火墙设置}
+CHECK<em>NETWORK --> |异常| FIX</em>FIREWALL[修复防火墙配置]
+FIX<em>PORT --> RESOLVE[问题解决]
+UPDATE</em>PLUGIN --> RESOLVE
+FIX<em>BROWSER --> RESOLVE
+FIX</em>FIREWALL --> RESOLVE
+RESOLVE --> END[恢复正常]</div>
+<h4>构建失败排查</h4>
+<div class="mermaid">flowchart TD
+BUILD<em>FAIL[构建失败] --> CHECK</em>DEPS{检查依赖安装}
+CHECK<em>DEPS --> |正常| CHECK</em>CONFIG{检查配置文件}
+CHECK<em>DEPS --> |异常| INSTALL</em>DEPS[重新安装依赖]
+CHECK<em>CONFIG --> |正常| CHECK</em>SYNTAX{检查语法错误}
+CHECK<em>CONFIG --> |异常| FIX</em>CONFIG[修复配置错误]
+CHECK<em>SYNTAX --> |正常| CHECK</em>MEMORY{检查内存限制}
+CHECK<em>SYNTAX --> |异常| FIX</em>SYNTAX[修复语法错误]
+CHECK<em>MEMORY --> |正常| CHECK</em>DISK{检查磁盘空间}
+CHECK<em>MEMORY --> |异常| CLEAN</em>CACHE[清理缓存]
+CHECK<em>DISK --> |正常| CHECK</em>PERMISSIONS{检查权限设置}
+CHECK<em>DISK --> |异常| FIX</em>DISK[修复磁盘问题]
+INSTALL<em>DEPS --> RESOLVE[问题解决]
+FIX</em>CONFIG --> RESOLVE
+FIX<em>SYNTAX --> RESOLVE
+CLEAN</em>CACHE --> RESOLVE
+FIX<em>DISK --> RESOLVE
+FIX</em>PERMISSIONS --> RESOLVE
+RESOLVE --> SUCCESS[构建成功]</div>
+<strong>章节来源</strong>
+<ul><li><a href="file://eslint.config.js#L1-L30">eslint.config.js:1-30</a></li></ul>
+<h3>性能问题诊断</h3>
+<h4>内存泄漏检测</h4>
+<div class="mermaid">flowchart LR
+subgraph "内存监控"
+HEAP<em>SNAPSHOT[堆快照分析]
+LEAK</em>DETECTION[泄漏检测]
+RETAINERS[保留者分析]
+end
+subgraph "优化措施"
+CODE<em>SPLITTING[代码分割]
+STATE</em>CLEANUP[状态清理]
+EVENT<em>CLEANUP[事件清理]
+end
+subgraph "监控指标"
+HEAP</em>USAGE[堆使用量]
+GC<em>ACTIVITY[垃圾回收活动]
+ALLOC</em>RATE[分配速率]
+end
+HEAP<em>SNAPSHOT --> LEAK</em>DETECTION
+LEAK<em>DETECTION --> RETAINERS
+RETAINERS --> CODE</em>SPLITTING
+CODE<em>SPLITTING --> HEAP</em>USAGE
+STATE<em>CLEANUP --> GC</em>ACTIVITY
+EVENT<em>CLEANUP --> ALLOC</em>RATE</div>
+<strong>章节来源</strong>
+<ul><li><a href="file://src/store/authStore.js#L1-L44">src/store/authStore.js:1-44</a></li></ul>
+<h2>结论</h2>
+<p>本项目展示了现代 Vite + React 开发的最佳实践。通过合理的配置和架构设计，实现了高效的开发体验和优秀的运行时性能。</p>
+<h3>主要优势</h3>
+<p>1. <strong>开发体验优秀</strong>：热重载、快速构建、智能错误提示
+2. <strong>性能表现优异</strong>：代码分割、缓存优化、按需加载
+3. <strong>架构清晰</strong>：模块化设计、职责分离、可维护性强
+4. <strong>技术栈先进</strong>：React 19、Vite 8、ESLint 9</p>
+<h3>改进建议</h3>
+<p>1. <strong>增加配置项</strong>：端口、代理、路径别名等
+2. <strong>增强监控</strong>：构建性能监控、运行时性能分析
+3. <strong>完善测试</strong>：单元测试、集成测试、端到端测试
+4. <strong>优化部署</strong>：CDN 配置、PWA 支持、服务端渲染</p>
+<h2>附录</h2>
+<h3>最佳实践清单</h3>
+<h4>开发阶段</h4>
+<ul><li>使用严格的 TypeScript 类型检查</li><li>实施代码格式化和 linting 规则</li><li>建立完善的错误边界处理</li><li>实现组件级别的测试覆盖</li></ul>
+<h4>构建阶段</h4>
+<ul><li>启用代码压缩和混淆</li><li>实现资源内联和外链优化</li><li>配置适当的缓存策略</li><li>实施安全头文件配置</li></ul>
+<h4>部署阶段</h4>
+<ul><li>使用 CDN 分发静态资源</li><li>配置 HTTPS 和安全证书</li><li>实现渐进式 Web 应用(PWA)</li><li>建立监控和日志系统</li></ul>
+      </article>
+      
+      <footer class="page-footer">
+        <p>React Login App 项目文档</p>
+      </footer>
+    </main>
+  </div>
+  
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true
+      }
+    });
+  </script>
+</body>
+</html>
