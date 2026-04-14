@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>财务数据分析系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/axios/1.6.2/axios.min.js"></script>
+    <script>
+        // 检测axios是否加载成功
+        window.addEventListener('load', function() {
+            if (typeof axios === 'undefined') {
+                document.body.innerHTML = '<div style="padding:50px;text-align:center;color:#f44336;">' +
+                    '<h2>资源加载失败</h2>' +
+                    '<p>请检查网络连接，或刷新页面重试</p>' +
+                    '<button onclick="location.reload()" style="padding:10px 20px;margin-top:20px;cursor:pointer;">刷新页面</button>' +
+                    '</div>';
+            }
+        });
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .control-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .control-panel select {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 200px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        
+        .control-panel select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .control-panel button {
+            padding: 10px 25px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: background 0.3s;
+        }
+        
+        .control-panel button:hover {
+            background: #5a6fd6;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .metric-card h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .metric-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .metric-change {
+            font-size: 14px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        .metric-change.positive {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .metric-change.negative {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .chart-container h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .chart {
+            width: 100%;
+            height: 400px;
+        }
+        
+        .analysis-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .analysis-section h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+        
+        .insight-list {
+            list-style: none;
+        }
+        
+        .insight-list li {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .insight-list li.turning-point {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+        }
+        
+        .insight-list li.anomaly-high {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+        }
+        
+        .insight-list li.anomaly-low {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .insight-list li.trend {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+        }
+        
+        .insight-icon {
+            font-size: 20px;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .data-table th {
+            background: #f5f7fa;
+            font-weight: 600;
+            color: #666;
+            text-align: right;
+        }
+        
+        .data-table td:first-child,
+        .data-table th:first-child {
+            text-align: left;
+        }
+        
+        .data-table tr:hover {
+            background: #f5f7fa;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+        
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+            color: #666;
+        }
+        
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            font-weight: 600;
+        }
+        
+        .tab:hover {
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <header>
+                <h1>📊 财务数据分析系统</h1>
+                <p>智能分析企业近12期季度财务数据，自动标注增速拐点和异常值</p>
+            </header>
+            
+            <div class="control-panel">
+                <input 
+                    type="text" 
+                    v-model="searchText" 
+                    @input="filterCompanies"
+                    placeholder="搜索股票代码或名称..."
+                    style="padding: 10px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; width: 300px; margin-right: 10px;"
+                />
+                <select v-model="selectedCompany" :disabled="loading" style="padding: 10px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; min-width: 250px;">
+                    <option value="">请选择公司</option>
+                    <optgroup label="模拟数据">
+                        <option v-for="company in filteredCompanies.filter(c => c.source === 'sample')" :key="company.code" :value="company.code">
+                            {{ company.name }} ({{ company.code }})
+                        </option>
+                    </optgroup>
+                    <optgroup label="A股真实数据" v-if="filteredCompanies.filter(c => c.source === 'real').length > 0">
+                        <option v-for="company in filteredCompanies.filter(c => c.source === 'real')" :key="company.code" :value="company.code" :data-name="company.name">
+                            {{ company.name }} ({{ company.code }})
+                        </option>
+                    </optgroup>
+                </select>
+                <button @click="loadData" :disabled="!selectedCompany || loading">
+                    {{ loading ? '加载中...' : '分析数据' }}
+                </button>
+                <span v-if="dataSources.akshare" style="margin-left: 10px; color: #4caf50; font-size: 12px;">
+                    ✓ AkShare已连接
+                </span>
+            </div>
+            
+            <div v-if="error" class="error">
+                {{ error }}
+            </div>
+            
+            <div v-if="loading" class="loading">
+                <p>正在分析财务数据...</p>
+            </div>
+            
+            <template v-if="data && !loading">
+                <!-- 数据时间说明 -->
+                <div style="background: #e3f2fd; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #2196f3;">
+                    <strong>📅 数据说明：</strong>
+                    <span>最新数据季度: <strong>{{ report.latest_metrics.quarter }}</strong></span>
+                    <span style="margin-left: 30px;">数据周期: <strong>单季度数据</strong></span>
+                    <span style="margin-left: 30px; color: #666; font-size: 13px;">
+                        （如2025Q3表示2025年7-9月单季度的经营数据）
+                    </span>
+                </div>
+                
+                <!-- 关键指标卡片 -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <h3>归母净利润 (单季度)</h3>
+                        <div class="metric-value">{{ formatNumber(report.latest_metrics.net_profit) }}亿</div>
+                        <span class="metric-change" :class="getGrowthClass(report.latest_metrics.recurring_profit_growth)">
+                            扣非增速 {{ formatPercent(report.latest_metrics.recurring_profit_growth) }}
+                        </span>
+                    </div>
+                    <div class="metric-card">
+                        <h3>ROE (年化)</h3>
+                        <div class="metric-value">{{ formatPercent(report.latest_metrics.roe) }}</div>
+                        <span class="metric-change" :class="getGrowthClass(report.latest_metrics.roe - report.statistics.avg_roe)">
+                            平均 {{ formatPercent(report.statistics.avg_roe) }}
+                        </span>
+                    </div>
+                    <div class="metric-card">
+                        <h3>毛利率</h3>
+                        <div class="metric-value">{{ formatPercent(report.latest_metrics.gross_margin) }}</div>
+                        <span class="metric-change" :class="getGrowthClass(report.latest_metrics.gross_margin - report.statistics.avg_gross_margin)">
+                            平均 {{ formatPercent(report.statistics.avg_gross_margin) }}
+                        </span>
+                    </div>
+                    <div class="metric-card">
+                        <h3>费用率</h3>
+                        <div class="metric-value">{{ formatPercent(report.latest_metrics.expense_ratio) }}</div>
+                        <span class="metric-change" :class="report.latest_metrics.expense_ratio < 20 ? 'positive' : 'negative'">
+                            {{ report.latest_metrics.expense_ratio < 20 ? '费用控制良好' : '费用率偏高' }}
+                        </span>
+                    </div>
+                    <div class="metric-card">
+                        <h3>经营现金流/净利润</h3>
+                        <div class="metric-value">{{ formatNumber(report.latest_metrics.cash_flow_ratio) }}</div>
+                        <span class="metric-change" :class="report.latest_metrics.cash_flow_ratio > 1 ? 'positive' : 'negative'">
+                            {{ report.latest_metrics.cash_flow_ratio > 1 ? '现金流健康' : '现金流承压' }}
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- 图表标签页 -->
+                <div class="tabs">
+                    <div 
+                        v-for="tab in chartTabs" 
+                        :key="tab.key"
+                        class="tab"
+                        :class="{ active: activeTab === tab.key }"
+                        @click="activeTab = tab.key"
+                    >
+                        {{ tab.label }}
+                    </div>
+                </div>
+                
+                <!-- 图表区域 -->
+                <div class="chart-container">
+                    <div :id="chartId" class="chart"></div>
+                </div>
+                
+                <!-- 智能分析洞察 -->
+                <div class="analysis-section">
+                    <h3>🔍 智能分析洞察</h3>
+                    <ul class="insight-list">
+                        <li class="trend">
+                            <span class="insight-icon">📈</span>
+                            <span>净利润趋势：{{ report.trend_analysis.profit_trend }}，{{ report.trend_analysis.growth_trend }}</span>
+                        </li>
+                        <li v-for="(point, idx) in report.turning_points.profit" :key="'tp-'+idx" class="turning-point">
+                            <span class="insight-icon">{{ point.type === 'peak' ? '🔺' : '🔻' }}</span>
+                            <span>{{ point.quarter }} {{ point.description }}，净利润 {{ formatNumber(point.value) }}亿</span>
+                        </li>
+                        <li v-for="(anomaly, idx) in report.anomalies" :key="'an-'+idx" :class="'anomaly-' + anomaly.type">
+                            <span class="insight-icon">{{ anomaly.type === 'high' ? '⚠️' : '💡' }}</span>
+                            <span>{{ anomaly.quarter }} {{ anomaly.description }}，净利润 {{ formatNumber(anomaly.value) }}亿 (Z-score: {{ anomaly.z_score }})</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- 详细数据表格 -->
+                <div class="analysis-section">
+                    <h3>📋 详细财务数据</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>季度</th>
+                                <th>归母净利润(亿)</th>
+                                <th>扣非增速(%)</th>
+                                <th>ROE(%)</th>
+                                <th>毛利率(%)</th>
+                                <th>费用率(%)</th>
+                                <th>现金流/净利润</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="metric in data.metrics" :key="metric.quarter">
+                                <td><strong>{{ metric.quarter }}</strong></td>
+                                <td>{{ formatNumber(metric.net_profit) }}</td>
+                                <td :style="{ color: getValueColor(metric.recurring_profit_growth) }">
+                                    {{ formatPercent(metric.recurring_profit_growth) }}
+                                </td>
+                                <td>{{ formatPercent(metric.roe) }}</td>
+                                <td>{{ formatPercent(metric.gross_margin) }}</td>
+                                <td>{{ formatPercent(metric.expense_ratio) }}</td>
+                                <td :style="{ color: getCashFlowColor(metric.cash_flow_ratio) }">
+                                    {{ formatNumber(metric.cash_flow_ratio) }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+        </div>
+    </div>
+    
+    <script>
+        const { createApp } = Vue;
+        
+        createApp({
+            data() {
+                return {
+                    companies: [],
+                    filteredCompanies: [],
+                    searchText: '',
+                    selectedCompany: '',
+                    data: null,
+                    report: null,
+                    loading: false,
+                    error: null,
+                    dataSources: { akshare: false, tushare: false },
+                    activeTab: 'net_profit',
+                    chartTabs: [
+                        { key: 'net_profit', label: '归母净利润' },
+                        { key: 'recurring_profit_growth', label: '扣非增速' },
+                        { key: 'roe', label: 'ROE' },
+                        { key: 'gross_margin', label: '毛利率' },
+                        { key: 'expense_ratio', label: '费用率' },
+                        { key: 'cash_flow_ratio', label: '现金流/净利润' }
+                    ],
+                    chartInstance: null,
+                    chartId: 'main-chart'
+                };
+            },
+            
+            watch: {
+                activeTab() {
+                    if (this.data) {
+                        this.$nextTick(() => {
+                            this.renderChart();
+                        });
+                    }
+                }
+            },
+            
+            mounted() {
+                this.loadCompanies();
+                window.addEventListener('resize', this.handleResize);
+            },
+            
+            beforeUnmount() {
+                window.removeEventListener('resize', this.handleResize);
+                if (this.chartInstance) {
+                    this.chartInstance.dispose();
+                }
+            },
+            
+            methods: {
+                async loadCompanies() {
+                    try {
+                        const response = await axios.get('/api/companies');
+                        if (response.data.success) {
+                            this.companies = response.data.data;
+                            this.filteredCompanies = response.data.data;
+                            this.dataSources = response.data.data_sources || {};
+                        }
+                    } catch (err) {
+                        this.error = '加载公司列表失败：' + err.message;
+                    }
+                },
+                
+                filterCompanies() {
+                    if (!this.searchText) {
+                        this.filteredCompanies = this.companies;
+                        return;
+                    }
+                    
+                    const search = this.searchText.toLowerCase();
+                    this.filteredCompanies = this.companies.filter(company => 
+                        company.code.toLowerCase().includes(search) ||
+                        company.name.toLowerCase().includes(search)
+                    );
+                },
+                
+                async loadData() {
+                    if (!this.selectedCompany) return;
+                    
+                    this.loading = true;
+                    this.error = null;
+                    
+                    try {
+                        // 获取公司名称
+                        const selectedOption = document.querySelector(`select option[value="${this.selectedCompany}"]`);
+                        const companyName = selectedOption ? selectedOption.dataset.name || '' : '';
+                        
+                        const response = await axios.get(`/api/financial-data/${this.selectedCompany}`, {
+                            params: { 
+                                source: 'auto',
+                                name: companyName 
+                            }
+                        });
+                        if (response.data.success) {
+                            this.data = response.data.data;
+                            this.report = response.data.data.report;
+                            this.$nextTick(() => {
+                                this.renderChart();
+                            });
+                        } else {
+                            this.error = response.data.error || '加载数据失败';
+                        }
+                    } catch (err) {
+                        this.error = '加载数据失败：' + err.message;
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                
+                renderChart() {
+                    if (!this.data || !this.data.chart_data) return;
+                    
+                    const chartDom = document.getElementById(this.chartId);
+                    if (!chartDom) return;
+                    
+                    if (this.chartInstance) {
+                        this.chartInstance.dispose();
+                    }
+                    
+                    this.chartInstance = echarts.init(chartDom);
+                    
+                    const chartData = this.data.chart_data;
+                    const quarters = chartData.quarters;
+                    const seriesData = chartData[this.activeTab];
+                    
+                    if (!quarters || !seriesData || quarters.length === 0) {
+                        console.error('图表数据为空');
+                        return;
+                    }
+                    
+                    // 获取拐点和异常值标记
+                    const markPoints = [];
+                    
+                    try {
+                        // 添加拐点标记
+                        if (this.report && this.report.turning_points) {
+                            const tpKey = this.activeTab === 'net_profit' ? 'profit' : 
+                                         this.activeTab === 'recurring_profit_growth' ? 'growth' : null;
+                            if (tpKey && this.report.turning_points[tpKey]) {
+                                this.report.turning_points[tpKey].forEach(point => {
+                                    // 查找季度在数据中的索引
+                                    const index = quarters.indexOf(point.quarter);
+                                    if (index !== -1 && point.value !== undefined) {
+                                        markPoints.push({
+                                            name: point.description,
+                                            xAxis: index,
+                                            yAxis: point.value,
+                                            value: point.description,
+                                            itemStyle: {
+                                                color: point.type === 'peak' ? '#ff9800' : '#4caf50'
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        }
+                        
+                        // 添加异常值标记
+                        if (this.activeTab === 'net_profit' && this.report && this.report.anomalies) {
+                            this.report.anomalies.forEach(anomaly => {
+                                const index = quarters.indexOf(anomaly.quarter);
+                                if (index !== -1 && anomaly.value !== undefined) {
+                                    markPoints.push({
+                                        name: anomaly.description,
+                                        xAxis: index,
+                                        yAxis: anomaly.value,
+                                        value: anomaly.description,
+                                        itemStyle: {
+                                            color: anomaly.type === 'high' ? '#f44336' : '#2196f3'
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    } catch (err) {
+                        console.error('处理标记点错误:', err);
+                    }
+                    
+                    // 计算平均线
+                    const validData = seriesData.filter(v => v !== null && v !== undefined);
+                    const avg = validData.length > 0 ? validData.reduce((a, b) => a + b, 0) / validData.length : 0;
+                    
+                    const option = {
+                        tooltip: {
+                            trigger: 'axis',
+                            formatter: (params) => {
+                                if (!params || params.length === 0) return '';
+                                const p = params[0];
+                                const quarter = p.name;
+                                
+                                // 解析季度信息
+                                let timeDesc = '';
+                                if (quarter) {
+                                    const match = quarter.match(/(\d{4})Q(\d)/);
+                                    if (match) {
+                                        const year = match[1];
+                                        const q = match[2];
+                                        const months = {'1': '1-3月', '2': '4-6月', '3': '7-9月', '4': '10-12月'};
+                                        timeDesc = `${year}年${months[q] || ''}单季度`;
+                                    }
+                                }
+                                
+                                return `<strong>${timeDesc}</strong><br/>` +
+                                       `季度标识: ${quarter}<br/>` +
+                                       `${p.seriesName}: ${this.formatValue(p.value, this.activeTab)}`;
+                            }
+                        },
+                        legend: {
+                            data: [this.getChartTitle()]
+                        },
+                        title: {
+                            text: `${this.getChartTitle()}（单季度数据）`,
+                            left: 'center',
+                            top: 10,
+                            textStyle: {
+                                fontSize: 16,
+                                fontWeight: 'bold',
+                                color: '#333'
+                            }
+                        },
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        xAxis: {
+                            type: 'category',
+                            boundaryGap: false,
+                            data: quarters,
+                            axisLabel: {
+                                rotate: 45
+                            }
+                        },
+                        yAxis: {
+                            type: 'value',
+                            name: this.getYAxisName(),
+                            axisLabel: {
+                                formatter: (value) => this.formatValue(value, this.activeTab)
+                            }
+                        },
+                        series: [{
+                            name: this.getChartTitle(),
+                            type: 'line',
+                            data: seriesData,
+                            smooth: true,
+                            symbol: 'circle',
+                            symbolSize: 8,
+                            lineStyle: {
+                                width: 3,
+                                color: '#667eea'
+                            },
+                            itemStyle: {
+                                color: '#667eea'
+                            },
+                            areaStyle: {
+                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                    { offset: 0, color: 'rgba(102, 126, 234, 0.3)' },
+                                    { offset: 1, color: 'rgba(102, 126, 234, 0.05)' }
+                                ])
+                            },
+                            markPoint: markPoints.length > 0 ? {
+                                data: markPoints,
+                                label: {
+                                    show: true,
+                                    formatter: '{b}'
+                                }
+                            } : undefined,
+                            markLine: {
+                                data: [{ yAxis: avg }],
+                                label: {
+                                    formatter: '平均值: {c}'
+                                },
+                                lineStyle: {
+                                    type: 'dashed',
+                                    color: '#999'
+                                }
+                            }
+                        }]
+                    };
+                    
+                    this.chartInstance.setOption(option);
+                },
+                
+                handleResize() {
+                    if (this.chartInstance) {
+                        this.chartInstance.resize();
+                    }
+                },
+                
+                getChartTitle() {
+                    const titles = {
+                        net_profit: '归母净利润',
+                        recurring_profit_growth: '扣非净利润增速',
+                        roe: 'ROE(年化)',
+                        gross_margin: '毛利率',
+                        expense_ratio: '费用率',
+                        cash_flow_ratio: '经营现金流/净利润'
+                    };
+                    return titles[this.activeTab] || '';
+                },
+                
+                getYAxisName() {
+                    const units = {
+                        net_profit: '亿元',
+                        recurring_profit_growth: '%',
+                        roe: '%',
+                        gross_margin: '%',
+                        expense_ratio: '%',
+                        cash_flow_ratio: ''
+                    };
+                    return units[this.activeTab] || '';
+                },
+                
+                formatValue(value, type) {
+                    if (value === null || value === undefined) return '-';
+                    if (type === 'net_profit' || type === 'cash_flow_ratio') {
+                        return this.formatNumber(value);
+                    }
+                    return this.formatPercent(value);
+                },
+                
+                formatNumber(num) {
+                    if (num === null || num === undefined) return '-';
+                    return Number(num).toFixed(2);
+                },
+                
+                formatPercent(num) {
+                    if (num === null || num === undefined) return '-';
+                    return Number(num).toFixed(2) + '%';
+                },
+                
+                getGrowthClass(value) {
+                    if (value > 0) return 'positive';
+                    if (value < 0) return 'negative';
+                    return '';
+                },
+                
+                getValueColor(value) {
+                    if (value > 20) return '#2e7d32';
+                    if (value > 0) return '#4caf50';
+                    if (value > -20) return '#ff9800';
+                    return '#f44336';
+                },
+                
+                getCashFlowColor(value) {
+                    if (value >= 1) return '#2e7d32';
+                    if (value >= 0.8) return '#4caf50';
+                    if (value >= 0.5) return '#ff9800';
+                    return '#f44336';
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
