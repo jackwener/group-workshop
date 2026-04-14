@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>架构设计 - React Login App</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --color-primary: #003B7F;
+            --color-primary-dark: #002D62;
+            --color-secondary: #E60012;
+            --color-secondary-dark: #CC0010;
+            --color-gold: #D4A843;
+            --color-orange: #FF6B35;
+            --color-green: #28A745;
+            --color-text-dark: #333333;
+            --color-text-base: #666666;
+            --color-text-light: #999999;
+            --color-border: #E5E5E5;
+            --color-background: #F5F7FA;
+            --color-white: #FFFFFF;
+            --color-success: #28A745;
+            --color-warning: #FFC107;
+            --color-error: #DC3545;
+            --color-info: #17A2B8;
+            --font-family-zh: "PingFang SC", "Microsoft YaHei", sans-serif;
+            --font-family-en: "Roboto", "Helvetica Neue", Arial, sans-serif;
+            --font-size-h1: 36px;
+            --font-size-h2: 28px;
+            --font-size-h3: 24px;
+            --font-size-h4: 20px;
+            --font-size-base: 16px;
+            --font-size-sm: 14px;
+            --font-size-xs: 12px;
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-xxl: 48px;
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 6px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-zh);
+            font-size: var(--font-size-base);
+            color: var(--color-text-dark);
+            background-color: var(--color-background);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            color: var(--color-white);
+            padding: var(--spacing-xl) 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .header h1 {
+            font-size: var(--font-size-h1);
+            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .header .subtitle {
+            font-size: var(--font-size-base);
+            opacity: 0.9;
+        }
+
+        .nav {
+            background-color: var(--color-white);
+            border-bottom: 1px solid var(--color-border);
+            padding: var(--spacing-md) 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-size: var(--font-size-h4);
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: var(--spacing-lg);
+        }
+
+        .nav-link {
+            color: var(--color-text-base);
+            text-decoration: none;
+            font-size: var(--font-size-sm);
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--color-primary);
+        }
+
+        .main {
+            padding: var(--spacing-xxl) 0;
+        }
+
+        .section {
+            background-color: var(--color-white);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .section h2 {
+            font-size: var(--font-size-h2);
+            color: var(--color-primary);
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .section h3 {
+            font-size: var(--font-size-h3);
+            color: var(--color-text-dark);
+            margin-top: var(--spacing-xl);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .section h4 {
+            font-size: var(--font-size-h4);
+            color: var(--color-text-dark);
+            margin-top: var(--spacing-lg);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .section p {
+            margin-bottom: var(--spacing-md);
+            color: var(--color-text-base);
+        }
+
+        .citation {
+            background-color: var(--color-background);
+            border-left: 4px solid var(--color-primary);
+            padding: var(--spacing-md);
+            margin: var(--spacing-md) 0;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+        }
+
+        .citation-title {
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .citation ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .citation li {
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .citation a {
+            color: var(--color-primary);
+            text-decoration: none;
+        }
+
+        .citation a:hover {
+            text-decoration: underline;
+        }
+
+        ul, ol {
+            margin-left: var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
+        }
+
+        li {
+            margin-bottom: var(--spacing-xs);
+            color: var(--color-text-base);
+        }
+
+        pre {
+            background-color: #f4f4f4;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            padding: var(--spacing-md);
+            overflow-x: auto;
+            margin: var(--spacing-md) 0;
+        }
+
+        code {
+            font-family: "Consolas", "Monaco", monospace;
+            font-size: var(--font-size-sm);
+            color: var(--color-text-dark);
+        }
+
+        .mermaid {
+            text-align: center;
+            margin: var(--spacing-lg) 0;
+        }
+
+        .toc {
+            background-color: var(--color-background);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .toc h3 {
+            font-size: var(--font-size-h4);
+            color: var(--color-primary);
+            margin-bottom: var(--spacing-md);
+            margin-top: 0;
+        }
+
+        .toc ul {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .toc li {
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .toc a {
+            color: var(--color-text-base);
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            color: var(--color-primary);
+        }
+
+        .disclaimer {
+            background: linear-gradient(135deg, #FFF8E1 0%, #FFF3CD 100%);
+            border: 1px solid var(--color-gold);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            margin-top: var(--spacing-xxl);
+        }
+
+        .disclaimer-title {
+            font-size: var(--font-size-h4);
+            color: var(--color-secondary);
+            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .disclaimer-title::before {
+            content: "⚠️";
+        }
+
+        .disclaimer-content {
+            color: var(--color-text-base);
+            font-size: var(--font-size-sm);
+            line-height: 1.8;
+        }
+
+        .footer {
+            background-color: var(--color-primary);
+            color: var(--color-white);
+            padding: var(--spacing-xl) 0;
+            text-align: center;
+            margin-top: var(--spacing-xxl);
+        }
+
+        .footer p {
+            opacity: 0.8;
+            font-size: var(--font-size-sm);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 16px;
+            }
+
+            .header h1 {
+                font-size: var(--font-size-h2);
+            }
+
+            .section {
+                padding: var(--spacing-md);
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>架构设计</h1>
+            <p class="subtitle">React Login App 系统架构总览</p>
+        </div>
+    </header>
+
+    <nav class="nav">
+        <div class="container nav-content">
+            <div class="nav-brand">React Login App</div>
+            <div class="nav-links">
+                <a href="../项目概述.html" class="nav-link">项目概述</a>
+                <a href="../快速开始.html" class="nav-link">快速开始</a>
+                <a href="架构设计.html" class="nav-link">架构设计</a>
+                <a href="../认证系统/认证系统.html" class="nav-link">认证系统</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main">
+        <div class="container">
+            <div class="toc">
+                <h3>目录</h3>
+                <ul>
+                    <li><a href="#简介">1. 简介</a></li>
+                    <li><a href="#架构原则">2. 架构原则</a></li>
+                    <li><a href="#分层架构">3. 分层架构</a></li>
+                    <li><a href="#数据流">4. 数据流设计</a></li>
+                    <li><a href="#模块划分">5. 模块划分</a></li>
+                    <li><a href="#技术选型">6. 技术选型</a></li>
+                    <li><a href="#扩展性设计">7. 扩展性设计</a></li>
+                </ul>
+            </div>
+
+            <section class="section" id="简介">
+                <h2>简介</h2>
+                <p>React Login App 采用现代化的前端架构设计，遵循分层架构原则，实现了清晰的职责分离和模块化的代码组织。本架构设计文档详细阐述了系统的整体架构、各层职责、数据流以及技术选型决策。</p>
+            </section>
+
+            <section class="section" id="架构原则">
+                <h2>架构原则</h2>
+                <ul>
+                    <li><strong>单一职责</strong>: 每个模块只负责一个明确的功能领域</li>
+                    <li><strong>关注点分离</strong>: 将业务逻辑、UI 渲染和状态管理分离</li>
+                    <li><strong>可测试性</strong>: 各层独立，便于单元测试和集成测试</li>
+                    <li><strong>可扩展性</strong>: 支持功能扩展而无需修改现有代码</li>
+                    <li><strong>可维护性</strong>: 清晰的代码结构和文档</li>
+                </ul>
+            </section>
+
+            <section class="section" id="分层架构">
+                <h2>分层架构</h2>
+                <div class="mermaid">
+graph TB
+    subgraph "表现层"
+        A[LoginPage]
+        B[DashboardPage]
+        C[TetrisPage]
+        D[LoginForm]
+    end
+    subgraph "路由层"
+        E[React Router]
+        F[ProtectedRoute]
+    end
+    subgraph "业务逻辑层"
+        G[authStore]
+        H[Game Logic]
+    end
+    subgraph "数据层"
+        I[localStorage]
+        J[Session State]
+    end
+    A --> E
+    B --> F
+    C --> E
+    D --> G
+    F --> G
+    G --> I
+    G --> J
+                </div>
+                <div class="citation">
+                    <div class="citation-title">图表来源</div>
+                    <ul>
+                        <li><a href="file://src/App.jsx">src/App.jsx</a></li>
+                        <li><a href="file://src/routes/ProtectedRoute.jsx">src/routes/ProtectedRoute.jsx</a></li>
+                        <li><a href="file://src/store/authStore.js">src/store/authStore.js</a></li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="section" id="数据流">
+                <h2>数据流设计</h2>
+                <div class="mermaid">
+sequenceDiagram
+    participant User as 用户
+    participant View as 视图组件
+    participant Store as 状态管理
+    participant Storage as 本地存储
+    
+    User->>View: 用户操作
+    View->>Store: 调用 Action
+    Store->>Store: 更新状态
+    Store->>Storage: 持久化数据
+    Store-->>View: 状态变更通知
+    View-->>User: 更新界面
+                </div>
+                <h3>单向数据流</h3>
+                <p>系统采用单向数据流设计，确保状态变化可预测：</p>
+                <ul>
+                    <li><strong>Action</strong>: 用户操作触发 Action</li>
+                    <li><strong>Store</strong>: Store 处理 Action 并更新状态</li>
+                    <li><strong>View</strong>: 视图响应状态变化重新渲染</li>
+                </ul>
+            </section>
+
+            <section class="section" id="模块划分">
+                <h2>模块划分</h2>
+                <h3>组件模块</h3>
+                <ul>
+                    <li><strong>components/</strong>: 可复用的 UI 组件</li>
+                    <li><strong>pages/</strong>: 页面级组件</li>
+                    <li><strong>routes/</strong>: 路由相关组件</li>
+                </ul>
+                <h3>状态管理模块</h3>
+                <ul>
+                    <li><strong>store/</strong>: Zustand Store 定义</li>
+                    <li><strong>authStore.js</strong>: 认证状态管理</li>
+                </ul>
+                <h3>工具模块</h3>
+                <ul>
+                    <li><strong>utils/</strong>: 工具函数</li>
+                    <li><strong>constants/</strong>: 常量定义</li>
+                </ul>
+            </section>
+
+            <section class="section" id="技术选型">
+                <h2>技术选型</h2>
+                <h3>核心框架</h3>
+                <ul>
+                    <li><strong>React 19</strong>: 最新版本的 React，支持并发特性</li>
+                    <li><strong>Vite</strong>: 快速的构建工具，支持热重载</li>
+                    <li><strong>React Router 7</strong>: 声明式路由管理</li>
+                </ul>
+                <h3>状态管理</h3>
+                <ul>
+                    <li><strong>Zustand</strong>: 轻量级状态管理，API 简洁</li>
+                </ul>
+                <h3>表单处理</h3>
+                <ul>
+                    <li><strong>React Hook Form</strong>: 高性能表单处理</li>
+                    <li><strong>Zod</strong>: 类型安全的表单验证</li>
+                </ul>
+                <h3>代码质量</h3>
+                <ul>
+                    <li><strong>ESLint</strong>: 代码规范检查</li>
+                </ul>
+            </section>
+
+            <section class="section" id="扩展性设计">
+                <h2>扩展性设计</h2>
+                <h3>新增页面</h3>
+                <p>添加新页面只需：</p>
+                <ol>
+                    <li>在 pages/ 目录创建页面组件</li>
+                    <li>在 App.jsx 中添加路由配置</li>
+                    <li>如需保护，使用 ProtectedRoute 包裹</li>
+                </ol>
+                <h3>新增状态</h3>
+                <p>扩展现有 Store 或创建新 Store：</p>
+                <ol>
+                    <li>在 store/ 目录创建新的 Store 文件</li>
+                    <li>定义状态和操作</li>
+                    <li>在组件中使用</li>
+                </ol>
+                <h3>插件扩展</h3>
+                <p>Vite 支持丰富的插件生态，可通过 vite.config.js 配置扩展。</p>
+            </section>
+
+            <div class="disclaimer">
+                <div class="disclaimer-title">基金免责声明</div>
+                <div class="disclaimer-content">
+                    <p>本报告仅供参考，不构成任何投资建议。投资者应独立判断，自行承担投资风险。过往业绩不代表未来表现，基金投资有风险，入市需谨慎。</p>
+                    <p>本材料中的信息均来源于公开资料，我们力求信息准确可靠，但不保证其完整性、准确性和及时性。任何人不得将本材料用于商业目的或未经授权的传播。</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 React Login App. 保留所有权利。</p>
+        </div>
+    </footer>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true
+            }
+        });
+    </script>
+</body>
+</html>

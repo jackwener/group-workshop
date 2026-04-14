@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K8s Deployment YAML 极简生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Consolas', 'Monaco', 'Courier New', 'Menlo', monospace;
+            background: #1e1e1e;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* 左侧控制面板 */
+        .control-panel {
+            width: 400px;
+            min-width: 350px;
+            background: #2d2d2d;
+            padding: 30px;
+            overflow-y: auto;
+            border-right: 1px solid #3e3e3e;
+        }
+
+        .panel-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #3e3e3e;
+        }
+
+        .panel-header h1 {
+            color: #4fc1ff;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .panel-header p {
+            color: #808080;
+            font-size: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #cccccc;
+            font-size: 13px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group label .required {
+            color: #f48771;
+            margin-left: 2px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group select {
+            width: 100%;
+            padding: 12px 14px;
+            background: #3c3c3c;
+            border: 1px solid #4a4a4a;
+            border-radius: 6px;
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group input[type="number"]:focus,
+        .form-group select:focus {
+            border-color: #4fc1ff;
+            box-shadow: 0 0 0 2px rgba(79, 193, 255, 0.2);
+        }
+
+        .form-group input::placeholder {
+            color: #666666;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .slider-container input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #3c3c3c;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider-container input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4fc1ff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .slider-container input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 10px rgba(79, 193, 255, 0.5);
+        }
+
+        .slider-container input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4fc1ff;
+            cursor: pointer;
+            border: none;
+        }
+
+        .slider-value {
+            min-width: 40px;
+            text-align: center;
+            color: #4fc1ff;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .form-group select {
+            cursor: pointer;
+        }
+
+        .form-group select option {
+            background: #3c3c3c;
+            color: #ffffff;
+        }
+
+        /* 右侧预览面板 */
+        .preview-panel {
+            flex: 1;
+            background: #1e1e1e;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: #252526;
+            border-bottom: 1px solid #3e3e3e;
+        }
+
+        .preview-header h2 {
+            color: #cccccc;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .file-name {
+            color: #808080;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .copy-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: #0e639c;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background: #1177bb;
+        }
+
+        .copy-btn:active {
+            transform: scale(0.98);
+        }
+
+        .copy-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .code-container {
+            flex: 1;
+            overflow: auto;
+            padding: 30px;
+        }
+
+        .code-container pre {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .code-container code {
+            font-family: 'Consolas', 'Monaco', 'Courier New', 'Menlo', monospace;
+            color: #d4d4d4;
+        }
+
+        /* YAML 语法高亮 */
+        .yaml-key {
+            color: #9cdcfe;
+        }
+
+        .yaml-value {
+            color: #ce9178;
+        }
+
+        .yaml-number {
+            color: #b5cea8;
+        }
+
+        .yaml-comment {
+            color: #6a9955;
+        }
+
+        /* Toast 提示 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4caf50;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e1e1e;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #424242;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4f4f4f;
+        }
+
+        /* 响应式 */
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .control-panel {
+                width: 100%;
+                min-width: auto;
+                max-height: 50vh;
+                border-right: none;
+                border-bottom: 1px solid #3e3e3e;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 左侧控制面板 -->
+        <div class="control-panel">
+            <div class="panel-header">
+                <h1>K8s Deployment Generator</h1>
+                <p>极简 YAML 配置文件生成器</p>
+            </div>
+
+            <div class="form-group">
+                <label>应用名称 (App Name)<span class="required">*</span></label>
+                <input type="text" id="appName" placeholder="my-app" value="my-app">
+            </div>
+
+            <div class="form-group">
+                <label>镜像地址 (Image)<span class="required">*</span></label>
+                <input type="text" id="image" placeholder="nginx:latest" value="nginx:latest">
+            </div>
+
+            <div class="form-group">
+                <label>副本数 (Replicas)</label>
+                <div class="slider-container">
+                    <input type="range" id="replicas" min="1" max="10" value="3">
+                    <span class="slider-value" id="replicasValue">3</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>容器端口 (Port)</label>
+                <input type="number" id="port" placeholder="80" value="80" min="1" max="65535">
+            </div>
+
+            <div class="form-group">
+                <label>CPU 限制 (Limits)</label>
+                <select id="cpu">
+                    <option value="500m">0.5 Core</option>
+                    <option value="1000m" selected>1 Core</option>
+                    <option value="2000m">2 Core</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 右侧预览面板 -->
+        <div class="preview-panel">
+            <div class="preview-header">
+                <div>
+                    <h2>YAML 预览</h2>
+                    <span class="file-name" id="fileName">deployment.yaml</span>
+                </div>
+                <button class="copy-btn" onclick="copyToClipboard()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    一键复制
+                </button>
+            </div>
+            <div class="code-container">
+                <pre><code id="yamlOutput"></code></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 提示 -->
+    <div class="toast" id="toast">复制成功</div>
+
+    <script>
+        // 获取所有表单元素
+        const appNameInput = document.getElementById('appName');
+        const imageInput = document.getElementById('image');
+        const replicasInput = document.getElementById('replicas');
+        const replicasValue = document.getElementById('replicasValue');
+        const portInput = document.getElementById('port');
+        const cpuSelect = document.getElementById('cpu');
+        const yamlOutput = document.getElementById('yamlOutput');
+        const fileName = document.getElementById('fileName');
+
+        // 滑动条实时更新
+        replicasInput.addEventListener('input', function() {
+            replicasValue.textContent = this.value;
+            generateYAML();
+        });
+
+        // 其他表单元素监听
+        appNameInput.addEventListener('input', generateYAML);
+        imageInput.addEventListener('input', generateYAML);
+        portInput.addEventListener('input', generateYAML);
+        cpuSelect.addEventListener('change', generateYAML);
+
+        // 生成 YAML 函数
+        function generateYAML() {
+            const appName = appNameInput.value || 'my-app';
+            const image = imageInput.value || 'nginx:latest';
+            const replicas = replicasInput.value;
+            const port = portInput.value || '80';
+            const cpu = cpuSelect.value;
+
+            // 更新文件名
+            fileName.textContent = `${appName}-deployment.yaml`;
+
+            // 生成 YAML 字符串
+            const yaml = `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${appName}
+  labels:
+    app: ${appName}
+spec:
+  replicas: ${replicas}
+  selector:
+    matchLabels:
+      app: ${appName}
+  template:
+    metadata:
+      labels:
+        app: ${appName}
+    spec:
+      containers:
+      - name: ${appName}
+        image: ${image}
+        ports:
+        - containerPort: ${port}
+        resources:
+          limits:
+            cpu: "${cpu}"
+          requests:
+            cpu: "${cpu}"`;
+
+            // 语法高亮
+            const highlightedYAML = highlightYAML(yaml);
+            yamlOutput.innerHTML = highlightedYAML;
+        }
+
+        // YAML 语法高亮
+        function highlightYAML(yaml) {
+            return yaml
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                // 键（冒号前的部分）
+                .replace(/^(\s*)([a-zA-Z][a-zA-Z0-9]*)(:)/gm, '$1<span class="yaml-key">$2</span>$3')
+                // 字符串值（带引号的）
+                .replace(/: "([^"]*)"/g, ': <span class="yaml-value">"$1"</span>')
+                // 数字值
+                .replace(/: (\d+)$/gm, ': <span class="yaml-number">$1</span>')
+                // 注释
+                .replace(/(#.*)$/gm, '<span class="yaml-comment">$1</span>');
+        }
+
+        // 复制到剪贴板
+        function copyToClipboard() {
+            const yamlText = yamlOutput.textContent;
+            
+            navigator.clipboard.writeText(yamlText).then(function() {
+                showToast('复制成功');
+            }).catch(function(err) {
+                // 降级方案
+                const textArea = document.createElement('textarea');
+                textArea.value = yamlText;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
+                document.body.appendChild(textArea);
+                textArea.select();
+                
+                try {
+                    document.execCommand('copy');
+                    showToast('复制成功');
+                } catch (err) {
+                    showToast('复制失败，请手动复制');
+                }
+                
+                document.body.removeChild(textArea);
+            });
+        }
+
+        // 显示 Toast
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(function() {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // 页面加载时生成初始 YAML
+        window.onload = function() {
+            generateYAML();
+        };
+    </script>
+</body>
+</html>
