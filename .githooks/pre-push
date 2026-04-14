@@ -1,0 +1,67 @@
+#!/bin/sh
+# 检查推送的文件是否都在自己的目录下
+# 安装: git config core.hooksPath .githooks
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+USER_DIRS="$REPO_ROOT/.github/user-dirs.txt"
+
+# 读取 GitHub 用户名
+GITHUB_USER=$(git config github.user)
+if [ -z "$GITHUB_USER" ]; then
+  echo "❌ 请先设置你的 GitHub 用户名:"
+  echo "   git config github.user <你的GitHub用户名>"
+  exit 1
+fi
+
+# 查找允许的目录
+ALLOWED_DIR=$(grep -i "^$GITHUB_USER " "$USER_DIRS" 2>/dev/null | awk '{print $2}')
+if [ -z "$ALLOWED_DIR" ]; then
+  echo "❌ 未找到用户 '$GITHUB_USER' 的目录映射，请联系管理员"
+  exit 1
+fi
+
+echo "✅ 用户: $GITHUB_USER → 允许目录: $ALLOWED_DIR"
+
+# 读取 pre-push 的 stdin (local_ref local_sha remote_ref remote_sha)
+while read local_ref local_sha remote_ref remote_sha; do
+  # 空提交跳过
+  if [ "$local_sha" = "0000000000000000000000000000000000000000" ]; then
+    continue
+  fi
+
+  # 新分支则与空树比较
+  if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
+    range="$local_sha"
+    files=$(git diff-tree --no-commit-id -r --name-only "$local_sha" 2>/dev/null)
+    # 对于多个 commit，取所有 commit 的改动
+    files=$(git log --name-only --format="" "$local_sha" | grep -v '^$')
+  else
+    files=$(git diff --name-only "$remote_sha" "$local_sha")
+  fi
+
+  # 检查每个文件
+  bad_files=""
+  for f in $files; do
+    case "$f" in
+      "$ALLOWED_DIR"/*) ;;   # 在自己目录下，OK
+      .github/*) ;;          # 公共配置，允许
+      .githooks/*) ;;        # hooks，允许
+      .gitignore) ;;         # gitignore，允许
+      README.md) ;;          # 根 README，允许
+      spec-template/*) ;;    # 模板，允许
+      group-*/README.md) ;;  # 各组 README，允许
+      *) bad_files="$bad_files\n  $f" ;;
+    esac
+  done
+
+  if [ -n "$bad_files" ]; then
+    echo ""
+    echo "❌ 以下文件不在你的目录 ($ALLOWED_DIR) 下:"
+    printf "$bad_files\n"
+    echo ""
+    echo "如确认需要推送，可使用 git push --no-verify 跳过检查"
+    exit 1
+  fi
+done
+
+exit 0
