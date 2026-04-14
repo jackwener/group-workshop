@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>路由系统 - React Login App 文档</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>📚 项目文档</h1>
+      </div>
+      <nav class="sidebar-nav">
+        <ul><li><a href="项目概述.html">项目概述</a></li><li><a href="快速开始.html">快速开始</a></li><li class="has-submenu"><span class="submenu-title">架构设计</span><ul class="submenu"><li><a href="架构设计/组件架构.html">组件架构</a></li><li><a href="架构设计/状态管理.html">状态管理</a></li><li><a href="架构设计/路由系统.html">路由系统</a></li><li><a href="架构设计/构建配置.html">构建配置</a></li></ul></li><li class="has-submenu"><span class="submenu-title">认证系统</span><ul class="submenu"><li><a href="认证系统/认证状态管理.html">认证状态管理</a></li><li><a href="认证系统/登录表单验证.html">登录表单验证</a></li><li><a href="认证系统/路由保护机制.html">路由保护机制</a></li><li><a href="认证系统/认证流程详解.html">认证流程详解</a></li></ul></li><li><a href="仪表板功能.html">仪表板功能</a></li><li class="has-submenu"><span class="submenu-title">俄罗斯方块游戏</span><ul class="submenu"><li><a href="俄罗斯方块游戏/游戏引擎核心.html">游戏引擎核心</a></li><li><a href="俄罗斯方块游戏/方块系统.html">方块系统</a></li><li><a href="俄罗斯方块游戏/物理机制.html">物理机制</a></li><li><a href="俄罗斯方块游戏/输入处理.html">输入处理</a></li><li><a href="俄罗斯方块游戏/界面渲染.html">界面渲染</a></li><li><a href="俄罗斯方块游戏/游戏状态管理.html">游戏状态管理</a></li></ul></li><li class="has-submenu"><span class="submenu-title">开发工具配置</span><ul class="submenu"><li><a href="开发工具配置/Vite 构建配置.html">Vite 构建配置</a></li><li><a href="开发工具配置/ESLint 代码规范.html">ESLint 代码规范</a></li><li><a href="开发工具配置/包依赖管理.html">包依赖管理</a></li><li><a href="开发工具配置/版本控制忽略规则.html">版本控制忽略规则</a></li></ul></li><li><a href="样式系统.html">样式系统</a></li><li><a href="部署指南.html">部署指南</a></li></ul>
+      </nav>
+    </aside>
+    
+    <main class="main-content">
+      <div class="breadcrumb">
+        <a href="index.html">首页</a> / <span>架构设计\路由系统</span>
+      </div>
+      
+      <article class="content">
+        <h1>路由系统</h1>
+<div class="cite-block">
+<strong>本文引用的文件</strong>
+<ul><li><a href="file://src/App.jsx">src/App.jsx</a></li><li><a href="file://src/main.jsx">src/main.jsx</a></li><li><a href="file://src/routes/ProtectedRoute.jsx">src/routes/ProtectedRoute.jsx</a></li><li><a href="file://src/store/authStore.js">src/store/authStore.js</a></li><li><a href="file://src/pages/LoginPage.jsx">src/pages/LoginPage.jsx</a></li><li><a href="file://src/pages/DashboardPage.jsx">src/pages/DashboardPage.jsx</a></li><li><a href="file://src/pages/TetrisPage.jsx">src/pages/TetrisPage.jsx</a></li><li><a href="file://src/components/LoginForm.jsx">src/components/LoginForm.jsx</a></li><li><a href="file://src/index.css">src/index.css</a></li><li><a href="file://src/pages/TetrisPage.css">src/pages/TetrisPage.css</a></li><li><a href="file://package.json">package.json</a></li></ul>
+</div>
+<h2>目录</h2>
+1. <a href="#简介">简介</a>
+2. <a href="#项目结构">项目结构</a>
+3. <a href="#核心组件">核心组件</a>
+4. <a href="#架构总览">架构总览</a>
+5. <a href="#详细组件分析">详细组件分析</a>
+6. <a href="#依赖关系分析">依赖关系分析</a>
+7. <a href="#性能考虑">性能考虑</a>
+8. <a href="#故障排查指南">故障排查指南</a>
+9. <a href="#结论">结论</a>
+10. <a href="#附录">附录</a>
+<h2>简介</h2>
+本文件系统性解析该 React 登录应用的路由体系，重点围绕以下方面展开：
+<ul><li>路由配置策略与路径设计原则</li><li>页面导航机制与用户流转路径</li><li>路由保护机制（ProtectedRoute）的设计与权限控制逻辑</li><li>路由参数传递、查询字符串处理与路由监听机制</li><li>路由流程图与导航树</li><li>性能优化与 SEO 友好实践</li></ul>
+<h2>项目结构</h2>
+该项目采用基于文件系统的路由组织方式，核心入口为应用根组件，在其中集中声明所有路由规则，并通过受保护路由包装器实现访问控制。认证状态由全局状态管理模块统一维护，登录页、仪表盘页与休闲页分别承载不同业务功能。
+<div class="mermaid">graph TB
+A["main.jsx<br/>应用入口"] --> B["App.jsx<br/>路由容器"]
+B --> C["LoginPage.jsx<br/>登录页"]
+B --> D["DashboardPage.jsx<br/>仪表板"]
+B --> E["TetrisPage.jsx<br/>俄罗斯方块"]
+B --> F["ProtectedRoute.jsx<br/>受保护路由包装器"]
+F --> D
+F --> E
+B --> G["authStore.js<br/>认证状态管理"]</div>
+<p>图表来源
+<ul><li><a href="file://src/main.jsx#L1-L11">src/main.jsx:1-11</a></li><li><a href="file://src/App.jsx#L10-L41">src/App.jsx:10-41</a></li><li><a href="file://src/pages/LoginPage.jsx#L1-L18">src/pages/LoginPage.jsx:1-18</a></li><li><a href="file://src/pages/DashboardPage.jsx#L1-L57">src/pages/DashboardPage.jsx:1-57</a></li><li><a href="file://src/pages/TetrisPage.jsx#L1-L413">src/pages/TetrisPage.jsx:1-413</a></li><li><a href="file://src/routes/ProtectedRoute.jsx#L1-L15">src/routes/ProtectedRoute.jsx:1-15</a></li><li><a href="file://src/store/authStore.js#L1-L44">src/store/authStore.js:1-44</a></li></ul></p>
+<p>章节来源
+<ul><li><a href="file://src/main.jsx#L1-L11">src/main.jsx:1-11</a></li><li><a href="file://src/App.jsx#L10-L41">src/App.jsx:10-41</a></li></ul></p>
+<h2>核心组件</h2>
+<ul><li>应用根组件：负责初始化认证状态并在浏览器路由上下文中声明所有路由规则。</li><li>受保护路由包装器：在渲染子组件前进行认证校验，未认证则重定向至登录页。</li><li>认证状态管理：提供登录、登出、初始化等方法，并持久化用户信息到本地存储。</li><li>页面组件：登录页、仪表板页、俄罗斯方块页，分别承担登录、主功能区与娱乐功能区。</li></ul>
+<p>章节来源
+<ul><li><a href="file://src/App.jsx#L10-L41">src/App.jsx:10-41</a></li><li><a href="file://src/routes/ProtectedRoute.jsx#L1-L15">src/routes/ProtectedRoute.jsx:1-15</a></li><li><a href="file://src/store/authStore.js#L1-L44">src/store/authStore.js:1-44</a></li><li><a href="file://src/pages/LoginPage.jsx#L1-L18">src/pages/LoginPage.jsx:1-18</a></li><li><a href="file://src/pages/DashboardPage.jsx#L1-L57">src/pages/DashboardPage.jsx:1-57</a></li><li><a href="file://src/pages/TetrisPage.jsx#L1-L413">src/pages/TetrisPage.jsx:1-413</a></li></ul></p>
+<h2>架构总览</h2>
+应用采用 React Router v6 的声明式路由模型，BrowserRouter 提供路由上下文，Routes/Route 定义路由映射，ProtectedRoute 作为布局包装器实现访问控制。认证状态通过 Zustand 全局状态管理，登录成功后写入本地存储，刷新页面时自动恢复认证状态。
+<div class="mermaid">sequenceDiagram
+participant U as "用户"
+participant BR as "BrowserRouter"
+participant R as "Routes/Route"
+participant PR as "ProtectedRoute"
+participant P as "页面组件"
+participant AS as "authStore"
+U->>BR : 访问应用
+BR->>R : 匹配当前路径
+alt 非受保护路由
+R->>P : 渲染目标页面
+else 受保护路由
+R->>PR : 包装子组件
+PR->>AS : 读取认证状态
+alt 已认证
+PR->>P : 渲染子组件
+else 未认证
+PR->>R : 重定向到 "/login"
+end
+end</div>
+<p>图表来源
+<ul><li><a href="file://src/App.jsx#L18-L39">src/App.jsx:18-39</a></li><li><a href="file://src/routes/ProtectedRoute.jsx#L4-L12">src/routes/ProtectedRoute.jsx:4-12</a></li><li><a href="file://src/store/authStore.js#L34-L40">src/store/authStore.js:34-40</a></li></ul></p>
+<h2>详细组件分析</h2>
+<h3>路由配置与路径设计原则</h3>
+<ul><li>路由声明集中在应用根组件内，便于统一管理和扩展。</li><li>路径设计遵循语义化与层级化原则：根路径用于重定向，登录、仪表板、休闲页分别对应独立路径。</li><li>未匹配路由统一重定向至登录页，确保默认行为一致。</li></ul>
+<p>章节来源
+<ul><li><a href="file://src/App.jsx#L18-L39">src/App.jsx:18-39</a></li></ul></p>
+<h3>受保护路由（ProtectedRoute）设计与权限控制</h3>
+<ul><li>设计模式：高阶组件（HOC）风格的布局包装器，接收 children 并在渲染前进行条件判断。</li><li>权限控制逻辑：读取全局认证状态，若未认证则重定向至登录页；否则直接渲染子组件。</li><li>与路由系统的耦合：通过 React Router 的 Navigate 组件实现无刷新重定向。</li></ul>
+<div class="mermaid">flowchart TD
+Start(["进入受保护路由"]) --> ReadAuth["读取认证状态"]
+ReadAuth --> IsAuth{"是否已认证？"}
+IsAuth --> |否| Redirect["重定向到 /login"]
+IsAuth --> |是| RenderChildren["渲染子组件"]
+Redirect --> End(["结束"])
+RenderChildren --> End</div>
+<p>图表来源
+<ul><li><a href="file://src/routes/ProtectedRoute.jsx#L4-L12">src/routes/ProtectedRoute.jsx:4-12</a></li><li><a href="file://src/store/authStore.js#L34-L40">src/store/authStore.js:34-40</a></li></ul></p>
+<p>章节来源
+<ul><li><a href="file://src/routes/ProtectedRoute.jsx#L1-L15">src/routes/ProtectedRoute.jsx:1-15</a></li><li><a href="file://src/store/authStore.js#L34-L40">src/store/authStore.js:34-40</a></li></ul></p>
+<h3>认证状态管理（authStore）</h3>
+<ul><li>数据结构：包含用户信息、认证状态、加载状态与错误信息。</li><li>初始化：启动时从本地存储读取用户信息，恢复会话状态。</li><li>登录：模拟异步登录过程，成功后写入本地存储并更新状态，失败时返回错误信息。</li><li>登出：清除本地存储并重置状态。</li></ul>
+<div class="mermaid">classDiagram
+class AuthStore {
++user
++isAuthenticated
++loading
++error
++login(username, password)
++logout()
++initialize()
+}</div>
+<p>图表来源
+<ul><li><a href="file://src/store/authStore.js#L3-L41">src/store/authStore.js:3-41</a></li></ul></p>
+<p>章节来源
+<ul><li><a href="file://src/store/authStore.js#L1-L44">src/store/authStore.js:1-44</a></li></ul></p>
+<h3>登录流程与导航机制</h3>
+<ul><li>登录页：提供登录表单，使用表单库进行输入校验与提交。</li><li>表单提交：调用认证状态管理的登录方法，根据结果决定导航至仪表板或显示错误。</li><li>导航机制：使用路由提供的导航函数进行程序化跳转，避免刷新页面。</li></ul>
+<div class="mermaid">sequenceDiagram
+participant U as "用户"
+participant LF as "LoginForm"
+participant AS as "authStore"
+participant BR as "BrowserRouter"
+participant DP as "DashboardPage"
+U->>LF : 填写并提交表单
+LF->>AS : login(username, password)
+AS-->>LF : 返回结果
+alt 成功
+LF->>BR : navigate("/dashboard")
+BR->>DP : 渲染仪表板
+else 失败
+LF-->>U : 显示错误信息
+end</div>
+<p>图表来源
+<ul><li><a href="file://src/components/LoginForm.jsx#L24-L29">src/components/LoginForm.jsx:24-29</a></li><li><a href="file://src/store/authStore.js#L9-L27">src/store/authStore.js:9-27</a></li><li><a href="file://src/pages/DashboardPage.jsx#L8-L11">src/pages/DashboardPage.jsx:8-11</a></li></ul></p>
+<p>章节来源
+<ul><li><a href="file://src/components/LoginForm.jsx#L1-L78">src/components/LoginForm.jsx:1-78</a></li><li><a href="file://src/store/authStore.js#L9-L27">src/store/authStore.js:9-27</a></li><li><a href="file://src/pages/DashboardPage.jsx#L1-L57">src/pages/DashboardPage.jsx:1-57</a></li></ul></p>
+<h3>仪表板与休闲页导航</h3>
+<ul><li>仪表板：展示用户信息与统计卡片，包含返回休闲页的链接与退出登录按钮。</li><li>休闲页（俄罗斯方块）：提供游戏界面与返回仪表板的链接，支持键盘控制与暂停/继续。</li></ul>
+<p>章节来源
+<ul><li><a href="file://src/pages/DashboardPage.jsx#L1-L57">src/pages/DashboardPage.jsx:1-57</a></li><li><a href="file://src/pages/TetrisPage.jsx#L1-L413">src/pages/TetrisPage.jsx:1-413</a></li></ul></p>
+<h3>路由参数传递、查询字符串处理与路由监听机制</h3>
+<ul><li>参数传递：当前代码未使用动态路由参数与查询字符串，因此不涉及参数提取与处理逻辑。</li><li>查询字符串：未在路由层显式处理查询参数，如需支持可在页面组件中通过路由工具读取。</li><li>路由监听：未实现路由变化监听逻辑，如需监听可使用路由提供的监听能力或自定义 Hook。</li></ul>
+<p>章节来源
+<ul><li><a href="file://src/App.jsx#L18-L39">src/App.jsx:18-39</a></li><li><a href="file://src/pages/DashboardPage.jsx#L1-L57">src/pages/DashboardPage.jsx:1-57</a></li><li><a href="file://src/pages/TetrisPage.jsx#L1-L413">src/pages/TetrisPage.jsx:1-413</a></li></ul></p>
+<h3>用户完整导航路径与导航树</h3>
+<div class="mermaid">graph TB
+Root["根路径 '/'"] --> Login["登录 '/login'"]
+Login --> Dashboard["仪表板 '/dashboard'"]
+Dashboard --> Tetris["休闲 '/tetris'"]
+Tetris --> Dashboard
+Dashboard --> Logout["退出登录 -> 清理状态 -> 重定向 '/login'"]</div>
+<p>图表来源
+<ul><li><a href="file://src/App.jsx#L37-L37">src/App.jsx:37-37</a></li><li><a href="file://src/pages/DashboardPage.jsx#L8-L11">src/pages/DashboardPage.jsx:8-11</a></li><li><a href="file://src/store/authStore.js#L29-L32">src/store/authStore.js:29-32</a></li></ul></p>
+<h2>依赖关系分析</h2>
+<ul><li>React Router：提供路由容器、路由声明与导航能力。</li><li>Zustand：提供轻量级全局状态管理，支撑认证状态持久化与跨组件共享。</li><li>表单库与校验库：用于登录表单的输入校验与提交处理。</li></ul>
+<div class="mermaid">graph LR
+RR["react-router-dom"] --> APP["App.jsx"]
+ZS["zustand"] --> AS["authStore.js"]
+APP --> PR["ProtectedRoute.jsx"]
+APP --> LP["LoginPage.jsx"]
+APP --> DP["DashboardPage.jsx"]
+APP --> TP["TetrisPage.jsx"]
+LF["LoginForm.jsx"] --> AS
+DP --> AS</div>
+<p>图表来源
+<ul><li><a href="file://package.json#L12-L19">package.json:12-19</a></li><li><a href="file://src/App.jsx#L1-L7">src/App.jsx:1-7</a></li><li><a href="file://src/store/authStore.js#L1-L1">src/store/authStore.js:1-1</a></li><li><a href="file://src/components/LoginForm.jsx#L1-L5">src/components/LoginForm.jsx:1-5</a></li><li><a href="file://src/pages/DashboardPage.jsx#L1-L2">src/pages/DashboardPage.jsx:1-2</a></li></ul></p>
+<p>章节来源
+<ul><li><a href="file://package.json#L12-L19">package.json:12-19</a></li><li><a href="file://src/App.jsx#L1-L7">src/App.jsx:1-7</a></li><li><a href="file://src/store/authStore.js#L1-L1">src/store/authStore.js:1-1</a></li><li><a href="file://src/components/LoginForm.jsx#L1-L5">src/components/LoginForm.jsx:1-5</a></li><li><a href="file://src/pages/DashboardPage.jsx#L1-L2">src/pages/DashboardPage.jsx:1-2</a></li></ul></p>
+<h2>性能考虑</h2>
+<ul><li>路由切换性能：当前路由结构简单，切换开销低；建议在复杂场景下按需加载页面组件以减少首屏体积。</li><li>认证初始化：在应用启动时完成一次初始化检查，避免重复请求；可结合懒加载进一步优化。</li><li>渲染优化：页面组件内部使用局部状态与回调缓存，减少不必要的重渲染。</li><li>样式与资源：CSS 采用模块化与变量化，有助于提升渲染一致性与复用性。</li></ul>
+<h2>故障排查指南</h2>
+<ul><li>无法访问受保护页面：确认认证状态是否正确设置，检查初始化逻辑与本地存储数据。</li><li>登录失败：检查登录方法的错误分支与错误提示显示逻辑。</li><li>导航异常：确认导航函数调用位置与目标路径是否存在。</li></ul>
+<p>章节来源
+<ul><li><a href="file://src/store/authStore.js#L34-L40">src/store/authStore.js:34-40</a></li><li><a href="file://src/components/LoginForm.jsx#L24-L29">src/components/LoginForm.jsx:24-29</a></li><li><a href="file://src/pages/DashboardPage.jsx#L8-L11">src/pages/DashboardPage.jsx:8-11</a></li></ul></p>
+<h2>结论</h2>
+该路由系统以简洁清晰的方式实现了基础的登录与访问控制需求，通过受保护路由包装器与全局状态管理，确保了用户体验的一致性与安全性。对于后续扩展，可在参数传递、查询字符串处理与路由监听等方面引入更细粒度的控制，同时结合代码分割与懒加载进一步优化性能。
+<h2>附录</h2>
+<ul><li>路由配置参考路径：<a href="file://src/App.jsx#L18-L39">src/App.jsx:18-39</a></li><li>受保护路由实现参考路径：<a href="file://src/routes/ProtectedRoute.jsx#L1-L15">src/routes/ProtectedRoute.jsx:1-15</a></li><li>认证状态管理参考路径：<a href="file://src/store/authStore.js#L1-L44">src/store/authStore.js:1-44</a></li><li>登录流程参考路径：<a href="file://src/components/LoginForm.jsx#L24-L29">src/components/LoginForm.jsx:24-29</a></li><li>仪表板与休闲页导航参考路径：<a href="file://src/pages/DashboardPage.jsx#L1-L57">src/pages/DashboardPage.jsx:1-57</a>，<a href="file://src/pages/TetrisPage.jsx#L1-L413">src/pages/TetrisPage.jsx:1-413</a></li></ul>
+      </article>
+      
+      <footer class="page-footer">
+        <p>React Login App 项目文档</p>
+      </footer>
+    </main>
+  </div>
+  
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true
+      }
+    });
+  </script>
+</body>
+</html>
