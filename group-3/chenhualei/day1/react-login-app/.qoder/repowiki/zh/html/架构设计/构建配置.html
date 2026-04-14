@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>构建配置 - React Login App 文档</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>📚 项目文档</h1>
+      </div>
+      <nav class="sidebar-nav">
+        <ul><li><a href="项目概述.html">项目概述</a></li><li><a href="快速开始.html">快速开始</a></li><li class="has-submenu"><span class="submenu-title">架构设计</span><ul class="submenu"><li><a href="架构设计/组件架构.html">组件架构</a></li><li><a href="架构设计/状态管理.html">状态管理</a></li><li><a href="架构设计/路由系统.html">路由系统</a></li><li><a href="架构设计/构建配置.html">构建配置</a></li></ul></li><li class="has-submenu"><span class="submenu-title">认证系统</span><ul class="submenu"><li><a href="认证系统/认证状态管理.html">认证状态管理</a></li><li><a href="认证系统/登录表单验证.html">登录表单验证</a></li><li><a href="认证系统/路由保护机制.html">路由保护机制</a></li><li><a href="认证系统/认证流程详解.html">认证流程详解</a></li></ul></li><li><a href="仪表板功能.html">仪表板功能</a></li><li class="has-submenu"><span class="submenu-title">俄罗斯方块游戏</span><ul class="submenu"><li><a href="俄罗斯方块游戏/游戏引擎核心.html">游戏引擎核心</a></li><li><a href="俄罗斯方块游戏/方块系统.html">方块系统</a></li><li><a href="俄罗斯方块游戏/物理机制.html">物理机制</a></li><li><a href="俄罗斯方块游戏/输入处理.html">输入处理</a></li><li><a href="俄罗斯方块游戏/界面渲染.html">界面渲染</a></li><li><a href="俄罗斯方块游戏/游戏状态管理.html">游戏状态管理</a></li></ul></li><li class="has-submenu"><span class="submenu-title">开发工具配置</span><ul class="submenu"><li><a href="开发工具配置/Vite 构建配置.html">Vite 构建配置</a></li><li><a href="开发工具配置/ESLint 代码规范.html">ESLint 代码规范</a></li><li><a href="开发工具配置/包依赖管理.html">包依赖管理</a></li><li><a href="开发工具配置/版本控制忽略规则.html">版本控制忽略规则</a></li></ul></li><li><a href="样式系统.html">样式系统</a></li><li><a href="部署指南.html">部署指南</a></li></ul>
+      </nav>
+    </aside>
+    
+    <main class="main-content">
+      <div class="breadcrumb">
+        <a href="index.html">首页</a> / <span>架构设计\构建配置</span>
+      </div>
+      
+      <article class="content">
+        <h1>构建配置</h1>
+<div class="cite-block">
+<strong>本文引用的文件</strong>
+<ul><li><a href="file://vite.config.js">vite.config.js</a></li><li><a href="file://package.json">package.json</a></li><li><a href="file://index.html">index.html</a></li><li><a href="file://src/main.jsx">src/main.jsx</a></li><li><a href="file://src/App.jsx">src/App.jsx</a></li><li><a href="file://src/components/LoginForm.jsx">src/components/LoginForm.jsx</a></li><li><a href="file://src/pages/LoginPage.jsx">src/pages/LoginPage.jsx</a></li><li><a href="file://src/pages/DashboardPage.jsx">src/pages/DashboardPage.jsx</a></li><li><a href="file://src/pages/TetrisPage.css">src/pages/TetrisPage.css</a></li><li><a href="file://src/store/authStore.js">src/store/authStore.js</a></li><li><a href="file://src/routes/ProtectedRoute.jsx">src/routes/ProtectedRoute.jsx</a></li><li><a href="file://src/index.css">src/index.css</a></li><li><a href="file://eslint.config.js">eslint.config.js</a></li><li><a href="file://README.md">README.md</a></li></ul>
+</div>
+<h2>目录</h2>
+1. <a href="#引言">引言</a>
+2. <a href="#项目结构">项目结构</a>
+3. <a href="#核心组件">核心组件</a>
+4. <a href="#架构总览">架构总览</a>
+5. <a href="#详细组件分析">详细组件分析</a>
+6. <a href="#依赖分析">依赖分析</a>
+7. <a href="#性能考虑">性能考虑</a>
+8. <a href="#故障排查指南">故障排查指南</a>
+9. <a href="#结论">结论</a>
+10. <a href="#附录">附录</a>
+<h2>引言</h2>
+本文件系统性梳理该 React 应用在 Vite 环境下的构建配置与优化策略，覆盖开发服务器启动、生产构建、模块解析与别名、插件体系、CSS 处理、代码分割与打包优化等主题，并通过流程图与依赖图展示从源码到产物的完整转换过程。同时提供性能优化建议与构建调试技巧，帮助开发者在保持开发体验的同时获得高质量的生产产物。
+<h2>项目结构</h2>
+该项目采用典型的 Vite + React 单页应用结构：
+<ul><li>配置层：根目录下存在最小化的 Vite 配置文件与包管理脚本定义。</li><li>源码层：入口脚本、路由与页面、组件、状态管理、样式资源按功能域组织。</li><li>资源层：HTML 入口模板与静态资源目录。</li></ul>
+<div class="mermaid">graph TB
+A["index.html<br/>浏览器入口"] --> B["src/main.jsx<br/>应用入口"]
+B --> C["src/App.jsx<br/>路由与页面容器"]
+C --> D["src/pages/LoginPage.jsx<br/>登录页"]
+C --> E["src/pages/DashboardPage.jsx<br/>仪表板页"]
+C --> F["src/pages/TetrisPage.css<br/>游戏页样式"]
+D --> G["src/components/LoginForm.jsx<br/>登录表单"]
+E --> H["src/routes/ProtectedRoute.jsx<br/>受保护路由"]
+B --> I["src/index.css<br/>全局样式"]
+B --> J["src/store/authStore.js<br/>认证状态"]</div>
+<p>图表来源
+<ul><li><a href="file://index.html">index.html</a></li><li><a href="file://src/main.jsx">src/main.jsx</a></li><li><a href="file://src/App.jsx">src/App.jsx</a></li><li><a href="file://src/pages/LoginPage.jsx">src/pages/LoginPage.jsx</a></li><li><a href="file://src/pages/DashboardPage.jsx">src/pages/DashboardPage.jsx</a></li><li><a href="file://src/pages/TetrisPage.css">src/pages/TetrisPage.css</a></li><li><a href="file://src/components/LoginForm.jsx">src/components/LoginForm.jsx</a></li><li><a href="file://src/routes/ProtectedRoute.jsx">src/routes/ProtectedRoute.jsx</a></li><li><a href="file://src/index.css">src/index.css</a></li><li><a href="file://src/store/authStore.js">src/store/authStore.js</a></li></ul></p>
+<p>章节来源
+<ul><li><a href="file://index.html">index.html</a></li><li><a href="file://src/main.jsx">src/main.jsx</a></li><li><a href="file://src/App.jsx">src/App.jsx</a></li></ul></p>
+<h2>核心组件</h2>
+<ul><li>Vite 配置：当前配置启用 React 插件，未声明额外选项（如别名、插件扩展、CSS 预处理器等）。</li><li>包脚本：提供开发、构建、预览与代码质量检查命令。</li><li>应用入口：负责挂载根组件与引入全局样式。</li><li>路由与页面：基于 React Router 的路由结构，包含受保护路由。</li><li>组件与状态：登录表单、仪表板、受保护路由守卫与 Zustand 状态管理。</li><li>样式：全局样式与页面级样式，支持 CSS 变量与响应式布局。</li></ul>
+<p>章节来源
+<ul><li><a href="file://vite.config.js">vite.config.js</a></li><li><a href="file://package.json">package.json</a></li><li><a href="file://src/main.jsx">src/main.jsx</a></li><li><a href="file://src/App.jsx">src/App.jsx</a></li><li><a href="file://src/components/LoginForm.jsx">src/components/LoginForm.jsx</a></li><li><a href="file://src/pages/LoginPage.jsx">src/pages/LoginPage.jsx</a></li><li><a href="file://src/pages/DashboardPage.jsx">src/pages/DashboardPage.jsx</a></li><li><a href="file://src/pages/TetrisPage.css">src/pages/TetrisPage.css</a></li><li><a href="file://src/routes/ProtectedRoute.jsx">src/routes/ProtectedRoute.jsx</a></li><li><a href="file://src/index.css">src/index.css</a></li><li><a href="file://src/store/authStore.js">src/store/authStore.js</a></li></ul></p>
+<h2>架构总览</h2>
+下图展示了从源码到产物的关键路径与处理阶段，包括开发服务器热更新、构建打包与资源产出。
+<div class="mermaid">graph TB
+subgraph "开发阶段"
+Dev["vite dev<br/>开发服务器"] --> HMR["热模块替换(HMR)"]
+HMR --> Browser["浏览器运行时"]
+end
+subgraph "构建阶段"
+Build["vite build<br/>生产构建"] --> Rollup["打包器(Rollup)"]
+Rollup --> Assets["静态资源产物"]
+Rollup --> HTML["HTML 入口(index.html)"]
+end
+Src["源码树<br/>JSX/CSS/资源"] --> Dev
+Src --> Build
+Browser --> |请求| Assets</div>
+<p>图表来源
+<ul><li><a href="file://vite.config.js">vite.config.js</a></li><li><a href="file://package.json">package.json</a></li><li><a href="file://index.html">index.html</a></li></ul></p>
+<h2>详细组件分析</h2>
+<h3>Vite 配置与插件体系</h3>
+<ul><li>当前配置启用 React 插件，用于 JSX 转换与开发体验增强；未声明额外插件或自定义选项。</li><li>React 插件默认行为：基于 Oxc 的快速转译、HMR 支持、开发模式下的 React Refresh。</li><li>建议：若需 TypeScript、CSS 预处理器、路径别名、动态导入优化等，可在现有基础上扩展配置项。</li></ul>
+<div class="mermaid">flowchart TD
+Start(["加载 Vite 配置"]) --> LoadPlugins["加载插件列表"]
+LoadPlugins --> ReactPlugin["React 插件初始化"]
+ReactPlugin --> DevServer["启动开发服务器"]
+DevServer --> Transform["JSX/CSS 转换与注入"]
+Transform --> HMR["热更新(HMR)"]
+HMR --> End(["开发就绪"])</div>
+<p>图表来源
+<ul><li><a href="file://vite.config.js">vite.config.js</a></li></ul></p>
+<p>章节来源
+<ul><li><a href="file://vite.config.js">vite.config.js</a></li><li><a href="file://README.md">README.md</a></li></ul></p>
+<h3>开发服务器与入口脚本</h3>
+<ul><li>HTML 入口模板定义了挂载点与基础元信息。</li><li>入口脚本负责渲染根组件并引入全局样式。</li><li>开发服务器通过脚本命令启动，自动监听变更并触发热更新。</li></ul>
+<div class="mermaid">sequenceDiagram
+participant U as "浏览器"
+participant S as "Vite 开发服务器"
+participant M as "src/main.jsx"
+participant A as "src/App.jsx"
+U->>S : 请求 /index.html
+S-->>U : 返回 HTML
+U->>S : 请求 /src/main.jsx
+S-->>U : 返回 JS(含 HMR 注入)
+U->>M : 执行入口脚本
+M->>A : 渲染根组件
+A-->>U : 渲染完成</div>
+<p>图表来源
+<ul><li><a href="file://index.html">index.html</a></li><li><a href="file://src/main.jsx">src/main.jsx</a></li><li><a href="file://src/App.jsx">src/App.jsx</a></li></ul></p>
+<p>章节来源
+<ul><li><a href="file://index.html">index.html</a></li><li><a href="file://src/main.jsx">src/main.jsx</a></li><li><a href="file://src/App.jsx">src/App.jsx</a></li></ul></p>
+<h3>路由与页面结构</h3>
+<ul><li>应用通过路由容器组织多页面，登录页、仪表板页与受保护路由组合实现访问控制。</li><li>登录页依赖登录表单组件，仪表板页包含统计卡片与跳转至游戏页的链接。</li><li>受保护路由根据认证状态决定是否放行。</li></ul>
+<div class="mermaid">flowchart TD
+Root["src/App.jsx"] --> Login["LoginPage.jsx"]
+Root --> Dashboard["DashboardPage.jsx"]
+Root --> Tetris["TetrisPage.css"]
+Login --> Form["LoginForm.jsx"]
+Dashboard --> Guard["ProtectedRoute.jsx"]
+Guard --> Store["authStore.js"]</div>
+<p>图表来源
+<ul><li><a href="file://src/App.jsx">src/App.jsx</a></li><li><a href="file://src/pages/LoginPage.jsx">src/pages/LoginPage.jsx</a></li><li><a href="file://src/pages/DashboardPage.jsx">src/pages/DashboardPage.jsx</a></li><li><a href="file://src/pages/TetrisPage.css">src/pages/TetrisPage.css</a></li><li><a href="file://src/components/LoginForm.jsx">src/components/LoginForm.jsx</a></li><li><a href="file://src/routes/ProtectedRoute.jsx">src/routes/ProtectedRoute.jsx</a></li><li><a href="file://src/store/authStore.js">src/store/authStore.js</a></li></ul></p>
+<p>章节来源
+<ul><li><a href="file://src/App.jsx">src/App.jsx</a></li><li><a href="file://src/pages/LoginPage.jsx">src/pages/LoginPage.jsx</a></li><li><a href="file://src/pages/DashboardPage.jsx">src/pages/DashboardPage.jsx</a></li><li><a href="file://src/pages/TetrisPage.css">src/pages/TetrisPage.css</a></li><li><a href="file://src/components/LoginForm.jsx">src/components/LoginForm.jsx</a></li><li><a href="file://src/routes/ProtectedRoute.jsx">src/routes/ProtectedRoute.jsx</a></li><li><a href="file://src/store/authStore.js">src/store/authStore.js</a></li></ul></p>
+<h3>CSS 与样式处理</h3>
+<ul><li>全局样式通过入口脚本引入，页面级样式以独立文件组织。</li><li>项目使用原生 CSS，未启用预处理器；可通过 Vite 配置扩展 Sass/Less/Stylus 等。</li><li>建议：为大型项目引入预处理器可提升样式复用与维护性；同时结合 PostCSS 进行兼容性处理。</li></ul>
+<p>章节来源
+<ul><li><a href="file://src/index.css">src/index.css</a></li><li><a href="file://src/pages/TetrisPage.css">src/pages/TetrisPage.css</a></li></ul></p>
+<h3>代码分割与打包优化</h3>
+<ul><li>当前配置未显式声明拆分策略；Vite 默认按需加载与动态导入进行代码分割。</li><li>建议：针对路由级页面采用动态导入以实现懒加载；对第三方库进行外部化与 CDN 引入以减少首屏体积。</li></ul>
+<p>章节来源
+<ul><li><a href="file://vite.config.js">vite.config.js</a></li><li><a href="file://src/pages/DashboardPage.jsx">src/pages/DashboardPage.jsx</a></li></ul></p>
+<h2>依赖分析</h2>
+<ul><li>依赖关系：入口脚本依赖根组件与全局样式；根组件依赖路由与页面；页面依赖组件与受保护路由；登录表单依赖表单库与状态管理；仪表板依赖路由守卫与状态管理。</li><li>外部依赖：React 生态、路由、表单校验、状态管理与开发工具链。</li></ul>
+<div class="mermaid">graph LR
+Main["src/main.jsx"] --> App["src/App.jsx"]
+App --> Login["src/pages/LoginPage.jsx"]
+App --> Dashboard["src/pages/DashboardPage.jsx"]
+Login --> Form["src/components/LoginForm.jsx"]
+Dashboard --> Guard["src/routes/ProtectedRoute.jsx"]
+Guard --> Store["src/store/authStore.js"]
+Main --> Styles["src/index.css"]
+Dashboard --> TetrisCSS["src/pages/TetrisPage.css"]</div>
+<p>图表来源
+<ul><li><a href="file://src/main.jsx">src/main.jsx</a></li><li><a href="file://src/App.jsx">src/App.jsx</a></li><li><a href="file://src/pages/LoginPage.jsx">src/pages/LoginPage.jsx</a></li><li><a href="file://src/pages/DashboardPage.jsx">src/pages/DashboardPage.jsx</a></li><li><a href="file://src/components/LoginForm.jsx">src/components/LoginForm.jsx</a></li><li><a href="file://src/routes/ProtectedRoute.jsx">src/routes/ProtectedRoute.jsx</a></li><li><a href="file://src/store/authStore.js">src/store/authStore.js</a></li><li><a href="file://src/index.css">src/index.css</a></li><li><a href="file://src/pages/TetrisPage.css">src/pages/TetrisPage.css</a></li></ul></p>
+<p>章节来源
+<ul><li><a href="file://src/main.jsx">src/main.jsx</a></li><li><a href="file://src/App.jsx">src/App.jsx</a></li><li><a href="file://src/pages/LoginPage.jsx">src/pages/LoginPage.jsx</a></li><li><a href="file://src/pages/DashboardPage.jsx">src/pages/DashboardPage.jsx</a></li><li><a href="file://src/components/LoginForm.jsx">src/components/LoginForm.jsx</a></li><li><a href="file://src/routes/ProtectedRoute.jsx">src/routes/ProtectedRoute.jsx</a></li><li><a href="file://src/store/authStore.js">src/store/authStore.js</a></li><li><a href="file://src/index.css">src/index.css</a></li><li><a href="file://src/pages/TetrisPage.css">src/pages/TetrisPage.css</a></li></ul></p>
+<h2>性能考虑</h2>
+<ul><li>开发体验</li><li>启用 React 插件的 HMR，缩短反馈周期。</li><li>使用最小化配置，避免不必要的插件开销。</li><li>构建优化</li><li>对第三方库进行外部化与 CDN 引入，降低包体大小。</li><li>使用动态导入实现路由级懒加载，减少首屏 JavaScript。</li><li>启用 CSS 与图片资源压缩，合理设置产物目录与命名策略。</li><li>样式与资源</li><li>将公共样式抽离为共享模块，避免重复打包。</li><li>图片与字体资源采用合适格式与尺寸，必要时开启 WebP 或 AVIF。</li><li>Lint 与类型</li><li>结合 ESLint 规则与类型检查，提前发现潜在问题，减少运行时错误。</li></ul>
+<h2>故障排查指南</h2>
+<ul><li>开发服务器无法启动</li><li>检查端口占用与网络权限；确认 Node 版本满足 Vite 与插件要求。</li><li>热更新不生效</li><li>排查文件保存与监听状态；确认未禁用 HMR；检查浏览器控制台是否有错误。</li><li>构建失败或产物异常</li><li>查看构建日志中的报错信息；核对插件版本与兼容性；检查路径别名与模块解析规则。</li><li>样式未生效</li><li>确认样式文件被正确引入；检查选择器优先级与作用域；避免样式覆盖冲突。</li><li>路由跳转异常</li><li>核对路由配置与受保护路由守卫逻辑；确保状态初始化顺序正确。</li></ul>
+<p>章节来源
+<ul><li><a href="file://eslint.config.js">eslint.config.js</a></li><li><a href="file://README.md">README.md</a></li></ul></p>
+<h2>结论</h2>
+当前项目采用简洁的 Vite 配置与标准的 React 开发范式，具备良好的可扩展性。建议在保持开发体验的前提下，逐步引入路径别名、CSS 预处理器、动态导入与外部化策略，以进一步提升构建效率与运行性能。通过规范化的依赖管理与样式组织，可为后续功能迭代奠定坚实基础。
+<h2>附录</h2>
+<ul><li>常用脚本</li><li>开发：vite</li><li>构建：vite build</li><li>预览：vite preview</li><li>代码检查：eslint .</li><li>推荐实践</li><li>在 Vite 配置中增加路径别名与预处理器支持。</li><li>对大体积依赖进行外部化与 CDN 引入。</li><li>使用动态导入实现页面级懒加载。</li><li>结合 ESLint 与类型检查，提升代码质量与可维护性。</li></ul>
+      </article>
+      
+      <footer class="page-footer">
+        <p>React Login App 项目文档</p>
+      </footer>
+    </main>
+  </div>
+  
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true
+      }
+    });
+  </script>
+</body>
+</html>
