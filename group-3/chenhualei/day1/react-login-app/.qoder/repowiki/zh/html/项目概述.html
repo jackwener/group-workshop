@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>项目概述 - React Login App 文档</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>📚 项目文档</h1>
+      </div>
+      <nav class="sidebar-nav">
+        <ul><li><a href="项目概述.html">项目概述</a></li><li><a href="快速开始.html">快速开始</a></li><li class="has-submenu"><span class="submenu-title">架构设计</span><ul class="submenu"><li><a href="架构设计/组件架构.html">组件架构</a></li><li><a href="架构设计/状态管理.html">状态管理</a></li><li><a href="架构设计/路由系统.html">路由系统</a></li><li><a href="架构设计/构建配置.html">构建配置</a></li></ul></li><li class="has-submenu"><span class="submenu-title">认证系统</span><ul class="submenu"><li><a href="认证系统/认证状态管理.html">认证状态管理</a></li><li><a href="认证系统/登录表单验证.html">登录表单验证</a></li><li><a href="认证系统/路由保护机制.html">路由保护机制</a></li><li><a href="认证系统/认证流程详解.html">认证流程详解</a></li></ul></li><li><a href="仪表板功能.html">仪表板功能</a></li><li class="has-submenu"><span class="submenu-title">俄罗斯方块游戏</span><ul class="submenu"><li><a href="俄罗斯方块游戏/游戏引擎核心.html">游戏引擎核心</a></li><li><a href="俄罗斯方块游戏/方块系统.html">方块系统</a></li><li><a href="俄罗斯方块游戏/物理机制.html">物理机制</a></li><li><a href="俄罗斯方块游戏/输入处理.html">输入处理</a></li><li><a href="俄罗斯方块游戏/界面渲染.html">界面渲染</a></li><li><a href="俄罗斯方块游戏/游戏状态管理.html">游戏状态管理</a></li></ul></li><li class="has-submenu"><span class="submenu-title">开发工具配置</span><ul class="submenu"><li><a href="开发工具配置/Vite 构建配置.html">Vite 构建配置</a></li><li><a href="开发工具配置/ESLint 代码规范.html">ESLint 代码规范</a></li><li><a href="开发工具配置/包依赖管理.html">包依赖管理</a></li><li><a href="开发工具配置/版本控制忽略规则.html">版本控制忽略规则</a></li></ul></li><li><a href="样式系统.html">样式系统</a></li><li><a href="部署指南.html">部署指南</a></li></ul>
+      </nav>
+    </aside>
+    
+    <main class="main-content">
+      <div class="breadcrumb">
+        <a href="index.html">首页</a> / <span>项目概述</span>
+      </div>
+      
+      <article class="content">
+        <h1>项目概述</h1>
+<div class="cite-block">
+<strong>本文档引用的文件</strong>
+<ul><li><a href="file://README.md">README.md</a></li><li><a href="file://package.json">package.json</a></li><li><a href="file://vite.config.js">vite.config.js</a></li><li><a href="file://eslint.config.js">eslint.config.js</a></li><li><a href="file://index.html">index.html</a></li><li><a href="file://src/main.jsx">src/main.jsx</a></li><li><a href="file://src/App.jsx">src/App.jsx</a></li><li><a href="file://src/store/authStore.js">src/store/authStore.js</a></li><li><a href="file://src/components/LoginForm.jsx">src/components/LoginForm.jsx</a></li><li><a href="file://src/pages/LoginPage.jsx">src/pages/LoginPage.jsx</a></li><li><a href="file://src/pages/DashboardPage.jsx">src/pages/DashboardPage.jsx</a></li><li><a href="file://src/pages/TetrisPage.jsx">src/pages/TetrisPage.jsx</a></li><li><a href="file://src/pages/TetrisPage.css">src/pages/TetrisPage.css</a></li><li><a href="file://src/routes/ProtectedRoute.jsx">src/routes/ProtectedRoute.jsx</a></li><li><a href="file://src/index.css">src/index.css</a></li><li><a href="file://react-login-app.md">react-login-app.md</a></li></ul>
+</div>
+<h2>目录</h2>
+1. <a href="#引言">引言</a>
+2. <a href="#项目结构">项目结构</a>
+3. <a href="#核心组件">核心组件</a>
+4. <a href="#架构总览">架构总览</a>
+5. <a href="#详细组件分析">详细组件分析</a>
+6. <a href="#依赖分析">依赖分析</a>
+7. <a href="#性能考虑">性能考虑</a>
+8. <a href="#故障排除指南">故障排除指南</a>
+9. <a href="#结论">结论</a>
+10. <a href="#附录">附录</a>
+<h2>引言</h2>
+本项目是一个基于 React 19 的登录应用，集成了用户认证系统、受保护的仪表板展示以及俄罗斯方块小游戏功能。项目采用 Vite 作为构建工具与开发服务器，使用 Zustand 进行轻量级状态管理，结合 React Router 实现路由控制与权限保护。通过该应用，用户可以完成登录、查看个人仪表板、进行实时游戏，并在不同页面间安全跳转。
+<p>项目设计理念强调：
+<ul><li>清晰的职责分离：路由、页面、组件、状态管理各司其职</li><li>易用的用户体验：简洁的登录流程、直观的仪表板与可玩的游戏</li><li>可扩展性：模块化的文件组织与可插拔的状态管理方案</li></ul></p>
+<h2>项目结构</h2>
+项目采用按功能分层的组织方式，核心目录与职责如下：
+<ul><li>public：静态资源</li><li>src/assets：静态资源（如图片）</li><li>src/components：可复用的 UI 组件（如登录表单）</li><li>src/pages：页面级组件（登录页、仪表板、俄罗斯方块页）</li><li>src/routes：路由守卫（受保护路由）</li><li>src/store：全局状态管理（Zustand）</li><li>根目录配置：Vite、ESLint、包管理等</li></ul>
+<div class="mermaid">graph TB
+subgraph "入口与配置"
+HTML["index.html"]
+MAIN["src/main.jsx"]
+APP["src/App.jsx"]
+VITE["vite.config.js"]
+ESLINT["eslint.config.js"]
+PKG["package.json"]
+end
+subgraph "状态管理"
+AUTH["src/store/authStore.js"]
+end
+subgraph "路由与页面"
+ROUTE<em>PROTECT["src/routes/ProtectedRoute.jsx"]
+LOGIN</em>PAGE["src/pages/LoginPage.jsx"]
+DASHBOARD<em>PAGE["src/pages/DashboardPage.jsx"]
+TETRIS</em>PAGE["src/pages/TetrisPage.jsx"]
+TETRIS<em>CSS["src/pages/TetrisPage.css"]
+end
+subgraph "UI 组件"
+LOGIN</em>FORM["src/components/LoginForm.jsx"]
+end
+subgraph "样式"
+INDEX<em>CSS["src/index.css"]
+end
+HTML --> MAIN --> APP
+APP --> ROUTE</em>PROTECT
+APP --> LOGIN<em>PAGE
+APP --> DASHBOARD</em>PAGE
+APP --> TETRIS<em>PAGE
+LOGIN</em>PAGE --> LOGIN<em>FORM
+DASHBOARD</em>PAGE --> ROUTE<em>PROTECT
+TETRIS</em>PAGE --> TETRIS<em>CSS
+APP --> AUTH
+LOGIN</em>FORM --> AUTH
+ROUTE<em>PROTECT --> AUTH
+MAIN --> INDEX</em>CSS
+APP --> INDEX<em>CSS</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/main.jsx#L1-L11">src/main.jsx:1-11</a></li><li><a href="file://src/App.jsx#L1-L44">src/App.jsx:1-44</a></li><li><a href="file://src/store/authStore.js#L1-L44">src/store/authStore.js:1-44</a></li><li><a href="file://src/components/LoginForm.jsx#L1-L78">src/components/LoginForm.jsx:1-78</a></li><li><a href="file://src/pages/LoginPage.jsx#L1-L18">src/pages/LoginPage.jsx:1-18</a></li><li><a href="file://src/pages/DashboardPage.jsx#L1-L57">src/pages/DashboardPage.jsx:1-57</a></li><li><a href="file://src/pages/TetrisPage.jsx#L1-L413">src/pages/TetrisPage.jsx:1-413</a></li><li><a href="file://src/pages/TetrisPage.css#L1-L293">src/pages/TetrisPage.css:1-293</a></li><li><a href="file://src/routes/ProtectedRoute.jsx#L1-L15">src/routes/ProtectedRoute.jsx:1-15</a></li><li><a href="file://src/index.css#L1-L261">src/index.css:1-261</a></li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://react-login-app.md#L15-L35">react-login-app.md:15-35</a></li><li><a href="file://package.json#L1-L33">package.json:1-33</a></li></ul>
+<h2>核心组件</h2>
+<ul><li>认证状态管理（Zustand）：负责用户登录态、加载状态、错误信息与持久化</li><li>登录表单（React Hook Form + Zod）：提供输入校验、错误提示与提交处理</li><li>受保护路由：根据登录状态决定是否放行</li><li>页面组件：登录页、仪表板、俄罗斯方块页</li><li>构建与开发工具：Vite、ESLint</li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://src/store/authStore.js#L1-L44">src/store/authStore.js:1-44</a></li><li><a href="file://src/components/LoginForm.jsx#L1-L78">src/components/LoginForm.jsx:1-78</a></li><li><a href="file://src/routes/ProtectedRoute.jsx#L1-L15">src/routes/ProtectedRoute.jsx:1-15</a></li><li><a href="file://src/pages/LoginPage.jsx#L1-L18">src/pages/LoginPage.jsx:1-18</a></li><li><a href="file://src/pages/DashboardPage.jsx#L1-L57">src/pages/DashboardPage.jsx:1-57</a></li><li><a href="file://src/pages/TetrisPage.jsx#L1-L413">src/pages/TetrisPage.jsx:1-413</a></li></ul>
+<h2>架构总览</h2>
+应用采用“入口 -> 路由 -> 页面/组件 -> 状态管理”的层次化架构。登录流程通过表单校验与状态管理完成；受保护路由确保未登录用户无法直接访问仪表板与游戏页面；俄罗斯方块作为独立页面，拥有自洽的游戏逻辑与渲染。
+<div class="mermaid">graph TB
+CLIENT["浏览器客户端"]
+ROUTER["React Router<br/>路由与导航"]
+PROTECT["受保护路由<br/>ProtectedRoute"]
+LOGIN["登录页<br/>LoginPage"]
+FORM["登录表单<br/>LoginForm"]
+AUTH["认证状态<br/>authStore(Zustand)"]
+DASH["仪表板<br/>DashboardPage"]
+TETRIS["俄罗斯方块<br/>TetrisPage"]
+CLIENT --> ROUTER
+ROUTER --> LOGIN
+LOGIN --> FORM
+FORM --> AUTH
+AUTH --> PROTECT
+PROTECT --> DASH
+PROTECT --> TETRIS</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/App.jsx#L17-L39">src/App.jsx:17-39</a></li><li><a href="file://src/routes/ProtectedRoute.jsx#L4-L12">src/routes/ProtectedRoute.jsx:4-12</a></li><li><a href="file://src/components/LoginForm.jsx#L24-L29">src/components/LoginForm.jsx:24-29</a></li><li><a href="file://src/store/authStore.js#L9-L32">src/store/authStore.js:9-32</a></li><li><a href="file://src/pages/DashboardPage.jsx#L8-L11">src/pages/DashboardPage.jsx:8-11</a></li><li><a href="file://src/pages/TetrisPage.jsx#L216-L238">src/pages/TetrisPage.jsx:216-238</a></li></ul>
+<h2>详细组件分析</h2>
+<h3>认证状态管理（Zustand）</h3>
+<ul><li>状态字段：用户信息、登录态、加载状态、错误信息</li><li>核心动作：登录（异步）、登出、初始化（从本地存储恢复）</li><li>数据持久化：登录成功后写入本地存储，初始化时读取</li></ul>
+<div class="mermaid">flowchart TD
+START(["调用 login(username,password)"]) --> SET</em>LOADING["设置 loading=true, error=null"]
+SET<em>LOADING --> SIMULATE["模拟 API 调用"]
+SIMULATE --> VALIDATE{"用户名/密码校验"}
+VALIDATE --> |通过| SAVE["保存用户到本地存储"]
+SAVE --> UPDATE</em>STATE["更新状态: user, isAuthenticated=true"]
+UPDATE<em>STATE --> RESOLVE</em>TRUE["返回 {success:true}"]
+VALIDATE --> |失败| UPDATE<em>ERROR["设置 error='用户名或密码错误'"]
+UPDATE</em>ERROR --> RESOLVE<em>FALSE["返回 {success:false,error}"]</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/store/authStore.js#L9-L32">src/store/authStore.js:9-32</a></li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://src/store/authStore.js#L1-L44">src/store/authStore.js:1-44</a></li></ul>
+<h3>登录表单（React Hook Form + Zod）</h3>
+<ul><li>输入校验：用户名必填、密码最少 6 位</li><li>表单行为：提交时触发登录动作，成功则跳转到仪表板</li><li>错误提示：显示字段级与全局错误信息</li></ul>
+<div class="mermaid">sequenceDiagram
+participant U as "用户"
+participant F as "LoginForm"
+participant R as "react-router"
+participant S as "authStore"
+U->>F : 输入用户名/密码并提交
+F->>F : 触发 useForm 校验
+F->>S : 调用 login(username,password)
+S-->>F : 返回 {success,error}
+alt 成功
+F->>R : 导航到 /dashboard
+else 失败
+F->>F : 显示错误信息
+end</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/components/LoginForm.jsx#L16-L29">src/components/LoginForm.jsx:16-29</a></li><li><a href="file://src/store/authStore.js#L9-L32">src/store/authStore.js:9-32</a></li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://src/components/LoginForm.jsx#L1-L78">src/components/LoginForm.jsx:1-78</a></li></ul>
+<h3>受保护路由（ProtectedRoute）</h3>
+<ul><li>逻辑：若未登录则重定向至登录页；否则放行子组件</li><li>依赖：从 authStore 读取登录态</li></ul>
+<div class="mermaid">flowchart TD
+CHECK["读取 isAuthenticated"] --> IS</em>AUTH{"是否已登录"}
+IS<em>AUTH --> |是| ALLOW["放行子组件"]
+IS</em>AUTH --> |否| REDIRECT["重定向到 /login"]</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/routes/ProtectedRoute.jsx#L4-L12">src/routes/ProtectedRoute.jsx:4-12</a></li><li><a href="file://src/store/authStore.js#L4-L5">src/store/authStore.js:4-5</a></li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://src/routes/ProtectedRoute.jsx#L1-L15">src/routes/ProtectedRoute.jsx:1-15</a></li></ul>
+<h3>仪表板页面（DashboardPage）</h3>
+<ul><li>展示用户信息与统计卡片</li><li>提供退出登录与跳转到俄罗斯方块的功能入口</li></ul>
+<div class="mermaid">sequenceDiagram
+participant U as "用户"
+participant P as "DashboardPage"
+participant S as "authStore"
+participant R as "react-router"
+U->>P : 点击退出登录
+P->>S : 调用 logout()
+S-->>P : 状态更新为未登录
+P->>R : 导航到 /login</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/pages/DashboardPage.jsx#L8-L11">src/pages/DashboardPage.jsx:8-11</a></li><li><a href="file://src/store/authStore.js#L29-L32">src/store/authStore.js:29-32</a></li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://src/pages/DashboardPage.jsx#L1-L57">src/pages/DashboardPage.jsx:1-57</a></li></ul>
+<h3>俄罗斯方块页面（TetrisPage）</h3>
+<ul><li>游戏逻辑：棋盘、方块生成、碰撞检测、旋转、消行计分、等级提升</li><li>控制方式：键盘方向键移动/旋转、空格硬降、P 暂停</li><li>渲染：网格布局、下一个方块预览、分数/行数/等级显示</li></ul>
+<div class="mermaid">flowchart TD
+INIT["初始化游戏状态"] --> SPAWN["生成首个方块并放置"]
+SPAWN --> LOOP{"游戏循环"}
+LOOP --> INPUT["监听键盘输入"]
+INPUT --> MOVE["移动/旋转/硬降"]
+MOVE --> VALID{"位置有效?"}
+VALID --> |是| RENDER["更新状态并渲染"]
+VALID --> |否| LOCK["锁定方块并消行"]
+LOCK --> SCORE["更新分数/行数/等级"]
+SCORE --> NEXT["生成下一个方块"]
+NEXT --> LOOP
+LOOP --> GAMEOVER{"游戏结束?"}
+GAMEOVER --> |是| OVER["显示结束界面"]
+GAMEOVER --> |否| LOOP</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L63-L238">src/pages/TetrisPage.jsx:63-238</a></li><li><a href="file://src/pages/TetrisPage.jsx#L240-L268">src/pages/TetrisPage.jsx:240-268</a></li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L1-L413">src/pages/TetrisPage.jsx:1-413</a></li></ul>
+<h2>依赖分析</h2>
+<ul><li>运行时依赖</li><li>React 19 与 React DOM：核心框架</li><li>react-router-dom：路由与导航</li><li>react-hook-form + @hookform/resolvers + zod：表单校验与解析</li><li>zustand：轻量级状态管理</li><li>开发依赖</li><li>vite：构建与开发服务器</li><li>@vitejs/plugin-react：React 支持</li><li>eslint 及相关插件：代码质量与规范</li></ul>
+<div class="mermaid">graph LR
+PKG["package.json"]
+REACT["react@^19.2.4"]
+REACTDOM["react-dom@^19.2.4"]
+ROUTER["react-router-dom@^7.14.0"]
+HOOKFORM["react-hook-form@^7.72.1"]
+ZOD["@hookform/resolvers@^5.2.2<br/>zod@^4.3.6"]
+ZUSTAND["zustand@^5.0.12"]
+VITE["vite@^8.0.4"]
+RPLUGIN["@vitejs/plugin-react@^6.0.1"]
+ESLINT["eslint@..."]
+HOOKS["eslint-plugin-react-hooks@..."]
+REFRESH["eslint-plugin-react-refresh@..."]
+PKG --> REACT
+PKG --> REACTDOM
+PKG --> ROUTER
+PKG --> HOOKFORM
+PKG --> ZOD
+PKG --> ZUSTAND
+PKG --> VITE
+PKG --> RPLUGIN
+PKG --> ESLINT
+PKG --> HOOKS
+PKG --> REFRESH</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://package.json#L12-L31">package.json:12-31</a></li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://package.json#L1-L33">package.json:1-33</a></li></ul>
+<h2>性能考虑</h2>
+<ul><li>Vite 提供快速的开发服务器与热更新能力，适合迭代开发</li><li>Zustand 以极简 API 实现状态管理，避免不必要的重渲染</li><li>React Hook Form 仅在需要时进行校验，减少无效计算</li><li>俄罗斯方块使用 useRef 缓存游戏状态，降低闭包与重渲染成本</li></ul>
+<p>[本节为通用性能建议，不直接分析具体文件，故无章节来源]</p>
+<h2>故障排除指南</h2>
+<ul><li>登录失败</li><li>检查用户名/密码是否符合校验规则</li><li>查看错误提示信息</li><li>确认登录动作是否正确返回结果</li><li>无法访问受保护页面</li><li>确认登录状态是否已持久化</li><li>检查受保护路由逻辑</li><li>俄罗斯方块无响应</li><li>确认键盘事件绑定是否生效</li><li>检查游戏状态初始化与定时器</li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://src/components/LoginForm.jsx#L63-L67">src/components/LoginForm.jsx:63-67</a></li><li><a href="file://src/store/authStore.js#L35-L40">src/store/authStore.js:35-40</a></li><li><a href="file://src/routes/ProtectedRoute.jsx#L7-L9">src/routes/ProtectedRoute.jsx:7-9</a></li><li><a href="file://src/pages/TetrisPage.jsx#L253-L268">src/pages/TetrisPage.jsx:253-268</a></li></ul>
+<h2>结论</h2>
+本项目通过现代化技术栈实现了从登录认证到页面导航再到游戏娱乐的完整闭环。React 19 提供稳定的运行时基础，Vite 确保高效的开发体验，Zustand 使状态管理简单可靠，React Router 保障了路由安全与易用性。整体架构清晰、易于扩展，既适合初学者理解前端工程化实践，也为有经验的开发者提供了可演进的技术选型参考。
+<p>[本节为总结性内容，不直接分析具体文件，故无章节来源]</p>
+<h2>附录</h2>
+<h3>技术选型说明</h3>
+<ul><li>React 19：稳定、高性能、生态成熟</li><li>Vite：极速启动与构建、优秀的 HMR</li><li>Zustand：API 简洁、无需 Provider、易于测试</li><li>React Router：路由控制与权限保护</li><li>React Hook Form + Zod：声明式表单与强类型校验</li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://README.md#L10-L16">README.md:10-16</a></li><li><a href="file://react-login-app.md#L8-L13">react-login-app.md:8-13</a></li></ul>
+<h3>开发与构建</h3>
+<ul><li>启动开发服务器：npm run dev</li><li>生产构建：npm run build</li><li>预览构建：npm run preview</li><li>代码检查：npm run lint</li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://package.json#L6-L10">package.json:6-10</a></li><li><a href="file://vite.config.js#L1-L8">vite.config.js:1-8</a></li><li><a href="file://eslint.config.js#L1-L30">eslint.config.js:1-30</a></li></ul>
+      </article>
+      
+      <footer class="page-footer">
+        <p>React Login App 项目文档</p>
+      </footer>
+    </main>
+  </div>
+  
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true
+      }
+    });
+  </script>
+</body>
+</html>
