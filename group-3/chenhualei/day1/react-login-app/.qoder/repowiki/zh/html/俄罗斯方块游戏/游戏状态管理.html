@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>游戏状态管理 - React Login App 文档</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>📚 项目文档</h1>
+      </div>
+      <nav class="sidebar-nav">
+        <ul><li><a href="项目概述.html">项目概述</a></li><li><a href="快速开始.html">快速开始</a></li><li class="has-submenu"><span class="submenu-title">架构设计</span><ul class="submenu"><li><a href="架构设计/组件架构.html">组件架构</a></li><li><a href="架构设计/状态管理.html">状态管理</a></li><li><a href="架构设计/路由系统.html">路由系统</a></li><li><a href="架构设计/构建配置.html">构建配置</a></li></ul></li><li class="has-submenu"><span class="submenu-title">认证系统</span><ul class="submenu"><li><a href="认证系统/认证状态管理.html">认证状态管理</a></li><li><a href="认证系统/登录表单验证.html">登录表单验证</a></li><li><a href="认证系统/路由保护机制.html">路由保护机制</a></li><li><a href="认证系统/认证流程详解.html">认证流程详解</a></li></ul></li><li><a href="仪表板功能.html">仪表板功能</a></li><li class="has-submenu"><span class="submenu-title">俄罗斯方块游戏</span><ul class="submenu"><li><a href="俄罗斯方块游戏/游戏引擎核心.html">游戏引擎核心</a></li><li><a href="俄罗斯方块游戏/方块系统.html">方块系统</a></li><li><a href="俄罗斯方块游戏/物理机制.html">物理机制</a></li><li><a href="俄罗斯方块游戏/输入处理.html">输入处理</a></li><li><a href="俄罗斯方块游戏/界面渲染.html">界面渲染</a></li><li><a href="俄罗斯方块游戏/游戏状态管理.html">游戏状态管理</a></li></ul></li><li class="has-submenu"><span class="submenu-title">开发工具配置</span><ul class="submenu"><li><a href="开发工具配置/Vite 构建配置.html">Vite 构建配置</a></li><li><a href="开发工具配置/ESLint 代码规范.html">ESLint 代码规范</a></li><li><a href="开发工具配置/包依赖管理.html">包依赖管理</a></li><li><a href="开发工具配置/版本控制忽略规则.html">版本控制忽略规则</a></li></ul></li><li><a href="样式系统.html">样式系统</a></li><li><a href="部署指南.html">部署指南</a></li></ul>
+      </nav>
+    </aside>
+    
+    <main class="main-content">
+      <div class="breadcrumb">
+        <a href="index.html">首页</a> / <span>俄罗斯方块游戏\游戏状态管理</span>
+      </div>
+      
+      <article class="content">
+        <h1>游戏状态管理</h1>
+<div class="cite-block">
+<strong>本文档引用的文件</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx">TetrisPage.jsx</a></li><li><a href="file://src/store/authStore.js">authStore.js</a></li><li><a href="file://src/components/LoginForm.jsx">LoginForm.jsx</a></li><li><a href="file://src/App.jsx">App.jsx</a></li><li><a href="file://src/pages/TetrisPage.css">TetrisPage.css</a></li><li><a href="file://src/pages/LoginPage.jsx">LoginPage.jsx</a></li><li><a href="file://src/pages/DashboardPage.jsx">DashboardPage.jsx</a></li><li><a href="file://src/routes/ProtectedRoute.jsx">ProtectedRoute.jsx</a></li></ul>
+</div>
+<h2>目录</h2>
+1. <a href="#简介">简介</a>
+2. <a href="#项目结构">项目结构</a>
+3. <a href="#核心组件">核心组件</a>
+4. <a href="#架构概览">架构概览</a>
+5. <a href="#详细组件分析">详细组件分析</a>
+6. <a href="#依赖关系分析">依赖关系分析</a>
+7. <a href="#性能考虑">性能考虑</a>
+8. <a href="#故障排除指南">故障排除指南</a>
+9. <a href="#结论">结论</a>
+<h2>简介</h2>
+<p>本项目是一个基于React的登录认证系统，其中包含了俄罗斯方块游戏作为休闲娱乐功能。本文档专注于游戏状态管理系统的技术实现，深入解释游戏状态的完整生命周期、分数计算系统、等级系统设计、游戏结束检测机制、暂停系统实现以及状态持久化策略。</p>
+<h2>项目结构</h2>
+<p>该项目采用模块化架构设计，主要分为以下几个部分：</p>
+<div class="mermaid">graph TB
+subgraph "应用入口"
+App[App.jsx]
+Routes[路由配置]
+end
+subgraph "认证系统"
+AuthStore[authStore.js]
+LoginForm[LoginForm.jsx]
+LoginPage[LoginPage.jsx]
+DashboardPage[DashboardPage.jsx]
+ProtectedRoute[ProtectedRoute.jsx]
+end
+subgraph "游戏系统"
+TetrisPage[TetrisPage.jsx]
+TetrisCSS[TetrisPage.css]
+end
+App --> Routes
+Routes --> LoginPage
+Routes --> DashboardPage
+Routes --> TetrisPage
+LoginPage --> LoginForm
+DashboardPage --> TetrisPage
+TetrisPage --> AuthStore
+LoginForm --> AuthStore</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/App.jsx#L10-L41">App.jsx:10-41</a></li><li><a href="file://src/pages/TetrisPage.jsx#L63-L413">TetrisPage.jsx:63-413</a></li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://src/App.jsx#L1-L44">App.jsx:1-44</a></li><li><a href="file://package.json#L1-L33">package.json:1-33</a></li></ul>
+<h2>核心组件</h2>
+<h3>游戏状态管理器</h3>
+<p>俄罗斯方块游戏的状态管理集中在<code>TetrisPage.jsx</code>组件中，该组件使用React的useState和useRef钩子来管理游戏的各种状态：</p>
+<div class="mermaid">classDiagram
+class GameState {
++board : Array[]
++currentPiece : Object
++currentPos : Object
++nextPiece : Object
++score : Number
++lines : Number
++level : Number
++gameOver : Boolean
++paused : Boolean
++started : Boolean
++dropTimerRef : Object
+}
+class GameMethods {
++lockPiece() : void
++moveDown() : void
++moveLeft() : void
++moveRight() : void
++rotatePiece() : void
++hardDrop() : void
++togglePause() : void
++startGame() : void
++renderBoard() : Array
++renderNextPiece() : Array
+}
+GameState --> GameMethods : "包含"</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L63-L84">TetrisPage.jsx:63-84</a></li><li><a href="file://src/pages/TetrisPage.jsx#L94-L238">TetrisPage.jsx:94-238</a></li></ul>
+<h3>认证状态管理</h3>
+<p>应用使用Zustand库实现全局状态管理，主要负责用户认证状态：</p>
+<div class="mermaid">classDiagram
+class AuthStore {
++user : Object
++isAuthenticated : Boolean
++loading : Boolean
++error : String
++login(username, password) : Promise
++logout() : void
++initialize() : void
+}
+class LoginFormData {
++username : String
++password : String
+}
+AuthStore --> LoginFormData : "处理"</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/store/authStore.js#L3-L41">authStore.js:3-41</a></li><li><a href="file://src/components/LoginForm.jsx#L7-L10">LoginForm.jsx:7-10</a></li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L63-L84">TetrisPage.jsx:63-84</a></li><li><a href="file://src/store/authStore.js#L1-L44">authStore.js:1-44</a></li></ul>
+<h2>架构概览</h2>
+<p>游戏状态管理系统采用分层架构设计，确保状态管理的清晰性和可维护性：</p>
+<div class="mermaid">graph TD
+subgraph "视图层"
+UI[用户界面组件]
+Controls[游戏控制面板]
+end
+subgraph "状态管理层"
+GameState[游戏状态管理]
+RefState[引用状态管理]
+end
+subgraph "业务逻辑层"
+GameLogic[游戏逻辑处理]
+Validation[状态验证]
+Scoring[分数计算]
+end
+subgraph "数据持久层"
+LocalStorage[本地存储]
+SessionStorage[会话存储]
+end
+UI --> GameState
+Controls --> GameState
+GameState --> RefState
+GameState --> GameLogic
+GameLogic --> Validation
+GameLogic --> Scoring
+Scoring --> LocalStorage
+RefState --> LocalStorage</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L75-L92">TetrisPage.jsx:75-92</a></li><li><a href="file://src/store/authStore.js#L34-L40">authStore.js:34-40</a></li></ul>
+<h2>详细组件分析</h2>
+<h3>游戏状态生命周期</h3>
+<p>游戏状态的完整生命周期包括以下阶段：</p>
+<h4>初始化阶段</h4>
+游戏启动时，系统初始化所有必要的状态变量：
+<div class="mermaid">sequenceDiagram
+participant User as 用户
+participant Game as 游戏组件
+participant State as 状态管理
+participant Timer as 计时器
+User->>Game : 点击"开始游戏"
+Game->>State : 初始化游戏状态
+State->>State : 设置board为空棋盘
+State->>State : 设置score=0, lines=0, level=1
+State->>State : 设置gameOver=false, paused=false, started=true
+State->>State : 生成第一个和第二个方块
+State->>Timer : 启动下落定时器
+Timer->>Game : 定期触发moveDown事件
+Game-->>User : 显示游戏界面</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L216-L238">TetrisPage.jsx:216-238</a></li><li><a href="file://src/pages/TetrisPage.jsx#L240-L250">TetrisPage.jsx:240-250</a></li></ul>
+<h4>运行阶段</h4>
+游戏进入正常运行状态，处理用户输入和自动下落：
+<div class="mermaid">flowchart TD
+Start([游戏开始]) --> CheckStarted{"游戏已开始?"}
+CheckStarted --> |否| WaitInput["等待用户输入"]
+CheckStarted --> |是| CheckPaused{"是否暂停?"}
+CheckPaused --> |是| WaitInput
+CheckPaused --> |否| CheckGameOver{"游戏是否结束?"}
+CheckGameOver --> |是| EndGame["结束游戏"]
+CheckGameOver --> |否| ProcessInput["处理用户输入"]
+ProcessInput --> MovePiece["移动方块"]
+MovePiece --> CheckCollision{"是否碰撞?"}
+CheckCollision --> |是| LockPiece["锁定方块"]
+CheckCollision --> |否| Continue["继续游戏"]
+LockPiece --> ClearLines["清除满行"]
+ClearLines --> UpdateScore["更新分数"]
+UpdateScore --> SpawnNext["生成下一个方块"]
+SpawnNext --> CheckSpawn{"新方块能否放置?"}
+CheckSpawn --> |否| GameOver["游戏结束"]
+CheckSpawn --> |是| Continue
+Continue --> CheckPaused
+WaitInput --> CheckStarted</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L155-L164">TetrisPage.jsx:155-164</a></li><li><a href="file://src/pages/TetrisPage.jsx#L94-L153">TetrisPage.jsx:94-153</a></li></ul>
+<h4>暂停阶段</h4>
+暂停系统允许玩家临时停止游戏：
+<div class="mermaid">sequenceDiagram
+participant User as 用户
+participant Game as 游戏组件
+participant State as 状态管理
+participant Timer as 计时器
+User->>Game : 按下"P"键
+Game->>State : togglePause()
+State->>State : 切换paused状态
+alt 从暂停恢复
+State->>Timer : 继续定时器
+Timer->>Game : 恢复自动下落
+else 暂停
+State->>Timer : 停止定时器
+end
+Game-->>User : 显示暂停界面</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L211-L214">TetrisPage.jsx:211-214</a></li><li><a href="file://src/pages/TetrisPage.jsx#L240-L250">TetrisPage.jsx:240-250</a></li></ul>
+<h4>结束阶段</h4>
+游戏结束时的状态清理和重置：
+<div class="mermaid">flowchart TD
+GameOver["游戏结束"] --> ShowOverlay["显示结束界面"]
+ShowOverlay --> ResetState["重置游戏状态"]
+ResetState --> ClearBoard["清空棋盘"]
+ClearBoard --> ResetStats["重置统计信息"]
+ResetStats --> ResetFlags["重置标志位"]
+ResetFlags --> StopTimer["停止计时器"]
+StopTimer --> Ready["准备重新开始"]</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L143-L147">TetrisPage.jsx:143-147</a></li><li><a href="file://src/pages/TetrisPage.jsx#L226-L230">TetrisPage.jsx:226-230</a></li></ul>
+<h3>分数计算系统</h3>
+<p>分数计算系统基于消行数量和当前等级进行计算：</p>
+<h4>消行分数计算</h4>
+消行分数采用标准的Tetris计分规则：
+<table><thead><tr><th>消行数量</th><th>奖励倍数</th><th>基础分数</th></tr></thead><tbody><tr><td>0行</td><td>0</td><td>0</td></tr><tr><td>1行</td><td>1</td><td>100</td></tr><tr><td>2行</td><td>3</td><td>300</td></tr><tr><td>3行</td><td>5</td><td>500</td></tr><tr><td>4行</td><td>8</td><td>800</td></tr></tbody></table>
+<h4>硬降奖励</h4>
+硬降（快速下落）为每个单位距离提供2分奖励：
+<ul><li>玩家按下空格键触发硬降</li><li>计算从当前位置到最底端的距离</li><li>距离 × 2 分计入总分</li></ul>
+<h4>等级影响</h4>
+等级通过消行数计算，每消除10行提升一级：
+<ul><li>初始等级：1级</li><li>每消除10行：+1级</li><li>等级越高，下落速度越快</li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L125-L132">TetrisPage.jsx:125-132</a></li><li><a href="file://src/pages/TetrisPage.jsx#L199-L209">TetrisPage.jsx:199-209</a></li><li><a href="file://src/pages/TetrisPage.jsx#L61">TetrisPage.jsx:61</a></li></ul>
+<h3>等级系统设计</h3>
+<p>等级系统与下落速度和消行计数紧密关联：</p>
+<h4>等级计算逻辑</h4>
+<div class="mermaid">flowchart TD
+Lines["累计消行数"] --> CalcLevel["计算等级"]
+CalcLevel --> LevelFormula["level = floor(lines/10) + 1"]
+LevelFormula --> SpeedCalc["计算下落速度"]
+SpeedCalc --> SpeedFormula["speed = max(100, 800 - (level-1) * 70)"]
+SpeedFormula --> TimerInterval["设置定时器间隔"]</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L128-L130">TetrisPage.jsx:128-130</a></li><li><a href="file://src/pages/TetrisPage.jsx#L61">TetrisPage.jsx:61</a></li></ul>
+<h4>下落速度递增</h4>
+下落速度随等级增加而加快，采用线性递减模式：
+<ul><li>1级：800ms/格</li><li>2级：730ms/格  </li><li>3级：660ms/格</li><li>...</li><li>最快：100ms/格（约10级）</li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L128-L130">TetrisPage.jsx:128-130</a></li><li><a href="file://src/pages/TetrisPage.jsx#L61">TetrisPage.jsx:61</a></li></ul>
+<h3>游戏结束检测机制</h3>
+<p>游戏结束检测基于方块堆叠到顶部的条件：</p>
+<h4>结束条件判断</h4>
+<div class="mermaid">flowchart TD
+SpawnPiece["生成新方块"] --> CheckPosition["检查初始位置"]
+CheckPosition --> PositionValid{"位置有效?"}
+PositionValid --> |是| PlacePiece["放置方块"]
+PositionValid --> |否| GameOver["游戏结束"]
+PlacePiece --> CheckLines["检查是否有满行"]
+CheckLines --> ClearLines["清除满行"]
+ClearLines --> SpawnNext["生成下一个方块"]
+SpawnNext --> CheckPosition</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L139-L152">TetrisPage.jsx:139-152</a></li><li><a href="file://src/pages/TetrisPage.jsx#L143-L147">TetrisPage.jsx:143-147</a></li></ul>
+<h4>方块堆叠判定</h4>
+当新生成的方块无法放置在初始位置时，游戏立即结束：
+<ul><li>检查棋盘顶部区域</li><li>如果有方块阻挡初始位置</li><li>触发游戏结束流程</li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L143-L147">TetrisPage.jsx:143-147</a></li></ul>
+<h3>暂停系统实现</h3>
+<p>暂停系统采用双状态管理模式，确保状态的正确保存和恢复：</p>
+<h4>状态保存机制</h4>
+<div class="mermaid">classDiagram
+class PauseState {
++gameOver : Boolean
++started : Boolean
++paused : Boolean
++saveState() : void
++restoreState() : void
+}
+class GameStateRef {
++board : Array[]
++currentPiece : Object
++currentPos : Object
++nextPiece : Object
++score : Number
++lines : Number
++level : Number
+}
+PauseState --> GameStateRef : "保存引用状态"</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L75-L83">TetrisPage.jsx:75-83</a></li><li><a href="file://src/pages/TetrisPage.jsx#L211-L214">TetrisPage.jsx:211-214</a></li></ul>
+<h4>状态切换流程</h4>
+暂停状态下，系统会：
+<ul><li>停止定时器，防止自动下落</li><li>保持当前棋盘状态不变</li><li>保留所有统计数据</li><li>在恢复时完全恢复到暂停前的状态</li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L211-L214">TetrisPage.jsx:211-214</a></li><li><a href="file://src/pages/TetrisPage.jsx#L240-L250">TetrisPage.jsx:240-250</a></li></ul>
+<h3>状态持久化策略</h3>
+<p>系统提供了完整的状态持久化能力，支持将游戏进度保存到浏览器存储中：</p>
+<h4>本地存储实现</h4>
+<div class="mermaid">sequenceDiagram
+participant Game as 游戏组件
+participant Storage as 浏览器存储
+participant User as 用户
+User->>Game : 开始新游戏
+Game->>Storage : 保存游戏状态
+Storage->>Storage : localStorage.setItem()
+User->>Game : 刷新页面
+Game->>Storage : 读取游戏状态
+Storage->>Storage : localStorage.getItem()
+Storage-->>Game : 返回保存的游戏状态
+Game-->>User : 恢复游戏进度
+User->>Game : 退出游戏
+Game->>Storage : 清除游戏状态
+Storage->>Storage : localStorage.removeItem()</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/store/authStore.js#L18-L19">authStore.js:18-19</a></li><li><a href="file://src/store/authStore.js#L30">authStore.js:30</a></li><li><a href="file://src/store/authStore.js#L34-L40">authStore.js:34-40</a></li></ul>
+<h4>多游戏实例隔离</h4>
+系统采用以下策略确保多个游戏实例的隔离：
+<ul><li>使用独立的命名空间存储每个游戏实例的状态</li><li>通过组件实例的唯一标识符区分不同实例</li><li>避免跨实例的状态污染</li><li>支持资源共享但保持实例间隔离</li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://src/store/authStore.js#L18-L19">authStore.js:18-19</a></li><li><a href="file://src/store/authStore.js#L34-L40">authStore.js:34-40</a></li></ul>
+<h2>依赖关系分析</h2>
+<p>游戏状态管理系统涉及多个组件之间的复杂依赖关系：</p>
+<div class="mermaid">graph TB
+subgraph "外部依赖"
+React[React 19.2.4]
+Zustand[Zustand 5.0.12]
+Router[React Router 7.14.0]
+HookForm[React Hook Form 7.72.1]
+Zod[Zod 4.3.6]
+end
+subgraph "内部组件"
+TetrisPage[TetrisPage.jsx]
+AuthStore[authStore.js]
+LoginForm[LoginForm.jsx]
+ProtectedRoute[ProtectedRoute.jsx]
+DashboardPage[DashboardPage.jsx]
+end
+TetrisPage --> React
+AuthStore --> Zustand
+LoginForm --> HookForm
+LoginForm --> Zod
+ProtectedRoute --> Router
+DashboardPage --> Router
+TetrisPage --> Router
+LoginForm --> Router
+ProtectedRoute --> AuthStore
+DashboardPage --> AuthStore
+LoginForm --> AuthStore</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://package.json#L12-L19">package.json:12-19</a></li><li><a href="file://src/App.jsx#L1-L7">App.jsx:1-7</a></li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://package.json#L1-L33">package.json:1-33</a></li><li><a href="file://src/App.jsx#L1-L44">App.jsx:1-44</a></li></ul>
+<h2>性能考虑</h2>
+<h3>状态更新优化</h3>
+<ul><li>使用useRef存储频繁更新的状态，避免不必要的重渲染</li><li>通过useCallback优化函数组件的性能</li><li>合理使用useEffect清理定时器和其他资源</li></ul>
+<h3>内存管理</h3>
+<ul><li>及时清理定时器，防止内存泄漏</li><li>合理管理棋盘数组的创建和销毁</li><li>避免在渲染过程中创建新的对象</li></ul>
+<h3>渲染优化</h3>
+<ul><li>使用CSS Grid高效渲染棋盘</li><li>实现虚拟滚动减少DOM节点数量</li><li>优化条件渲染逻辑</li></ul>
+<h2>故障排除指南</h2>
+<h3>常见问题及解决方案</h3>
+<h4>游戏无法开始</h4>
+<strong>症状</strong>：点击"开始游戏"按钮无响应
+<strong>原因</strong>：可能由于异步操作未完成或状态管理异常
+<strong>解决方案</strong>：
+<ul><li>检查<code>started</code>状态是否正确设置</li><li>确认定时器是否正确启动</li><li>验证<code>currentPiece</code>和<code>nextPiece</code>是否正确生成</li></ul>
+<h4>方块移动异常</h4>
+<strong>症状</strong>：方块无法正常移动或旋转
+<strong>原因</strong>：状态同步问题或碰撞检测错误
+<strong>解决方案</strong>：
+<ul><li>检查<code>gs.current</code>引用状态与React状态的一致性</li><li>验证<code>isValidPosition</code>函数的逻辑</li><li>确认键盘事件监听器正确绑定</li></ul>
+<h4>分数计算错误</h4>
+<strong>症状</strong>：分数显示不正确或消行后分数异常
+<strong>原因</strong>：分数计算逻辑错误或等级影响计算问题
+<strong>解决方案</strong>：
+<ul><li>检查消行分数映射表</li><li>验证等级计算公式</li><li>确认硬降奖励的正确应用</li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L94-L153">TetrisPage.jsx:94-153</a></li><li><a href="file://src/pages/TetrisPage.jsx#L125-L132">TetrisPage.jsx:125-132</a></li></ul>
+<h2>结论</h2>
+<p>本游戏状态管理系统展现了现代React应用中状态管理的最佳实践。通过合理的架构设计和状态分离，实现了：</p>
+<p>1. <strong>清晰的状态层次</strong>：将游戏状态、引用状态和UI状态明确分离
+2. <strong>高效的性能表现</strong>：通过useRef和useCallback优化关键路径
+3. <strong>完整的生命周期管理</strong>：覆盖从初始化到结束的全过程
+4. <strong>可靠的持久化机制</strong>：支持状态的保存和恢复
+5. <strong>良好的用户体验</strong>：流畅的交互和及时的反馈</p>
+<p>该系统为类似的游戏应用提供了优秀的参考模板，展示了如何在React环境中实现复杂的状态管理需求。</p>
+      </article>
+      
+      <footer class="page-footer">
+        <p>React Login App 项目文档</p>
+      </footer>
+    </main>
+  </div>
+  
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true
+      }
+    });
+  </script>
+</body>
+</html>
