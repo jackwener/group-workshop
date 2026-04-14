@@ -1,0 +1,9 @@
+flask>=3.0
+flask-cors
+flasgger
+python-dotenv
+pytest
+PyPDF2
+pdfplumber
+beautifulsoup4
+requests
