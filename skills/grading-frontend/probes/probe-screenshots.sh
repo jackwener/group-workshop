@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # probe-screenshots.sh — capture desktop + mobile screenshots of a running frontend
-# for grading evidence. Uses playwright-cli via npx.
+# for grading evidence. Uses playwright CLI via npx.
 #
 # Usage:
 #   ./probe-screenshots.sh <team-name> [base-url]
@@ -14,6 +14,13 @@
 
 set -euo pipefail
 
+# 前置依赖检查
+if ! command -v npx >/dev/null 2>&1; then
+  echo "[ERR] need npx (Node.js)"; exit 1
+fi
+# 第一次会自动装 chromium
+npx --yes playwright install chromium >/dev/null 2>&1 || true
+
 TEAM="${1:?usage: probe-screenshots.sh <team> [base-url]}"
 BASE="${2:-http://localhost:3000}"
 OUT=".grading/shots"
@@ -22,20 +29,13 @@ mkdir -p "$OUT"
 MISSING_LOG="$OUT/${TEAM}-MISSING.log"
 : > "$MISSING_LOG"
 
-# Check playwright-cli availability; hint once if missing.
-if ! npx --no-install playwright-cli --version >/dev/null 2>&1; then
-  echo "[probe-screenshots] playwright-cli not installed globally; will fetch via npx."
-  echo "[probe-screenshots] If this is your first run, you may also need:"
-  echo "    npx playwright install chromium"
-fi
-
 shot() {
   # shot <viewport> <url-path> <out-file>
   local viewport="$1"
   local path="$2"
   local out="$3"
   local url="${BASE}${path}"
-  if npx --yes playwright-cli screenshot \
+  if npx --yes playwright screenshot \
       --viewport-size="$viewport" \
       "$url" "$out" >/dev/null 2>&1; then
     echo "  ok: $url -> $out"

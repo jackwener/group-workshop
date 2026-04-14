@@ -17,6 +17,11 @@ description: Grade a team's backend implementation against its spec on 9 weighte
 - **curl**：所有接口探针和取证命令基于 curl，macOS / Linux 自带即可。
 - **输出目录**：所有证据和报告写到待评项目根目录下的 `.grading/`（已由 spec 约定 gitignore）。
 
+**约定的工作目录**：所有 probe 脚本和 `.grading/` 输出都默认在**待评项目根目录**下执行。即评分时：
+1. cd 到被评项目（如 `cd group-workshop/group-2`）
+2. 用绝对路径调用 probe：`bash $WORKSHOP_ROOT/skills/grading-backend/probes/probe-robustness.sh team-2 http://localhost:8080 /api/items`
+3. `.grading/` 会落到被评项目根下，与该项目共生
+
 ---
 
 ## 共享契约（必读）
@@ -36,8 +41,8 @@ description: Grade a team's backend implementation against its spec on 9 weighte
 
 - **`./anti-patterns.md`** — 后端反模式清单。**打"健壮性"、"代码分层"、"性能"三个维度时必读**，用来识别 controller 里写 SQL、裸 `try/except: pass` 吞异常、循环里 query 造成 N+1、写操作非幂等、错误响应结构每接口不同等典型滑坡。
 - **`./examples/good-report.md`** 和 **`./examples/mediocre-report.md`** — 两份标定样例报告。**打分前读一次做分布校准**，避免全班都打 8 分这种分不开档的问题。
-- **`./probes/probe-robustness.sh`** — 健壮性探针组合，跑 8 个场景（空 body / 错类型 / 超长字段 / 缺必填 / 越权 / 幂等重放 / 并发冲突 / 未登录）。取证时直接 `bash ./probes/probe-robustness.sh <team> <base-url> <path>`，不要手搓 curl。
-- **`./probes/probe-performance.sh`** — 基于 `npx autocannon` 的 p50/p95/p99 压测脚本，输出到 `.grading/probes/<team>-perf.log`。
+- **`./probes/probe-robustness.sh`** — 健壮性探针组合，跑 8 个场景（空 body / 错类型 / 超长字段 / 缺必填 / 越权 / 幂等重放 / 并发冲突 / 未登录）。取证时直接 `bash ./probes/probe-robustness.sh <team> <base-url> <path>`，不要手搓 curl。每个 probe 写 `.grading/probes/<team>-<probe-name>.log`，总表写 `.grading/probes/<team>-robustness-summary.md`。
+- **`./probes/probe-performance.sh`** — 基于 `npx autocannon` 的 p50/p95/p99 压测脚本，输出 `.grading/probes/<team>-autocannon.log`（原始 autocannon 输出）和 `.grading/probes/<team>-perf-summary.txt`（解析后的 p50/p95/rps + rubric 建议）。
 
 ---
 
@@ -80,6 +85,12 @@ curl -i -X POST http://localhost:8080/api/items -H 'Content-Type: application/js
 **交互证据**：按 spec 的主业务流（注册 → 登录 → 创建 → 查询 → 更新 → 删除，或 spec 指定流程）串一遍，记录每步状态码、响应体片段、异常。
 
 ### 步骤 3：按 9 维度逐条打分
+
+> ⚠️ 取证不足时的强制行为
+>
+> - 维度打分 ≥7 或 ≤4 时，证据条数低于 evidence-requirements.md 规定的最低条数 → score 必须置 null，na_reason 写 "EVIDENCE_MISSING: 已尝试 X、Y，未能取得 Z"
+> - 这与 "spec 未要求" 的 N/A 是两回事：N/A 写 "N/A — spec §X.Y 未规定"
+> - 所有 EVIDENCE_MISSING 维度必须在报告底部 "## 评分风险" 段汇总列出
 
 对照本文件下方 rubric（以及 `../grading-shared/rubric-scale.md`），逐维度 0–10 打分。每一条打分必须附证据（file:line / curl log 行号 / probe log 行号 / 测试输出行号）。spec 未要求的维度写 "N/A — 原因"，不计入总分。
 
@@ -128,6 +139,8 @@ grep -cE "\.(ts|js|py|go|java|sql|log):" .grading/reports/<team>-backend.md
 
 **锚点**
 - 10：spec 列出的所有接口 100% 实现；入参 / 出参 / 状态码 / 错误码完全对齐；超纲功能明确标注为增强。
+- 9：所有接口都实现，仅 1–2 处非关键字段或错误码与 spec 微差（如 response 里多了一个无害字段、错误码用 400 而 spec 要 422），核心路径 100% 对齐。
+- 8：主要接口 + 次要接口全部实现，spec 边角有遗漏（如 1 个非主路径查询参数未支持、1 个 soft-delete 恢复接口缺失），业务闭环完整。
 - 7：主要接口齐全，但遗漏 1–2 个次要接口或 2–3 处字段细节 / 状态码错位。
 - 5：核心 CRUD 在，但多处字段偏离 spec，或 1 个关键接口（如审核、权限切换）未实现。
 - 3：大段偏离 spec，只实现了 demo 级接口，真实业务流程缺失。
@@ -163,6 +176,8 @@ grep -cE "\.(ts|js|py|go|java|sql|log):" .grading/reports/<team>-backend.md
 
 **锚点（基于 `probe-robustness.sh` 8 个 probe 的通过数）**
 - 10：≥7 个 probe 通过；有明确错误码体系；关键写操作幂等；并发路径有锁或事务。
+- 9：8 个 probe 通过 7 个，仅 1 处边界返回 500 而非结构化错误（如超长字段未截断就抛 DB error）；幂等 / 并发 / 错误码体系完整。
+- 8：6/8 probe 合理（主操作幂等做了，越权 / 未登录拒绝正确），1–2 处边界未处理但返回的是统一错误结构而非堆栈。
 - 7：≥5 个 probe 通过；主路径健壮，边界 / 并发有 1–2 处疏漏。
 - 5：≥3 个 probe 通过；happy path 能跑，异常路径多处直接 500。
 - 3：<3 个 probe 通过；基本没做异常处理，或报错直接把堆栈抛给前端。
@@ -178,7 +193,7 @@ grep -cE "\.(ts|js|py|go|java|sql|log):" .grading/reports/<team>-backend.md
 3. 对同一写接口用 `curl` 打两次相同 payload，看是否产生两条记录（幂等）。
 
 **证据要求**
-- 1 份 probe-robustness.log，标注通过数 `X/8`。
+- 1 份 `<team>-robustness-summary.md`（标注通过数 `X/8`）+ 至少 3 份 `<team>-<probe-name>.log`。
 - 至少 3 个 probe 的 curl + 响应摘录（报告里贴片段）。
 - 至少 2 条 `file:line` 引用校验 / 错误处理代码。
 
@@ -195,6 +210,8 @@ grep -cE "\.(ts|js|py|go|java|sql|log):" .grading/reports/<team>-backend.md
 
 **锚点**
 - 10：路径和状态码全部合规；错误结构统一；分页 / 过滤 / 排序标准化；字段命名统一。
+- 9：路径 / 状态码 / 错误结构全部合规，分页和命名统一，仅 1 处过滤参数风格与全站不完全一致（如一个接口用 `q` 其他用 `keyword`）。
+- 8：RESTful 合规且错误结构统一，分页做了但 1 个接口返回 201 而 spec 约定 200（或反之），字段命名统一。
 - 7：整体合规，但 1–2 个状态码错位（如 POST 成功返 200 而不是 201）或 1 处错误结构不一致。
 - 5：多数接口能用，但状态码乱用、错误结构每接口一种、分页无约定。
 - 3：全部 200 + `{ok: false}`，无状态码体系，路径随意。
@@ -226,6 +243,8 @@ grep -cE "\.(ts|js|py|go|java|sql|log):" .grading/reports/<team>-backend.md
 
 **锚点（基于测试覆盖率）**
 - 10：覆盖率 ≥70%；覆盖关键 happy + error 路径；集成测试真打接口；CI 本地 `npm test` / `pytest` / `go test` 一次绿。
+- 9：覆盖率 ≥65% 且 happy + error 路径都覆盖，集成测试真打接口，仅 1 个次要错误分支（如幂等冲突）未测。
+- 8：覆盖率 ≥55%，主要 happy + 核心 error 分支都有集成测试，次要模块仅单元测试未做集成覆盖。
 - 7：覆盖率 ≥50%；主要 happy path 覆盖，error 路径少量。
 - 5：覆盖率有但多数只 happy path，或集成测试缺失仅单元测试。
 - 3：几乎没有测试（<20% 或只有 1–2 个 sanity test）或大量 skip / TODO。
@@ -262,6 +281,8 @@ grep -cE "\.(ts|js|py|go|java|sql|log):" .grading/reports/<team>-backend.md
 
 **锚点**
 - 10：schema 与 spec 100% 对齐；外键 / 唯一约束 / 索引完整；有 migration 版本链；命名和类型都合理。
+- 9：schema 对齐且约束完整，migration 版本链干净，仅缺 1 个次要查询索引（不影响主热路径）。
+- 8：字段类型 / 外键 / 主键 / 唯一约束都对，migration 存在，但 1 处复合索引缺失或 1 个字段用 `text` 而 spec 建议 `varchar(n)`。
 - 7：schema 对齐，但缺 1–2 个索引或 1 处外键缺失，migration 有但不规整。
 - 5：schema 勉强能跑，多处字段类型错位（如用 varchar 存时间），索引全无。
 - 3：无 schema 定义 / 无 migration，或字段跟 spec 大幅偏离。
@@ -292,6 +313,8 @@ grep -cE "\.(ts|js|py|go|java|sql|log):" .grading/reports/<team>-backend.md
 
 **锚点（基于 grep controller 里是否有 SQL/ORM 调用）**
 - 10：三层清晰；controller 内无 SQL / ORM 调用；service 内无 http 响应组装；循环依赖为 0。
+- 9：controller 全部是薄壳（参数解析 + 转发 service），service 不碰 http，仅 1 处 repo 里拼了一点点业务判断应归 service。
+- 8：分层整体清晰，controller 基本只做转发，但 1 个 handler 里直接调了一次 ORM（如简单 count 查询绕过 repo），依赖方向仍单向。
 - 7：整体分层，但有 1–2 个 controller 顺手调了 ORM 或在 handler 里拼了复杂业务。
 - 5：有分层意图但大量泄漏：controller 里经常直接 `prisma.xxx` / `db.query`，service 里写 `res.json(...)`。
 - 3：一锅端，所有逻辑都在 route handler 里，没有 service / repo 概念。
@@ -327,6 +350,8 @@ grep -cE "\.(ts|js|py|go|java|sql|log):" .grading/reports/<team>-backend.md
 
 **锚点（基于 autocannon p95，10 并发 5 秒，本地）**
 - 10：主 GET 列表接口 p95 < 100ms；写接口 p95 < 300ms；N+1 零命中。
+- 9：主 GET p95 < 150ms，写 p95 < 400ms，N+1 零命中，仅 1 处次要聚合查询未加索引但 p95 仍在可接受区间。
+- 8：主 GET p95 < 200ms，写 p95 < 500ms，热路径无 N+1，冷路径（如后台导出）存在 1 处 N+1 但不影响生产体验。
 - 7：p95 < 300ms；偶有 1–2 处 N+1 但不在热路径。
 - 5：p95 < 800ms；热路径明显 N+1 或缺索引。
 - 3：p95 ≥ 800ms 或直接接口超时 / 打挂服务。
@@ -341,7 +366,7 @@ grep -cE "\.(ts|js|py|go|java|sql|log):" .grading/reports/<team>-backend.md
 3. 对主查询看 EXPLAIN（可选）：`EXPLAIN SELECT ... FROM items WHERE ...`。
 
 **证据要求**
-- 1 份 probe-performance.log（含 p50/p95/p99）。
+- 1 份 `<team>-autocannon.log` + 1 份 `<team>-perf-summary.txt`（含 p50/p95/p99）。
 - 至少 2 条 `file:line` 体现 N+1 或优化手段（或反面证据）。
 - 一条关于索引 / 缓存 / 批处理的结论。
 
@@ -357,6 +382,8 @@ grep -cE "\.(ts|js|py|go|java|sql|log):" .grading/reports/<team>-backend.md
 
 **锚点（基于 `console.log` / `print` 占日志语句比例）**
 - 10：统一日志库（pino / zap / loguru / slog / logback）；所有接口有请求进入 + 结束日志 + requestId；`print`/`console.log` 数 ≤ 2。
+- 9：统一日志库 + 全接口 requestId + 结构化日志，`print`/`console.log` ≤ 5 且都在非生产路径（如 seed 脚本），`/health` 可用。
+- 8：结构化日志覆盖主要接口且有 requestId，但 1–2 个次要接口缺请求结束日志，`print`/`console.log` 残留 5–10 处。
 - 7：有日志库，但部分关键路径漏打，或偶有 `console.log` 残留（3–10 处）。
 - 5：日志库有但只打错误；`print`/`console.log` 占比 > 30%。
 - 3：全靠 `print` / `console.log`，没有 requestId / 结构化，错误靠 try/catch 打一句。
@@ -388,6 +415,8 @@ grep -cE "\.(ts|js|py|go|java|sql|log):" .grading/reports/<team>-backend.md
 
 **锚点**
 - 10：README 从零到跑通 5 分钟内完成；OpenAPI 文档完整、可在 `/docs` 打开；有架构图或 ADR。
+- 9：README 跑通流畅，OpenAPI 完整且与实现一致，有架构图，仅 ADR / 设计决策说明简略（1–2 条一句话带过）。
+- 8：README 启动步骤 + 环境变量 + 示例 curl 齐全，OpenAPI 可打开且主接口字段对齐，无架构图但有一段分层 / 鉴权文字说明。
 - 7：README 够用，接口文档有但 1–2 处字段过期；无架构图。
 - 5：README 只有 "npm install && npm start"，接口文档靠读代码。
 - 3：几乎无文档，spec 之外无任何说明。
@@ -416,5 +445,5 @@ grep -cE "\.(ts|js|py|go|java|sql|log):" .grading/reports/<team>-backend.md
 - [ ] `.grading/reports/<team>-backend.md` 已按 `../grading-shared/report-template.md` 结构填完，9 个维度全部评完（或明确标 N/A）。
 - [ ] `.grading/reports/<team>-backend.json` 已产出，并通过 `npx ajv-cli validate -s skills/grading-shared/score-schema.json` 校验。
 - [ ] 每个维度都有证据引用，且满足 `../grading-shared/evidence-requirements.md` 硬约束（≥7 / ≤4 分 ≥2 条；5–6 分 ≥1 条）。
-- [ ] `.grading/probes/` 含 `robustness` / `performance` / `test` / `curl` 四类 log。
+- [ ] `.grading/probes/` 含：`<team>-robustness-summary.md` + 各 probe `<team>-<probe-name>.log`、`<team>-autocannon.log` + `<team>-perf-summary.txt`、`<team>-test.log`、`<team>-curl.log`。
 - [ ] 报告末尾给出"最该优先修的 3 件事"，每条对应到具体维度和 file:line。

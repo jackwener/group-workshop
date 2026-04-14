@@ -38,7 +38,7 @@
         "properties": {
           "name": {
             "type": "string",
-            "description": "维度名，须与 SKILL.md 完全一致。",
+            "description": "维度 slug（kebab-case），须与 SKILL.md 对应维度一一映射。",
             "minLength": 1
           },
           "score": {
@@ -95,5 +95,74 @@
       "format": "date-time",
       "description": "ISO 8601 时间戳。"
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "side": { "const": "frontend" } },
+        "required": ["side"]
+      },
+      "then": {
+        "properties": {
+          "dimensions": {
+            "type": "array",
+            "minItems": 10,
+            "maxItems": 10,
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "enum": [
+                    "spec-conformance",
+                    "theme-aesthetic",
+                    "animation",
+                    "state-completeness",
+                    "code-quality",
+                    "responsive",
+                    "forms",
+                    "performance",
+                    "a11y",
+                    "microcopy"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "side": { "const": "backend" } },
+        "required": ["side"]
+      },
+      "then": {
+        "properties": {
+          "dimensions": {
+            "type": "array",
+            "minItems": 9,
+            "maxItems": 9,
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "enum": [
+                    "spec-conformance",
+                    "robustness",
+                    "api-design",
+                    "testing",
+                    "data-modeling",
+                    "layering",
+                    "performance",
+                    "observability",
+                    "documentation"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }

@@ -39,6 +39,16 @@ EOF
 npx --yes -p ajv-cli@5 -p ajv-formats@3 ajv validate -c ajv-formats -s skills/grading-shared/score-schema.json -d /tmp/sample-fe.json
 echo "OK"
 
+echo "=== 3.5 4 份 examples summary 都过 schema ==="
+for f in skills/grading-frontend/examples/good-summary.json \
+         skills/grading-frontend/examples/mediocre-summary.json \
+         skills/grading-backend/examples/good-summary.json \
+         skills/grading-backend/examples/mediocre-summary.json; do
+  npx --yes -p ajv-cli@5 -p ajv-formats@3 ajv validate -c ajv-formats -s skills/grading-shared/score-schema.json -d "$f" \
+    || { echo "FAIL: $f"; exit 1; }
+done
+echo "OK"
+
 echo "=== 4. 前端 SKILL.md 10 维度 ==="
 cnt=$(grep -c "^### [0-9]" skills/grading-frontend/SKILL.md)
 [ "$cnt" -ge 10 ] || { echo "frontend dimensions = $cnt, expected 10"; exit 1; }

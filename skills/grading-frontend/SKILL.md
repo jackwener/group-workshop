@@ -13,8 +13,13 @@ description: Grade a team's frontend implementation against its spec on 10 weigh
 
 - **本地可跑**：待评项目能在本机 `npm run dev` / `pnpm dev` / `yarn dev` 启动，默认 `http://localhost:3000`（按项目 README 调整）。
 - **Spec 文档位置**：`<project>/docs/spec.md` 或 `<project>/README.md` 或 `<project>/spec/*`。找不到则先向用户确认 spec 路径再开工，不要凭空评分。
-- **Node.js 环境**：Node ≥ 18，用来跑 `npx playwright-cli` 截图、`npx ajv-cli` 校验 JSON。首次使用时 `npx playwright install chromium`。
+- **Node.js 环境**：Node ≥ 18，用来跑 `npx playwright` 截图、`npx ajv-cli` 校验 JSON。首次使用时 `npx playwright install chromium`。
 - **输出目录**：所有证据和报告写到待评项目根目录下的 `.grading/`（已由 spec 约定 gitignore）。
+
+**约定的工作目录**：所有 probe 脚本和 `.grading/` 输出都默认在**待评项目根目录**下执行。即评分时：
+1. cd 到被评项目（如 `cd group-workshop/group-2`）
+2. 用绝对路径调用 probe：`bash $WORKSHOP_ROOT/skills/grading-frontend/probes/probe-screenshots.sh team-2 http://localhost:3000`
+3. `.grading/` 会落到被评项目根下，与该项目共生
 
 ---
 
@@ -36,8 +41,8 @@ description: Grade a team's frontend implementation against its spec on 10 weigh
 - **`./anti-patterns.md`** — AI slop 前端反模式清单。**打"主题与审美"和"代码质量"两个维度时必读**，用来识别默认 shadcn 灰白调、无主题色、按钮都 `bg-blue-500`、空态只写 "No data" 等典型滑坡。
 - **`./examples/good-report.md`** 和 **`./examples/mediocre-report.md`** — 两份标定样例报告。**打分前读一次做分布校准**，避免全班都打 8 分这种分不开档的问题。
 - **`./probes/probe-screenshots.sh`** — 批量跑 4 态 + 3 断点截图（login / dashboard / empty / error × desktop / tablet / mobile）。取证时直接 `bash ./probes/probe-screenshots.sh <team> <base-url>` 即可，不要手搓 playwright 命令。
-- **`./probes/probe-performance.sh`** — 跑 Lighthouse 或 `curl -w` 测 TTFB / FCP 数据，输出到 `.grading/probes/<team>-perf.log`。
-- **`./probes/probe-a11y.sh`** — 跑 axe-core CLI 扫关键页面的 a11y 违规项，输出到 `.grading/probes/<team>-a11y.log`。
+- **`./probes/probe-performance.sh`** — 跑 Lighthouse 测关键页面性能，输出 `.grading/probes/<team>-lighthouse.json`（原始 Lighthouse JSON）和 `.grading/probes/<team>-lighthouse-mapping.txt`（rubric 映射建议）。
+- **`./probes/probe-a11y.sh`** — 跑 axe-core CLI 扫关键页面的 a11y 违规项，输出 `.grading/probes/<team>-axe.json` 和 `.grading/probes/<team>-axe-summary.txt`。
 
 ---
 
@@ -68,11 +73,17 @@ bash ./probes/probe-a11y.sh <team> http://localhost:3000
 
 所有截图落到 `.grading/shots/<team>-*.png`，所有 probe 日志落到 `.grading/probes/<team>-*.log`。
 
-如果 `playwright-cli` 不可用，fallback 为：提示评分人手动放置截图到 `.grading/shots/` 后再继续。
+如果 `playwright` 不可用，fallback 为：提示评分人手动放置截图到 `.grading/shots/` 后再继续。
 
 **交互证据**：手动或用 playwright 过一遍主流程（登录 → 核心 CRUD → 提交 → 错误路径），记录 console / network 异常。
 
 ### 步骤 3：按 10 维度逐条打分
+
+> ⚠️ 取证不足时的强制行为
+>
+> - 维度打分 ≥7 或 ≤4 时，证据条数低于 evidence-requirements.md 规定的最低条数 → score 必须置 null，na_reason 写 "EVIDENCE_MISSING: 已尝试 X、Y，未能取得 Z"
+> - 这与 "spec 未要求" 的 N/A 是两回事：N/A 写 "N/A — spec §X.Y 未规定"
+> - 所有 EVIDENCE_MISSING 维度必须在报告底部 "## 评分风险" 段汇总列出
 
 对照本文件下方 rubric（以及 `../grading-shared/rubric-scale.md`），逐维度 0–10 打分。每一条打分必须附证据（file:line / 截图路径 / probe log 行号）。spec 未要求的维度写 "N/A — 原因"，不计入总分。
 
@@ -121,6 +132,8 @@ grep -cE "\.(tsx?|jsx?|vue|css|png|log):" .grading/reports/<team>-frontend.md
 
 **锚点**
 - 10：spec 列出的所有页面和流程 100% 实现；字段、状态码、文案与 spec 完全一致；超纲功能明确标注为增强。
+- 9：所有 spec 页面都实现，仅 1–2 个非关键字段或文案与 spec 微差（如详情页副标题文案差一个字、次要表头顺序略有不同），核心字段 / 状态码 / 路由 100% 对齐。
+- 8：主流程和所有主要页面完整对齐 spec，spec 边角有遗漏（如非主路径的 1–2 个交互细节、1 个次要筛选项未实现），不影响核心业务闭环。
 - 7：主流程对齐，但遗漏 1–2 个次要页面或 2–3 处字段细节。
 - 5：核心页面都在，但多处字段偏离 spec，或 1 个关键流程（如提交 / 审核）未实现。
 - 3：大段偏离 spec，或只实现了 demo 页面，真实业务流程缺失。
@@ -147,6 +160,8 @@ grep -cE "\.(tsx?|jsx?|vue|css|png|log):" .grading/reports/<team>-frontend.md
 
 **锚点**
 - 10：有明确主题色系（主 / 辅 / 强调），自定义字体栈，间距节奏一致，视觉层次清晰到像一个真产品。
+- 9：配色几近完美，字体 / 间距成体系，但有 1 处对比度差一点点（如次要文本 gray-500 on gray-50）或 1 个按钮 hover 颜色没定义。
+- 8：主题色 / 字体 / 卡片风格都立住了，少数次要页面（如 404 / 设置）沿用了默认组件外观未统一改皮。
 - 7：有基本主题色和字体选择，多数页面一致，但 1–2 个页面掉档或默认组件未改皮。
 - 5：能看出改过样式，但主题不明、灰白主导，大量 shadcn 默认外观。
 - 3：通篇灰白 + 默认 `bg-blue-500` 按钮 + `gray-100` 背景，典型 AI slop。
@@ -173,6 +188,8 @@ grep -cE "\.(tsx?|jsx?|vue|css|png|log):" .grading/reports/<team>-frontend.md
 
 **锚点**
 - 10：关键过渡用 spring / cubic-bezier，有进入 / 离开动画；微交互覆盖主要按钮；无 layout shift；滚动和拖拽流畅。
+- 9：主流程过渡都做了且曲线合理，微交互覆盖充分，仅 1 处 Toast 或弹窗离场略生硬（直接消失而非 fade-out）。
+- 8：主要页面切换 / 弹窗过渡自然，有 hover / active 反馈，偶有 1 处列表加载时图片未占位导致轻微 layout shift。
 - 7：主要过渡做了 fade / slide，微交互覆盖部分按钮，偶有 1–2 处抖动。
 - 5：只有默认 Tailwind `transition`，弹窗 / 路由硬切，hover 仅变色。
 - 3：零动画，UI 突变，列表加载瞬间 reflow 一大片。
@@ -198,6 +215,8 @@ grep -cE "\.(tsx?|jsx?|vue|css|png|log):" .grading/reports/<team>-frontend.md
 
 **锚点**
 - 10：所有主要数据组件都实现了 4 态，空态有插画或引导 CTA，错误态有重试按钮且区分网络 / 业务错误。
+- 9：主要组件 4 态齐全且各态都有 CTA，仅 1 处空态缺插画 / 引导图（但仍有文案引导），或 error 未区分 offline vs 业务错误。
+- 8：关键列表和详情页 4 态都在且可用，次要页面（如设置、帮助）缺 empty 态或 error 态回退到默认 error boundary。
 - 7：主流程四态到位，但 1–2 个次要页面缺 empty 或 error。
 - 5：只有 loading + success，empty 是 "No data"，error 是 `alert(err)`。
 - 3：接口慢就白屏，接口错就崩白页或 console 报错。
@@ -224,6 +243,8 @@ grep -cE "\.(tsx?|jsx?|vue|css|png|log):" .grading/reports/<team>-frontend.md
 
 **锚点**
 - 10：目录分层清晰，组件 ≤ 200 行，类型覆盖 100%，hooks 无警告，状态管理边界清楚，复用充分。
+- 9：分层和类型都到位，仅 1–2 处 `any` 出现在第三方类型缺口位置且有注释，组件行数和 hooks 依赖都干净。
+- 8：整体架构清晰、复用良好，个别组件接近 300 行但职责单一，或有 1 处轻度 prop drilling（≤3 层）。
 - 7：整体干净，偶有 1–2 处 `any` 或轻微 prop drilling，但架构能看懂。
 - 5：能跑，但有巨型组件或 `any` 满天飞，hooks 依赖数组乱填。
 - 3：意大利面式代码，大量 console.log，类型形同虚设，复制粘贴成灾。
@@ -249,6 +270,8 @@ grep -cE "\.(tsx?|jsx?|vue|css|png|log):" .grading/reports/<team>-frontend.md
 
 **锚点**
 - 10：三断点均精心布局，mobile 有专门导航（抽屉 / tab bar），内容优先级调整合理。
+- 9：三断点都精心布局且 mobile 有专属导航，仅 1 处次要弹窗在 mobile 下略宽 / 按钮组偶尔换行。
+- 8：desktop / tablet / mobile 都可用且 mobile 导航做了重构，但 1–2 个次要页面（如长表格）在 mobile 下需要横向滚动。
 - 7：三断点可用，但 mobile 多处拥挤或需要横向滚动。
 - 5：只在 desktop 看着正常，mobile 勉强能用但布局错乱。
 - 3：只做 desktop，mobile 直接溢出 / 重叠 / 不可点。
@@ -273,6 +296,8 @@ grep -cE "\.(tsx?|jsx?|vue|css|png|log):" .grading/reports/<team>-frontend.md
 
 **锚点**
 - 10：全表单含行内校验 + 提交防抖 + 成功态 toast，键盘可 tab 过全部字段，有 `aria-invalid` 标注。
+- 9：所有表单行内校验 + 防重复提交 + 成功反馈到位，仅 1 处缺 `aria-invalid` 或 1 处错误样式与全站不完全统一。
+- 8：主表单校验 / 禁用态 / 成功反馈完整，次要表单（如反馈、设置）仅做必填校验未覆盖格式 / 长度。
 - 7：主表单有基本校验和禁用态，1–2 处错误提示样式不统一。
 - 5：只有后端兜底校验，错误用 alert，能双击提交产生两条记录。
 - 3：没校验，没禁用，错了崩掉，没有任何反馈。
@@ -298,6 +323,8 @@ grep -cE "\.(tsx?|jsx?|vue|css|png|log):" .grading/reports/<team>-frontend.md
 
 **锚点**
 - 10：Lighthouse Performance ≥ 90（本地 dev 下），关键页面 LCP < 1.5s，bundle < 500KB gzip，长列表虚拟化。
+- 9：Lighthouse 85–89，LCP < 2s，bundle 500–700KB gzip，图片懒加载和 code splitting 都做了，仅缺长列表虚拟化。
+- 8：Lighthouse 80–84，首屏可接受（LCP < 2.5s），bundle 合理但有 1 处未 code-split 的路由或未压缩的大图。
 - 7：Lighthouse 75–89，有明显可优化点但不影响体验。
 - 5：Lighthouse 50–74，首屏偏慢或 bundle 臃肿（> 1MB gzip 无理由）。
 - 3：Lighthouse < 50，切页面要等几秒，JS 主线程长期占满。
@@ -308,7 +335,7 @@ grep -cE "\.(tsx?|jsx?|vue|css|png|log):" .grading/reports/<team>-frontend.md
 3. 搜 `React.lazy` / `import()` / `loading="lazy"` / 虚拟列表库使用。
 
 **证据要求**
-- 至少 1 份 probe-performance.log。
+- 至少 1 份 `<team>-lighthouse.json` + `<team>-lighthouse-mapping.txt`。
 - 至少 1 条 build 产物大小数据。
 - 至少 2 条 `file:line` 体现优化手段或缺失。
 
@@ -325,6 +352,8 @@ grep -cE "\.(tsx?|jsx?|vue|css|png|log):" .grading/reports/<team>-frontend.md
 
 **锚点**
 - 10：axe 扫描零严重违规，全键盘可操作，`focus-visible` 清晰，表单有 label 关联，对比度全过。
+- 9：axe 零严重 + 零中等违规，仅 1–2 条 minor（如冗余 role、landmark 命名），键盘 / 焦点 / 对比度全过。
+- 8：axe 仅 1 条中等违规（如单处对比度 4.3:1），键盘可用且 `focus-visible` 覆盖主要交互元素，label 全关联。
 - 7：axe 有 1–2 条中等违规，键盘可用但焦点环偶尔消失。
 - 5：多条对比度不足，部分按钮用 `<div>`，无 `focus-visible`。
 - 3：大量 `<div onClick>`，Tab 键按下去什么都不响应。
@@ -335,7 +364,7 @@ grep -cE "\.(tsx?|jsx?|vue|css|png|log):" .grading/reports/<team>-frontend.md
 3. 搜 `role=` / `aria-` / `focus-visible` / `<label` 的使用密度。
 
 **证据要求**
-- 1 份 probe-a11y.log。
+- 1 份 `<team>-axe.json` + `<team>-axe-summary.txt`。
 - 至少 2 条 `file:line` 引用（正或反面）。
 - 至少 1 张键盘焦点截图。
 
@@ -351,6 +380,8 @@ grep -cE "\.(tsx?|jsx?|vue|css|png|log):" .grading/reports/<team>-frontend.md
 
 **锚点**
 - 10：所有按钮、空态、错误态的文案都经过润色，一致、具体、有品牌语气。
+- 9：主要按钮 / 空态 / 错误文案都具体且一致，仅 1–2 条次要操作按钮沿用了"确定 / 取消"通用文案。
+- 8：关键流程文案具体有引导（空态有 CTA、错误有可操作指引），但错误信息在 2–3 处直接透传后端 message 未本地化。
 - 7：关键按钮和空态文案良好，但错误信息偶有通用模板。
 - 5：按钮是 "提交" / "确定"，空态是 "暂无数据"，错误是 "操作失败"。
 - 3：混用中英文，或全英文但像机翻，文案语气不统一。
@@ -372,5 +403,5 @@ grep -cE "\.(tsx?|jsx?|vue|css|png|log):" .grading/reports/<team>-frontend.md
 - [ ] `.grading/reports/<team>-frontend.md` 已按 `../grading-shared/report-template.md` 结构填完，10 个维度全部评完（或明确标 N/A）。
 - [ ] `.grading/reports/<team>-frontend.json` 已产出，并通过 `npx ajv-cli validate -s skills/grading-shared/score-schema.json` 校验。
 - [ ] 每个维度都有证据引用，且满足 `../grading-shared/evidence-requirements.md` 硬约束（≥7 / ≤4 分 ≥2 条；5–6 分 ≥1 条）。
-- [ ] `.grading/shots/` 含至少 3 断点 × 4 态的截图；`.grading/probes/` 含 perf + a11y 两份 log。
+- [ ] `.grading/shots/` 含至少 3 断点 × 4 态的截图；`.grading/probes/` 含 `<team>-lighthouse.json` + `<team>-lighthouse-mapping.txt` + `<team>-axe.json` + `<team>-axe-summary.txt`。
 - [ ] 报告末尾给出"最该优先修的 3 件事"，每条对应到具体维度和 file:line。
