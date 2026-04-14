@@ -20,6 +20,7 @@ class ReportAgent:
         self.copaw_key = os.getenv("IRA_COPAW_API_KEY", "")
         self.bailian_key = os.getenv("DASHSCOPE_API_KEY", "")
         self.model = "qwen-max"
+        print(f"[Agent初始化] bailian_key={'已配置' if self.bailian_key else '未配置'}, copaw_url={'已配置' if self.copaw_url else '未配置'}")
     
     def ask(self, query: str, file_content: Optional[str] = None) -> Tuple[str, bool, Optional[str], str]:
         """
@@ -46,12 +47,18 @@ class ReportAgent:
         
         # 降级到百炼
         if self.bailian_key:
+            print(f"[Agent] 尝试调用百炼 API...")
             try:
                 answer = self._call_bailian(prompt)
                 if answer:
+                    print(f"[Agent] 百炼调用成功")
                     return answer, True, self.model, "bailian"
+                else:
+                    print(f"[Agent] 百炼返回空结果")
             except Exception as e:
                 print(f"百炼调用失败: {e}")
+        else:
+            print(f"[Agent] bailian_key 为空，跳过百炼")
         
         # 降级到 Demo 模式
         answer = self._call_demo(query, file_content)
