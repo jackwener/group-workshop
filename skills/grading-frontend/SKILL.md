@@ -25,12 +25,228 @@ description: Grade a team's frontend implementation against its spec on 10 weigh
 
 ## 共享契约（必读）
 
-评分开始前，**必须先读完** `skills/grading-shared/` 下 4 个文件。这些是 frontend / backend 两个 skill 共用的硬约束，不读会导致输出格式不一致、无法汇总 leaderboard：
+评分开始前，**必须先读完本文件** `## 评分标尺` / `## 报告模板` / `## 证据硬约束` 三段，以及 `../score-schema.json`。这些是 frontend / backend 两个 skill 共用的硬约束，不读会导致输出格式不一致、无法汇总 leaderboard：
 
-1. `../grading-shared/rubric-scale.md` — 0–10 标尺含义 + S/A/B/C/D 档位定义。**所有维度打分必须对照此标尺**。
-2. `../grading-shared/report-template.md` — 统一 Markdown 报告模板。产出的 `report.md` 必须照此结构填充。
-3. `../grading-shared/score-schema.json` — JSON 摘要的 schema。产出的 `summary.json` 必须通过此 schema 校验。
-4. `../grading-shared/evidence-requirements.md` — 证据硬约束（打分 ≥7 或 ≤4 必须 ≥2 条证据，5–6 分必须 ≥1 条）。违反则打分视为无效。
+1. 见本文件 **## 评分标尺** — 0–10 标尺含义 + S/A/B/C/D 档位定义。**所有维度打分必须对照此标尺**。
+2. 见本文件 **## 报告模板** — 统一 Markdown 报告模板。产出的 `report.md` 必须照此结构填充。
+3. `../score-schema.json` — JSON 摘要的 schema。产出的 `summary.json` 必须通过此 schema 校验。
+4. 见本文件 **## 证据硬约束** — 打分 ≥7 或 ≤4 必须 ≥2 条证据，5–6 分必须 ≥1 条。违反则打分视为无效。
+
+---
+
+## 评分标尺（0–10）
+
+本段是 `grading-frontend` 与 `grading-backend` 两个 skill 共享的**唯一**打分锚点。两侧所有维度得分都必须按本表落点，再用证据说明为什么不是相邻的锚点。
+
+### 1. 分数锚点
+
+| 分数 | 名称 | 判定标准 |
+|---:|---|---|
+| **10** | 工业级范本 | 可直接作为下一届教学样例；评分人找不到该维度的改进空间；相对已见过的最好学员作业也明显领先 |
+| **9** | 优秀 | 核心完全到位，仅 1–2 处非关键瑕疵（例如边缘场景文案、极端断点、冷路径日志） |
+| **7** | 良好 | 主流程到位，但存在 ≥3 处可改进；不影响交付但明显看得出赶工痕迹 |
+| **5** | 及格 | Happy path 能跑，但明显粗糙；有 1 类系统性漏洞（如缺状态、缺校验）但未致命 |
+| **3** | 不及格 | 该项存在尝试痕迹但严重不完整；主要子项缺失或逻辑错误 |
+| **0** | 未实现 | 完全缺失，或实现了但跑不起来 |
+| **N/A** | 不适用 | spec 明确未要求，或该维度在本项目栈上无意义；**必须写原因**，不计入总分 |
+
+**允许的分数**：0、3、5、7、9、10 是锚点；1/2/4/6/8 仅在证据支持"介于两锚点之间"时使用。不允许出现小数。
+
+### 2. 打分操作规则
+
+1. **先选锚点，再微调**：拿到证据后先对齐最接近的锚点（10/9/7/5/3/0），再用证据决定 ±1 微调。禁止"先拍个 8 再补证据"。
+2. **高低分必须有证据**：
+   - `score ≥ 7` → 至少 2 条证据
+   - `score ≤ 4` → 至少 2 条证据
+   - `5–6` → 至少 1 条证据
+   - 详细规则见本文件 `## 证据硬约束` 段
+3. **N/A 必须写原因**：`na_reason` 字段必填，格式 `"spec §X.Y 未涉及此项"` 或 `"技术栈 Z 无此概念"`。N/A 不计入总分。
+4. **不能同时低分 + 高评**：如果评语是"很好，只差一点"，分数不能 ≤ 5。
+5. **锚点冲突时就低不就高**：若一个维度既符合 9 的正面描述也命中 5 的负面描述，取 5（警戒作用）。
+
+### 3. 总分计算
+
+**公式**（N/A 不计入分母）：
+
+```
+total = Σ(score_i × weight_i) / Σ(weight_i for dim_i where score_i != null) × 100 / 10
+```
+
+等价形式：先对非 N/A 维度算加权平均（0–10），再把有效权重归一化到 100，最后乘 10 映射到 0–100。
+
+**例子**：前端 10 维总权重 100，若 `微文案 (权重 6)` 被判 N/A：
+- 有效权重总和 = 94
+- 其余 9 维加权和 = Σ(score_i × weight_i)
+- `total = (Σ / 94) × 10`
+
+### 4. 总分档位
+
+| 档位 | 分数区间 | 含义 |
+|:---:|:---:|---|
+| **S** | ≥ 90 | 可作为本届教学样例 |
+| **A** | 80–89 | 合格交付，小范围打磨即可上线 |
+| **B** | 70–79 | 主流程 OK，系统性问题需要返工 |
+| **C** | 60–69 | 能 demo，不能交付；多处结构性缺陷 |
+| **D** | < 60 | 未达培训目标，需重做关键模块 |
+
+档位只用于班级 leaderboard 横向对比，学员反馈以**维度得分 + 证据 + 改进清单**为主。
+
+---
+
+## 报告模板
+
+两个 grading skill 产出的 `.grading/reports/<team>-<side>.md` **必须**严格按本模板。字段缺一不可；无信息时填 `—`，**不要省略行**。模板本体用四个反引号包裹的 Markdown 代码块呈现，复制时去掉最外层反引号。
+
+### 使用说明
+
+- 占位符形如 `{队伍名}`，落地时替换为实际值
+- 维度详评块按 `grading-frontend` 10 维 / `grading-backend` 9 维完整展开，不能合并或省略
+- 任一维度证据不足时，score 填 `null`，`na_reason` 填 `EVIDENCE_MISSING: ...`，并在末尾"评分风险"段汇总
+- 报告的同级必须存在对应 JSON：`<team>-<side>.json`，schema 见 `../score-schema.json`
+
+### 模板
+
+````markdown
+# 项目评分报告 — {队伍名}（{前端 | 后端}）
+
+- 评分人：{Claude@model-id / 助教姓名}
+- 日期：{YYYY-MM-DD}
+- Spec 版本：{git sha 或 docs/spec.md 路径}
+- 被评项目 commit：{sha}
+- 评分耗时：{xx 分钟}
+
+## 总分：{score} / 100 — 等级 {S | A | B | C | D}
+
+## 维度汇总
+
+| # | 维度 | 得分 | 权重 | 加权 | 一句话 |
+|---:|---|---:|---:|---:|---|
+| 1 | {维度名} | {0–10 或 N/A} | {w} | {score×w/10} | {一句话概述} |
+| 2 | ... | ... | ... | ... | ... |
+
+> 有效权重总和：{Σw_non-NA}；N/A 维度：{列表或 "无"}
+
+## 逐维度详评
+
+### 1. {维度名} — {score}/10（权重 {w}）
+
+**证据**
+- `path/to/file.ext:L12-L40` — {这条证据说明了什么}
+- 截图：`.grading/shots/{team}-{view}.png`
+- 命令：`curl -s localhost:8080/api/x` → `.grading/probes/{team}-x.log`
+
+**要到 10 差什么**
+1. {具体、可操作的改进建议}
+2. {...}
+3. {...}
+
+---
+
+### 2. {维度名} — {score}/10（权重 {w}）
+
+（同样模板，完整列出所有维度）
+
+---
+
+## 亮点
+
+- {值得表扬的 2–4 条，要带证据}
+
+## 最该优先修的 3 件事
+
+1. **{问题}** — 影响：{哪个维度掉了多少分}；改法：{一两句话说清}
+2. ...
+3. ...
+
+## 评分风险（可选）
+
+仅当出现以下情况时填写，否则删除整节：
+- 证据不足被判 `EVIDENCE_MISSING` 的维度列表
+- 评分人对某维度存疑但无法进一步取证的原因
+- 项目未跑起来 / spec 缺失等影响评分可信度的事实
+````
+
+### 校验清单（写完报告后自检）
+
+- [ ] 总分 = Σ(加权列) × 10 / Σ(有效权重)，数值对得上
+- [ ] 每个维度都有至少一条引用（证据 / 截图 / 日志 / spec 条目）
+- [ ] 所有 N/A 都有 `na_reason`
+- [ ] "最该优先修的 3 件事" 每条都回指了具体维度
+- [ ] 对应 JSON 已写入 `.grading/reports/<team>-<side>.json`
+
+---
+
+## 证据硬约束
+
+本段是**打分是否有效**的判定规则。`grading-frontend` 和 `grading-backend` 两个 skill 在写入每个维度分数前**必须**先检查本表；证据不达标的打分视为无效。
+
+设计目的：防止 agent 在缺乏实际观察的情况下拍脑袋打分。**宁可多一个 `EVIDENCE_MISSING`，不要编一个好看的分数**。
+
+### 1. 证据条数规则
+
+| 分数段 | 最少证据条数 | 说明 |
+|---:|:---:|---|
+| **9–10** | **3** | 高分必须可复现；至少覆盖：1 条代码引用 + 1 条运行期证据（截图/probe/log） + 1 条 spec 比对 |
+| **7–8** | **2** | 需同时体现"主流程到位"与"非关键瑕疵" |
+| **5–6** | **1** | 一条即可，但必须能指出具体缺陷 |
+| **3–4** | **2** | 低分不能靠印象；必须列出 ≥2 个具体失败点 |
+| **0** | **1** | 至少证明"真的没有"：grep 结果、spec 条目 + 代码库缺失、启动失败日志 |
+| **N/A** | **1** | 必须引用 spec 条目或技术栈说明，证明该项"不适用" |
+
+### 2. 证据合法形式
+
+每条证据必须是以下 4 类之一，**不得**为自然语言转述：
+
+1. **代码引用**：`path/to/file.ext:L{start}-L{end}` 或 `path/to/file.ext:L{line}`
+   - 路径必须相对项目根
+   - 必须真实存在（评分前 open / grep 确认过）
+2. **截图**：`.grading/shots/<team>-<view>.png`
+   - 文件必须存在；后端维度一般不使用
+   - 可附简短说明："登录页 desktop 1280×800，有 layout shift"
+3. **命令日志**：`.grading/probes/<team>-<probe>.log` 或在证据行内直接给出命令与关键输出
+   - 形如：`curl -s -o /dev/null -w "%{http_code}" localhost:8080/api/x -d '{}' → 500`
+   - 压测结果引用 autocannon 输出文件
+4. **Spec 引用**：`spec §3.2` / `docs/spec.md:L120-L145` / issue 链接
+   - 判定 N/A 或 Spec 一致性时必用
+
+### 3. 违规处理
+
+#### 3.1 证据不足
+
+若按 §1 无法凑够所需证据条数：
+
+1. `score` 置为 `null`
+2. `na_reason` 写为 `"EVIDENCE_MISSING: 需要 N 条证据，仅能取得 M 条（已尝试：<动作清单>）"`
+3. 在报告末尾 `## 评分风险` 段落列出该维度
+4. 该维度**不计入总分分母**（与正常 N/A 一致），但在评分风险段标注"非 spec 排除项"
+
+#### 3.2 证据伪造 / 占位
+
+评分人/agent 若写入以下任一形式的证据，该维度直接作废并降级为 `EVIDENCE_MISSING`：
+
+- 路径不存在的 file:line（lint：评分后用 `test -f` 批量校验）
+- 截图文件不存在或大小为 0
+- 命令日志内容与结论自相矛盾
+- 描述性语言（"代码组织得不错"）未附具体引用
+
+#### 3.3 高低分无证据
+
+- `score ≥ 7` 但证据 < 2 条 → 降为 6，或标 `EVIDENCE_MISSING`
+- `score ≤ 4` 但证据 < 2 条 → 升为 5，或标 `EVIDENCE_MISSING`
+
+选择哪个处理取决于评分人对维度的把握；两种方式都必须在"评分风险"中注明。
+
+### 4. 证据收集建议顺序
+
+先做便宜的、可批量的，再做昂贵的：
+
+1. **静态** (cheap)：`grep` / `rg` 扫关键词、看 package.json / schema / migration
+2. **Spec 对齐**：逐条把 spec 检查项对到代码文件
+3. **运行期**：启 dev server / 后端服务，跑截图脚本 / probe 脚本
+4. **交互**：走完主流程，看 console / network / 日志
+5. **测试**：跑 test suite，看覆盖率与失败清单
+
+每跑完一步把产物落盘到 `.grading/`，在报告证据行里引用相对路径即可。
 
 ---
 
@@ -85,17 +301,17 @@ bash ./probes/probe-a11y.sh <team> http://localhost:3000
 > - 这与 "spec 未要求" 的 N/A 是两回事：N/A 写 "N/A — spec §X.Y 未规定"
 > - 所有 EVIDENCE_MISSING 维度必须在报告底部 "## 评分风险" 段汇总列出
 
-对照本文件下方 rubric（以及 `../grading-shared/rubric-scale.md`），逐维度 0–10 打分。每一条打分必须附证据（file:line / 截图路径 / probe log 行号）。spec 未要求的维度写 "N/A — 原因"，不计入总分。
+对照本文件下方 rubric（以及本文件 `## 评分标尺` 段），逐维度 0–10 打分。每一条打分必须附证据（file:line / 截图路径 / probe log 行号）。spec 未要求的维度写 "N/A — 原因"，不计入总分。
 
 ### 步骤 4：产出 report.md + summary.json
 
-按 `../grading-shared/report-template.md` 模板填 `.grading/reports/<team>-frontend.md`；按 `../grading-shared/score-schema.json` 填 `.grading/reports/<team>-frontend.json`。每维度附"要到 10 差什么"2–4 条。
+按本文件 `## 报告模板` 段填 `.grading/reports/<team>-frontend.md`；按 `../score-schema.json` 填 `.grading/reports/<team>-frontend.json`。每维度附"要到 10 差什么"2–4 条。
 
 ### 步骤 5：自检（必须通过）
 
 ```bash
 # JSON schema 校验
-npx ajv-cli validate -s skills/grading-shared/score-schema.json \
+npx ajv-cli validate -s skills/score-schema.json \
   -d .grading/reports/<team>-frontend.json
 
 # 证据数量自检（每维度统计 file:line + 截图 + log 引用总数）
@@ -400,8 +616,8 @@ grep -cE "\.(tsx?|jsx?|vue|css|png|log):" .grading/reports/<team>-frontend.md
 
 评分结束前逐项勾选，任一不通过就回到相应步骤补齐：
 
-- [ ] `.grading/reports/<team>-frontend.md` 已按 `../grading-shared/report-template.md` 结构填完，10 个维度全部评完（或明确标 N/A）。
-- [ ] `.grading/reports/<team>-frontend.json` 已产出，并通过 `npx ajv-cli validate -s skills/grading-shared/score-schema.json` 校验。
-- [ ] 每个维度都有证据引用，且满足 `../grading-shared/evidence-requirements.md` 硬约束（≥7 / ≤4 分 ≥2 条；5–6 分 ≥1 条）。
+- [ ] `.grading/reports/<team>-frontend.md` 已按本文件 `## 报告模板` 段结构填完，10 个维度全部评完（或明确标 N/A）。
+- [ ] `.grading/reports/<team>-frontend.json` 已产出，并通过 `npx ajv-cli validate -s skills/score-schema.json` 校验。
+- [ ] 每个维度都有证据引用，且满足本文件 `## 证据硬约束` 段（≥7 / ≤4 分 ≥2 条；5–6 分 ≥1 条）。
 - [ ] `.grading/shots/` 含至少 3 断点 × 4 态的截图；`.grading/probes/` 含 `<team>-lighthouse.json` + `<team>-lighthouse-mapping.txt` + `<team>-axe.json` + `<team>-axe-summary.txt`。
 - [ ] 报告末尾给出"最该优先修的 3 件事"，每条对应到具体维度和 file:line。
