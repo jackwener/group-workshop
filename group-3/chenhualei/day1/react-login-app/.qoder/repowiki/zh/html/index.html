@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React Login App 文档</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>📚 项目文档</h1>
+      </div>
+      <nav class="sidebar-nav">
+        <ul>
+          <li><a href="项目概述.html">项目概述</a></li>
+          <li><a href="快速开始.html">快速开始</a></li>
+          <li class="has-submenu">
+            <span class="submenu-title">架构设计</span>
+            <ul class="submenu">
+              <li><a href="架构设计/架构设计.html">架构设计</a></li>
+              <li><a href="架构设计/组件架构.html">组件架构</a></li>
+              <li><a href="架构设计/状态管理.html">状态管理</a></li>
+              <li><a href="架构设计/路由系统.html">路由系统</a></li>
+              <li><a href="架构设计/构建配置.html">构建配置</a></li>
+            </ul>
+          </li>
+          <li class="has-submenu">
+            <span class="submenu-title">认证系统</span>
+            <ul class="submenu">
+              <li><a href="认证系统/认证系统.html">认证系统</a></li>
+              <li><a href="认证系统/认证状态管理.html">认证状态管理</a></li>
+              <li><a href="认证系统/登录表单验证.html">登录表单验证</a></li>
+              <li><a href="认证系统/路由保护机制.html">路由保护机制</a></li>
+              <li><a href="认证系统/认证流程详解.html">认证流程详解</a></li>
+            </ul>
+          </li>
+          <li><a href="仪表板功能.html">仪表板功能</a></li>
+          <li class="has-submenu">
+            <span class="submenu-title">俄罗斯方块游戏</span>
+            <ul class="submenu">
+              <li><a href="俄罗斯方块游戏/俄罗斯方块游戏.html">俄罗斯方块游戏</a></li>
+              <li><a href="俄罗斯方块游戏/游戏引擎核心.html">游戏引擎核心</a></li>
+              <li><a href="俄罗斯方块游戏/方块系统.html">方块系统</a></li>
+              <li><a href="俄罗斯方块游戏/物理机制.html">物理机制</a></li>
+              <li><a href="俄罗斯方块游戏/输入处理.html">输入处理</a></li>
+              <li><a href="俄罗斯方块游戏/界面渲染.html">界面渲染</a></li>
+              <li><a href="俄罗斯方块游戏/游戏状态管理.html">游戏状态管理</a></li>
+            </ul>
+          </li>
+          <li class="has-submenu">
+            <span class="submenu-title">开发工具配置</span>
+            <ul class="submenu">
+              <li><a href="开发工具配置/开发工具配置.html">开发工具配置</a></li>
+              <li><a href="开发工具配置/Vite 构建配置.html">Vite 构建配置</a></li>
+              <li><a href="开发工具配置/ESLint 代码规范.html">ESLint 代码规范</a></li>
+              <li><a href="开发工具配置/包依赖管理.html">包依赖管理</a></li>
+              <li><a href="开发工具配置/版本控制忽略规则.html">版本控制忽略规则</a></li>
+            </ul>
+          </li>
+          <li><a href="样式系统.html">样式系统</a></li>
+          <li><a href="部署指南.html">部署指南</a></li>
+        </ul>
+      </nav>
+    </aside>
+    
+    <main class="main-content">
+      <div class="hero-section">
+        <h1>React Login App 项目文档</h1>
+        <p>基于 React 19 + Vite 的登录应用，包含用户认证、仪表板和俄罗斯方块游戏功能</p>
+        <div class="hero-actions">
+          <a href="项目概述.html" class="btn btn-primary">开始阅读</a>
+          <a href="快速开始.html" class="btn btn-secondary">快速开始</a>
+        </div>
+      </div>
+      
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h3>🔐 认证系统</h3>
+          <p>基于 Zustand 的状态管理，React Hook Form + Zod 表单验证，路由保护机制</p>
+          <a href="认证系统/认证系统.html">了解更多 →</a>
+        </div>
+        <div class="feature-card">
+          <h3>🎮 俄罗斯方块</h3>
+          <p>完整的游戏引擎，包含方块系统、物理机制、输入处理和界面渲染</p>
+          <a href="俄罗斯方块游戏/俄罗斯方块游戏.html">了解更多 →</a>
+        </div>
+        <div class="feature-card">
+          <h3>⚡ 现代技术栈</h3>
+          <p>React 19、Vite 8、React Router 7，快速开发体验</p>
+          <a href="开发工具配置/开发工具配置.html">了解更多 →</a>
+        </div>
+      </div>
+      <div class="disclaimer">
+        <div class="disclaimer-title">基金免责声明</div>
+        <div class="disclaimer-content">
+          <p>本报告仅供参考，不构成任何投资建议。投资者应独立判断，自行承担投资风险。过往业绩不代表未来表现，基金投资有风险，入市需谨慎。</p>
+          <p>本材料中的信息均来源于公开资料，我们力求信息准确可靠，但不保证其完整性、准确性和及时性。任何人不得将本材料用于商业目的或未经授权的传播。</p>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
