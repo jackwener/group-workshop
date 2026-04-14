@@ -23,8 +23,10 @@ class LLMService:
         # Configuration (should be loaded from env in production)
         self.copaw_endpoint = os.getenv("COPAW_ENDPOINT", "")
         self.copaw_api_key = os.getenv("COPAW_API_KEY", "")
-        self.bailian_endpoint = os.getenv("BAILIAN_ENDPOINT", "")
-        self.bailian_api_key = os.getenv("BAILIAN_API_KEY", "")
+        # 百炼 API 配置
+        self.bailian_endpoint = os.getenv("BAILIAN_ENDPOINT", "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation")
+        self.bailian_api_key = os.getenv("BAILIAN_API_KEY", "sk-f47c2e9de62c4375800379e938e2c25b")
+        self.bailian_model = os.getenv("BAILIAN_MODEL", "qwen-max")
         
     def analyze_report(self, text_content: str, extract_keywords: bool = True) -> Tuple[Dict[str, Any], int, str]:
         """
@@ -109,13 +111,43 @@ class LLMService:
         raise Exception("CoPaw not configured - using fallback")
     
     def _call_bailian(self, prompt: str) -> Dict[str, Any]:
-        """Call 百炼 LLM API."""
-        if not self.bailian_endpoint:
-            raise Exception("Bailian endpoint not configured")
+        """Call 百炼 (DashScope) LLM API."""
+        if not self.bailian_api_key:
+            raise Exception("Bailian API key not configured")
         
-        # Placeholder for actual Bailian API call
-        # In production, replace with actual API integration
-        raise Exception("Bailian not configured - using fallback")
+        headers = {
+            "Authorization": f"Bearer {self.bailian_api_key}",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "model": self.bailian_model,
+            "input": {
+                "messages": [
+                    {"role": "system", "content": "你是一个专业的投研分析助手，擅长分析研报和股票数据。请用JSON格式返回分析结果。"},
+                    {"role": "user", "content": prompt}
+                ]
+            },
+            "parameters": {
+                "result_format": "message",
+                "temperature": 0.7,
+                "max_tokens": 2000
+            }
+        }
+        
+        try:
+            response = requests.post(
+                self.bailian_endpoint,
+                json=payload,
+                headers=headers,
+                timeout=60
+            )
+            response.raise_for_status()
+            return self._parse_bailian_response(response.json())
+        except requests.exceptions.RequestException as e:
+            raise Exception(f"Bailian API request failed: {e}")
+        except Exception as e:
+            raise Exception(f"Bailian processing failed: {e}")
     
     def _call_demo(self, prompt: str) -> Dict[str, Any]:
         """
@@ -209,6 +241,30 @@ class LLMService:
                 return json.loads(content)
             except json.JSONDecodeError:
                 return {"response": content}
+        return {"response": str(response)}
+    
+    def _parse_bailian_response(self, response: Dict[str, Any]) -> Dict[str, Any]:
+        """Parse 百炼 (DashScope) API response."""
+        # 百炼 API 响应格式处理
+        if "output" in response:
+            output = response["output"]
+            if "choices" in output and len(output["choices"]) > 0:
+                message = output["choices"][0].get("message", {})
+                content = message.get("content", "")
+                # Try to parse as JSON
+                try:
+                    import json
+                    return json.loads(content)
+                except json.JSONDecodeError:
+                    return {"response": content}
+            elif "text" in output:
+                # 兼容旧格式
+                content = output["text"]
+                try:
+                    import json
+                    return json.loads(content)
+                except json.JSONDecodeError:
+                    return {"response": content}
         return {"response": str(response)}
     
     def health_check(self) -> Dict[str, str]:

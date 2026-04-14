@@ -52,7 +52,7 @@ function SessionList({
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ padding: '16px', borderBottom: '1px solid #e8e8e8' }}>
+      <div style={{ padding: '16px' }}>
         <Button
           type="primary"
           icon={<PlusOutlined />}
@@ -80,7 +80,7 @@ function SessionList({
                   marginBottom: '8px',
                   borderRadius: '8px',
                   cursor: 'pointer',
-                  background: currentSession?.id === session.id ? '#1890ff' : 'transparent',
+                  background: currentSession?.id === session.id ? '#0052cc' : 'transparent',
                   color: currentSession?.id === session.id ? '#fff' : 'inherit',
                   transition: 'all 0.2s'
                 }}
@@ -111,7 +111,7 @@ function SessionList({
                 <List.Item.Meta
                   avatar={<MessageOutlined style={{ 
                     fontSize: '20px',
-                    color: currentSession?.id === session.id ? '#fff' : '#1890ff'
+                    color: currentSession?.id === session.id ? '#fff' : '#0052cc'
                   }} />}
                   title={
                     <div style={{

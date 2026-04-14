@@ -281,7 +281,7 @@ function ChatWindow({ session, onSessionUpdate }: ChatWindowProps) {
       }}>
         <div>
           <h3 style={{ margin: 0 }}>{session.title}</h3>
-          <Tag color="blue">{session.type === 'stock' ? '股票分析' : session.type === 'report' ? '研报分析' : '通用'}</Tag>
+          <Tag color="#0052cc" style={{ borderColor: '#0052cc', color: '#0052cc' }}>{session.type === 'stock' ? '股票分析' : session.type === 'report' ? '研报分析' : '通用'}</Tag>
         </div>
       </div>
 
@@ -304,7 +304,7 @@ function ChatWindow({ session, onSessionUpdate }: ChatWindowProps) {
                 width: '36px',
                 height: '36px',
                 borderRadius: '50%',
-                background: msg.role === 'user' ? '#52c41a' : '#1890ff',
+                background: msg.role === 'user' ? 'linear-gradient(135deg, #52c41a 0%, #389e0d 100%)' : 'linear-gradient(135deg, #0052cc 0%, #003d8f 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -318,8 +318,9 @@ function ChatWindow({ session, onSessionUpdate }: ChatWindowProps) {
                 <div style={{
                   padding: '12px 16px',
                   borderRadius: '12px',
-                  background: msg.role === 'user' ? '#1890ff' : '#f5f5f5',
-                  color: msg.role === 'user' ? '#fff' : 'inherit',
+                  background: msg.role === 'user' ? 'linear-gradient(135deg, #0052cc 0%, #003d8f 100%)' : '#f5f7fa',
+                  color: msg.role === 'user' ? '#fff' : '#1a1a1a',
+                  border: msg.role === 'user' ? 'none' : '1px solid #e8ecf1',
                   whiteSpace: 'pre-wrap'
                 }}>
                   {msg.content}
@@ -353,67 +354,58 @@ function ChatWindow({ session, onSessionUpdate }: ChatWindowProps) {
       </div>
 
       {/* Input Area */}
-      <div style={{ padding: '16px 24px', borderTop: '1px solid #e8e8e8', background: '#fafafa' }}>
-        <Tabs defaultActiveKey="chat">
-          <TabPane tab="对话" key="chat">
-            <Space direction="vertical" style={{ width: '100%' }}>
-              <TextArea
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                placeholder="输入消息..."
-                autoSize={{ minRows: 2, maxRows: 4 }}
-                onPressEnter={(e) => {
-                  if (!e.shiftKey) {
-                    e.preventDefault()
-                    handleSendMessage()
-                  }
-                }}
-              />
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Upload
-                  beforeUpload={handleUpload}
-                  accept=".pdf,.doc,.docx"
-                  showUploadList={false}
-                >
-                  <Button icon={<UploadOutlined />} loading={uploading}>
-                    上传研报
-                  </Button>
-                </Upload>
-                <Button
-                  type="primary"
-                  icon={<SendOutlined />}
-                  onClick={handleSendMessage}
-                  loading={loading}
-                  disabled={!inputValue.trim()}
-                >
-                  发送
-                </Button>
-              </div>
-            </Space>
-          </TabPane>
-          
-          <TabPane tab="股票查询" key="stock">
-            <Space direction="vertical" style={{ width: '100%' }}>
-              <Input
-                placeholder="输入股票代码（6位数字）"
-                value={stockCode}
-                onChange={(e) => setStockCode(e.target.value)}
-                maxLength={6}
-                prefix={<StockOutlined />}
-              />
-              <Button
-                type="primary"
-                icon={<SearchOutlined />}
-                onClick={handleAnalyzeStock}
-                loading={analyzing}
-                disabled={!stockCode.trim() || stockCode.length !== 6}
-                block
-              >
-                分析股票
+      <div style={{ padding: '16px 24px', borderTop: '1px solid #e8ecf1', background: '#f5f7fa' }}>
+        <Space direction="vertical" style={{ width: '100%' }}>
+          <TextArea
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="输入消息..."
+            autoSize={{ minRows: 2, maxRows: 4 }}
+            onPressEnter={(e) => {
+              if (!e.shiftKey) {
+                e.preventDefault()
+                handleSendMessage()
+              }
+            }}
+          />
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <Input
+              placeholder="输入股票代码（6位数字）"
+              value={stockCode}
+              onChange={(e) => setStockCode(e.target.value)}
+              maxLength={6}
+              prefix={<StockOutlined />}
+              style={{ width: '200px' }}
+            />
+            <Button
+              icon={<SearchOutlined />}
+              onClick={handleAnalyzeStock}
+              loading={analyzing}
+              disabled={!stockCode.trim() || stockCode.length !== 6}
+            >
+              股票分析
+            </Button>
+            <Upload
+              beforeUpload={handleUpload}
+              accept=".pdf,.doc,.docx"
+              showUploadList={false}
+            >
+              <Button icon={<UploadOutlined />} loading={uploading}>
+                上传研报
               </Button>
-            </Space>
-          </TabPane>
-        </Tabs>
+            </Upload>
+            <div style={{ flex: 1 }}></div>
+            <Button
+              type="primary"
+              icon={<SendOutlined />}
+              onClick={handleSendMessage}
+              loading={loading}
+              disabled={!inputValue.trim()}
+            >
+              发送
+            </Button>
+          </div>
+        </Space>
       </div>
     </div>
   )

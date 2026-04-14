@@ -1,3 +1,26 @@
+:root {
+  /* 南方基金蓝色主色调 */
+  --primary-blue: #0052cc;
+  --primary-blue-dark: #003d8f;
+  --primary-blue-light: #e6f0ff;
+  --secondary-blue: #4a90e2;
+  --accent-blue: #00a8e6;
+  --gradient-blue: linear-gradient(135deg, #0052cc 0%, #003d8f 100%);
+  
+  /* 辅助色 */
+  --success-green: #52c41a;
+  --warning-orange: #faad14;
+  --error-red: #ff4d4f;
+  
+  /* 中性色 */
+  --text-primary: #1a1a1a;
+  --text-secondary: #666666;
+  --text-tertiary: #999999;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f7fa;
+  --border-color: #e8ecf1;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -6,7 +29,7 @@
 
 html, body, #root {
   height: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'PingFang SC', 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
 .app-container {
@@ -23,15 +46,17 @@ html, body, #root {
 
 .sidebar {
   width: 260px;
-  background: #f5f5f5;
-  border-right: 1px solid #e8e8e8;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
 }
 
 .sidebar-header {
   padding: 16px;
-  border-bottom: 1px solid #e8e8e8;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--gradient-blue);
+  color: white;
 }
 
 .session-list {
@@ -52,12 +77,14 @@ html, body, #root {
 }
 
 .session-item:hover {
-  background: #e6f7ff;
+  background: var(--primary-blue-light);
+  border-left: 3px solid var(--primary-blue);
 }
 
 .session-item.active {
-  background: #1890ff;
+  background: var(--primary-blue);
   color: white;
+  border-left: 3px solid var(--primary-blue-dark);
 }
 
 .session-item-title {
@@ -81,10 +108,12 @@ html, body, #root {
 
 .chat-header {
   padding: 16px 24px;
-  border-bottom: 1px solid #e8e8e8;
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: var(--bg-primary);
+  box-shadow: 0 2px 8px rgba(0, 82, 204, 0.08);
 }
 
 .chat-messages {
@@ -107,30 +136,34 @@ html, body, #root {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: #1890ff;
+  background: var(--gradient-blue);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-size: 14px;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 82, 204, 0.3);
 }
 
 .message.user .message-avatar {
-  background: #52c41a;
+  background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
 }
 
 .message-content {
   max-width: 70%;
   padding: 12px 16px;
   border-radius: 12px;
-  background: #f5f5f5;
+  background: var(--bg-secondary);
   word-wrap: break-word;
+  border: 1px solid var(--border-color);
 }
 
 .message.user .message-content {
-  background: #1890ff;
+  background: var(--gradient-blue);
   color: white;
+  border: none;
+  box-shadow: 0 2px 12px rgba(0, 82, 204, 0.25);
 }
 
 .message-time {
@@ -141,8 +174,8 @@ html, body, #root {
 
 .chat-input-area {
   padding: 16px 24px;
-  border-top: 1px solid #e8e8e8;
-  background: #fafafa;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-secondary);
 }
 
 .input-container {
@@ -152,7 +185,7 @@ html, body, #root {
 }
 
 .upload-area {
-  border: 2px dashed #d9d9d9;
+  border: 2px dashed var(--border-color);
   border-radius: 8px;
   padding: 24px;
   text-align: center;
@@ -162,12 +195,13 @@ html, body, #root {
 }
 
 .upload-area:hover {
-  border-color: #1890ff;
+  border-color: var(--primary-blue);
+  background: var(--primary-blue-light);
 }
 
 .upload-area.dragover {
-  border-color: #1890ff;
-  background: #e6f7ff;
+  border-color: var(--primary-blue);
+  background: var(--primary-blue-light);
 }
 
 .analysis-result {
@@ -195,7 +229,10 @@ html, body, #root {
 .stock-score {
   font-size: 32px;
   font-weight: bold;
-  color: #1890ff;
+  background: var(--gradient-blue);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .risk-level {
@@ -232,10 +269,10 @@ html, body, #root {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: var(--secondary-blue);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: var(--primary-blue);
 }
