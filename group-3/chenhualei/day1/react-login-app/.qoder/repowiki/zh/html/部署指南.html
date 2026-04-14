@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>部署指南 - React Login App 文档</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>📚 项目文档</h1>
+      </div>
+      <nav class="sidebar-nav">
+        <ul><li><a href="项目概述.html">项目概述</a></li><li><a href="快速开始.html">快速开始</a></li><li class="has-submenu"><span class="submenu-title">架构设计</span><ul class="submenu"><li><a href="架构设计/组件架构.html">组件架构</a></li><li><a href="架构设计/状态管理.html">状态管理</a></li><li><a href="架构设计/路由系统.html">路由系统</a></li><li><a href="架构设计/构建配置.html">构建配置</a></li></ul></li><li class="has-submenu"><span class="submenu-title">认证系统</span><ul class="submenu"><li><a href="认证系统/认证状态管理.html">认证状态管理</a></li><li><a href="认证系统/登录表单验证.html">登录表单验证</a></li><li><a href="认证系统/路由保护机制.html">路由保护机制</a></li><li><a href="认证系统/认证流程详解.html">认证流程详解</a></li></ul></li><li><a href="仪表板功能.html">仪表板功能</a></li><li class="has-submenu"><span class="submenu-title">俄罗斯方块游戏</span><ul class="submenu"><li><a href="俄罗斯方块游戏/游戏引擎核心.html">游戏引擎核心</a></li><li><a href="俄罗斯方块游戏/方块系统.html">方块系统</a></li><li><a href="俄罗斯方块游戏/物理机制.html">物理机制</a></li><li><a href="俄罗斯方块游戏/输入处理.html">输入处理</a></li><li><a href="俄罗斯方块游戏/界面渲染.html">界面渲染</a></li><li><a href="俄罗斯方块游戏/游戏状态管理.html">游戏状态管理</a></li></ul></li><li class="has-submenu"><span class="submenu-title">开发工具配置</span><ul class="submenu"><li><a href="开发工具配置/Vite 构建配置.html">Vite 构建配置</a></li><li><a href="开发工具配置/ESLint 代码规范.html">ESLint 代码规范</a></li><li><a href="开发工具配置/包依赖管理.html">包依赖管理</a></li><li><a href="开发工具配置/版本控制忽略规则.html">版本控制忽略规则</a></li></ul></li><li><a href="样式系统.html">样式系统</a></li><li><a href="部署指南.html">部署指南</a></li></ul>
+      </nav>
+    </aside>
+    
+    <main class="main-content">
+      <div class="breadcrumb">
+        <a href="index.html">首页</a> / <span>部署指南</span>
+      </div>
+      
+      <article class="content">
+        <h1>部署指南</h1>
+<div class="cite-block">
+<strong>本文引用的文件</strong>
+<ul><li><a href="file://package.json">package.json</a></li><li><a href="file://vite.config.js">vite.config.js</a></li><li><a href="file://index.html">index.html</a></li><li><a href="file://README.md">README.md</a></li><li><a href="file://eslint.config.js">eslint.config.js</a></li><li><a href="file://.gitignore">.gitignore</a></li><li><a href="file://src/main.jsx">src/main.jsx</a></li><li><a href="file://src/App.jsx">src/App.jsx</a></li><li><a href="file://src/store/authStore.js">src/store/authStore.js</a></li><li><a href="file://src/routes/ProtectedRoute.jsx">src/routes/ProtectedRoute.jsx</a></li><li><a href="file://src/pages/LoginPage.jsx">src/pages/LoginPage.jsx</a></li><li><a href="file://src/pages/DashboardPage.jsx">src/pages/DashboardPage.jsx</a></li><li><a href="file://src/components/LoginForm.jsx">src/components/LoginForm.jsx</a></li><li><a href="file://src/pages/TetrisPage.jsx">src/pages/TetrisPage.jsx</a></li></ul>
+</div>
+<h2>目录</h2>
+1. <a href="#简介">简介</a>
+2. <a href="#项目结构">项目结构</a>
+3. <a href="#核心组件">核心组件</a>
+4. <a href="#架构总览">架构总览</a>
+5. <a href="#详细组件分析">详细组件分析</a>
+6. <a href="#依赖分析">依赖分析</a>
+7. <a href="#性能考虑">性能考虑</a>
+8. <a href="#故障排查指南">故障排查指南</a>
+9. <a href="#结论">结论</a>
+10. <a href="#附录">附录</a>
+<h2>简介</h2>
+本指南面向React登录应用的部署与运维，覆盖Vite构建配置对不同部署环境的影响、静态资源处理与CDN集成、主流平台（GitHub Pages、Netlify、Vercel）的部署步骤与配置要点、环境变量与API端点管理、域名绑定、性能优化与缓存策略、安全配置、监控与日志、回滚与故障恢复、以及CI/CD流水线集成与自动化部署。
+<h2>项目结构</h2>
+该应用采用Vite + React单页应用（SPA）架构，前端路由基于浏览器历史模式，使用本地存储进行认证状态持久化。核心入口为HTML模板中的挂载节点与JS入口文件，路由在应用顶层集中定义，受保护路由通过状态管理控制访问。
+<div class="mermaid">graph TB
+A["index.html<br/>根容器与脚本入口"] --> B["src/main.jsx<br/>渲染根组件"]
+B --> C["src/App.jsx<br/>BrowserRouter + Routes"]
+C --> D["src/pages/LoginPage.jsx"]
+C --> E["src/pages/DashboardPage.jsx"]
+C --> F["src/pages/TetrisPage.jsx"]
+C --> G["src/routes/ProtectedRoute.jsx<br/>鉴权守卫"]
+G --> H["src/store/authStore.js<br/>登录/登出/初始化"]</div>
+<p>图表来源
+<ul><li><a href="file://index.html#L1-L14">index.html:1-14</a></li><li><a href="file://src/main.jsx#L1-L11">src/main.jsx:1-11</a></li><li><a href="file://src/App.jsx#L1-L44">src/App.jsx:1-44</a></li><li><a href="file://src/routes/ProtectedRoute.jsx#L1-L15">src/routes/ProtectedRoute.jsx:1-15</a></li><li><a href="file://src/store/authStore.js#L1-L44">src/store/authStore.js:1-44</a></li></ul></p>
+<p>章节来源
+<ul><li><a href="file://index.html#L1-L14">index.html:1-14</a></li><li><a href="file://src/main.jsx#L1-L11">src/main.jsx:1-11</a></li><li><a href="file://src/App.jsx#L1-L44">src/App.jsx:1-44</a></li></ul></p>
+<h2>核心组件</h2>
+<ul><li>构建与开发工具链</li><li>使用Vite作为构建与开发服务器，提供快速热更新与打包能力。</li><li>ESLint配置启用React Hooks与React Refresh规则，确保开发体验与代码质量。</li><li>应用入口与路由</li><li>HTML模板定义根容器与模块入口脚本；JS入口负责渲染根组件。</li><li>App组件集中声明路由与重定向逻辑，受保护路由通过状态管理判断是否放行。</li><li>认证与状态管理</li><li>使用轻量状态库进行登录、登出与初始化；登录成功后写入本地存储，刷新后自动恢复登录态。</li><li>页面与表单</li><li>登录页包含登录表单，表单使用校验器进行输入约束；仪表板展示用户信息与导航至小游戏页面；小游戏页面为独立功能页面，提供返回导航。</li></ul>
+<p>章节来源
+<ul><li><a href="file://package.json#L1-L33">package.json:1-33</a></li><li><a href="file://vite.config.js#L1-L8">vite.config.js:1-8</a></li><li><a href="file://eslint.config.js#L1-L30">eslint.config.js:1-30</a></li><li><a href="file://src/main.jsx#L1-L11">src/main.jsx:1-11</a></li><li><a href="file://src/App.jsx#L1-L44">src/App.jsx:1-44</a></li><li><a href="file://src/store/authStore.js#L1-L44">src/store/authStore.js:1-44</a></li><li><a href="file://src/routes/ProtectedRoute.jsx#L1-L15">src/routes/ProtectedRoute.jsx:1-15</a></li><li><a href="file://src/pages/LoginPage.jsx#L1-L18">src/pages/LoginPage.jsx:1-18</a></li><li><a href="file://src/pages/DashboardPage.jsx#L1-L57">src/pages/DashboardPage.jsx:1-57</a></li><li><a href="file://src/components/LoginForm.jsx#L1-L78">src/components/LoginForm.jsx:1-78</a></li><li><a href="file://src/pages/TetrisPage.jsx#L1-L413">src/pages/TetrisPage.jsx:1-413</a></li></ul></p>
+<h2>架构总览</h2>
+以下序列图展示从用户访问到页面渲染、路由匹配与受保护路由拦截的关键流程。
+<div class="mermaid">sequenceDiagram
+participant U as "用户"
+participant B as "浏览器"
+participant A as "App.jsx<br/>BrowserRouter/Routes"
+participant PR as "ProtectedRoute.jsx"
+participant AS as "authStore.js"
+U->>B : 打开应用URL
+B->>A : 加载并渲染根组件
+A->>A : 解析路由路径
+A->>PR : 匹配受保护路由
+PR->>AS : 读取登录状态
+alt 已登录
+PR-->>A : 放行子组件
+A-->>U : 渲染目标页面
+else 未登录
+PR-->>A : 重定向到登录页
+A-->>U : 渲染登录页
+end</div>
+<p>图表来源
+<ul><li><a href="file://src/App.jsx#L1-L44">src/App.jsx:1-44</a></li><li><a href="file://src/routes/ProtectedRoute.jsx#L1-L15">src/routes/ProtectedRoute.jsx:1-15</a></li><li><a href="file://src/store/authStore.js#L1-L44">src/store/authStore.js:1-44</a></li></ul></p>
+<h2>详细组件分析</h2>
+<h3>Vite构建配置与部署影响</h3>
+<ul><li>基础配置</li><li>默认插件启用React相关支持，满足开发与生产构建需求。</li><li>SPA路由与基础路径</li><li>浏览器历史模式需要服务器正确处理回退到index.html，避免刷新后404。</li><li>生产构建输出静态资源，需配合CDN与缓存策略。</li><li>环境变量</li><li>Vite默认支持以VITE<em>前缀的环境变量注入到客户端代码。</li><li>性能与产物</li><li>生产构建会进行代码分割、压缩与资源哈希命名，利于缓存与CDN分发。</li></ul>
+<p>章节来源
+<ul><li><a href="file://vite.config.js#L1-L8">vite.config.js:1-8</a></li><li><a href="file://package.json#L1-L33">package.json:1-33</a></li></ul></p>
+<h3>登录流程与受保护路由</h3>
+<ul><li>登录流程</li><li>表单提交触发状态管理登录函数，模拟异步验证成功后写入本地存储并切换登录态。</li><li>受保护路由</li><li>未登录用户被重定向至登录页；已登录则放行至目标页面。</li></ul>
+<div class="mermaid">sequenceDiagram
+participant U as "用户"
+participant LF as "LoginForm.jsx"
+participant AS as "authStore.js"
+participant PR as "ProtectedRoute.jsx"
+participant DP as "DashboardPage.jsx"
+U->>LF : 提交登录表单
+LF->>AS : 调用登录函数(username,password)
+AS-->>LF : 返回结果(success/error)
+alt 成功
+LF-->>U : 导航至仪表板
+U->>PR : 访问受保护路由
+PR-->>DP : 放行渲染
+else 失败
+LF-->>U : 显示错误提示
+end</div>
+<p>图表来源
+<ul><li><a href="file://src/components/LoginForm.jsx#L1-L78">src/components/LoginForm.jsx:1-78</a></li><li><a href="file://src/store/authStore.js#L1-L44">src/store/authStore.js:1-44</a></li><li><a href="file://src/routes/ProtectedRoute.jsx#L1-L15">src/routes/ProtectedRoute.jsx:1-15</a></li><li><a href="file://src/pages/DashboardPage.jsx#L1-L57">src/pages/DashboardPage.jsx:1-57</a></li></ul></p>
+<p>章节来源
+<ul><li><a href="file://src/components/LoginForm.jsx#L1-L78">src/components/LoginForm.jsx:1-78</a></li><li><a href="file://src/store/authStore.js#L1-L44">src/store/authStore.js:1-44</a></li><li><a href="file://src/routes/ProtectedRoute.jsx#L1-L15">src/routes/ProtectedRoute.jsx:1-15</a></li><li><a href="file://src/pages/DashboardPage.jsx#L1-L57">src/pages/DashboardPage.jsx:1-57</a></li></ul></p>
+<h3>游戏页面与路由关系</h3>
+<ul><li>游戏页面为独立功能页面，提供返回导航至仪表板。</li><li>与受保护路由机制一致，仅在登录状态下可访问。</li></ul>
+<p>章节来源
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L1-L413">src/pages/TetrisPage.jsx:1-413</a></li></ul></p>
+<h3>静态资源处理与CDN集成</h3>
+<ul><li>构建产物</li><li>生产构建生成静态资源目录，包含带哈希的JS/CSS与媒体文件。</li><li>CDN集成</li><li>将静态资源托管至CDN，结合长期缓存与按需失效策略提升加载速度。</li><li>资源优化</li><li>合理拆分代码，减少首屏体积；对不常变更的第三方库进行外部化（externals）以利用CDN缓存。</li></ul>
+<p>章节来源
+<ul><li><a href="file://package.json#L1-L33">package.json:1-33</a></li></ul></p>
+<h3>环境变量与API端点配置</h3>
+<ul><li>客户端环境变量</li><li>使用VITE</em>前缀的变量注入到客户端代码，如API基础地址、特性开关等。</li><li>服务端API</li><li>在登录与业务请求中使用上述变量指向后端接口，确保开发/预发/线上环境隔离。</li><li>安全注意</li><li>避免在客户端暴露敏感密钥；认证令牌建议通过安全的HttpOnly Cookie传递（若后端支持）。</li></ul>
+<p>章节来源
+<ul><li><a href="file://vite.config.js#L1-L8">vite.config.js:1-8</a></li><li><a href="file://src/components/LoginForm.jsx#L1-L78">src/components/LoginForm.jsx:1-78</a></li></ul></p>
+<h3>域名绑定与HTTPS</h3>
+<ul><li>自定义域名</li><li>在部署平台配置CNAME或自定义域，确保SSL证书生效。</li><li>HTTPS强制</li><li>平台通常提供自动HTTPS；如需更严格的安全策略，可在平台或CDN侧启用HSTS。</li></ul>
+<p>章节来源
+<ul><li><a href="file://README.md#L1-L17">README.md:1-17</a></li></ul></p>
+<h2>依赖分析</h2>
+<ul><li>构建与开发</li><li>Vite提供开发服务器与生产打包；ESLint保障代码规范。</li><li>运行时依赖</li><li>React生态组件与路由、状态管理库构成运行时核心。</li><li>关键耦合点</li><li>App路由与受保护路由存在对状态管理的依赖；登录成功与否直接影响路由行为。</li></ul>
+<div class="mermaid">graph LR
+V["vite.config.js"] --> P["package.json<br/>scripts与依赖"]
+E["eslint.config.js"] --> P
+M["src/main.jsx"] --> A["src/App.jsx"]
+A --> R["src/routes/ProtectedRoute.jsx"]
+R --> S["src/store/authStore.js"]
+A --> LP["src/pages/LoginPage.jsx"]
+A --> DP["src/pages/DashboardPage.jsx"]
+A --> TP["src/pages/TetrisPage.jsx"]</div>
+<p>图表来源
+<ul><li><a href="file://vite.config.js#L1-L8">vite.config.js:1-8</a></li><li><a href="file://package.json#L1-L33">package.json:1-33</a></li><li><a href="file://eslint.config.js#L1-L30">eslint.config.js:1-30</a></li><li><a href="file://src/main.jsx#L1-L11">src/main.jsx:1-11</a></li><li><a href="file://src/App.jsx#L1-L44">src/App.jsx:1-44</a></li><li><a href="file://src/routes/ProtectedRoute.jsx#L1-L15">src/routes/ProtectedRoute.jsx:1-15</a></li><li><a href="file://src/store/authStore.js#L1-L44">src/store/authStore.js:1-44</a></li><li><a href="file://src/pages/LoginPage.jsx#L1-L18">src/pages/LoginPage.jsx:1-18</a></li><li><a href="file://src/pages/DashboardPage.jsx#L1-L57">src/pages/DashboardPage.jsx:1-57</a></li><li><a href="file://src/pages/TetrisPage.jsx#L1-L413">src/pages/TetrisPage.jsx:1-413</a></li></ul></p>
+<p>章节来源
+<ul><li><a href="file://package.json#L1-L33">package.json:1-33</a></li><li><a href="file://eslint.config.js#L1-L30">eslint.config.js:1-30</a></li><li><a href="file://src/App.jsx#L1-L44">src/App.jsx:1-44</a></li></ul></p>
+<h2>性能考虑</h2>
+<ul><li>代码分割与懒加载</li><li>对非首屏页面（如游戏页）采用动态导入，降低首屏体积。</li><li>缓存策略</li><li>静态资源启用长期缓存；通过文件哈希命名实现版本化失效。</li><li>资源压缩与合并</li><li>生产构建自动进行压缩与最小化；CDN可进一步开启Gzip/Brotli。</li><li>首屏优化</li><li>关键CSS内联，非关键CSS延迟加载；图片懒加载与响应式尺寸。</li><li>浏览器历史模式</li><li>服务器需正确处理SPA回退，避免不必要的重定向与404。</li></ul>
+<p>章节来源
+<ul><li><a href="file://package.json#L1-L33">package.json:1-33</a></li><li><a href="file://vite.config.js#L1-L8">vite.config.js:1-8</a></li></ul></p>
+<h2>故障排查指南</h2>
+<ul><li>构建问题</li><li>确认构建脚本与依赖安装正常；查看构建日志定位具体报错。</li><li>开发与预览</li><li>使用开发服务器与预览命令验证本地运行；确认端口占用与网络可达性。</li><li>路由与刷新</li><li>若出现刷新后空白页，检查服务器对SPA回退的处理配置。</li><li>环境变量</li><li>确保以VITE<em>前缀定义变量并在客户端读取；区分开发与生产环境变量文件。</li><li>认证状态</li><li>检查本地存储中用户数据格式与有效期；必要时清理缓存后重试。</li></ul>
+<p>章节来源
+<ul><li><a href="file://package.json#L1-L33">package.json:1-33</a></li><li><a href="file://README.md#L1-L17">README.md:1-17</a></li><li><a href="file://.gitignore#L1-L25">.gitignore:1-25</a></li><li><a href="file://src/store/authStore.js#L1-L44">src/store/authStore.js:1-44</a></li></ul></p>
+<h2>结论</h2>
+本指南提供了从构建配置到多平台部署、从性能优化到安全与运维的完整实践路径。建议在生产环境中结合CDN与缓存策略、严格的HTTPS与安全头配置、完善的监控与日志体系，以及标准化的CI/CD流水线，确保应用稳定、安全、可维护地交付给用户。
+<h2>附录</h2>
+<h3>平台部署步骤与配置要点</h3>
+<ul><li>GitHub Pages</li><li>仓库设置：启用Pages功能，选择分支与根目录发布。</li><li>基础路径：若部署在子路径，需在构建配置中设置基础路径，确保静态资源引用正确。</li><li>回退处理：配置404回退到index.html，保证SPA路由正常工作。</li><li>参考来源</li><li><a href="file://index.html#L1-L14">index.html:1-14</a></li><li><a href="file://vite.config.js#L1-L8">vite.config.js:1-8</a></li></ul>
+<ul><li>Netlify</li><li>构建命令与发布目录：设置构建命令与输出目录，确保构建产物正确上传。</li><li>净化规则：在站点设置中添加SPA回退规则，将未匹配路径回退到index.html。</li><li>环境变量：在仪表板中配置VITE</em>前缀的环境变量，区分环境。</li><li>参考来源</li><li><a href="file://package.json#L1-L33">package.json:1-33</a></li><li><a href="file://vite.config.js#L1-L8">vite.config.js:1-8</a></li></ul>
+<ul><li>Vercel</li><li>配置：选择框架检测或手动配置构建命令与输出目录。</li><li>ISR/边缘：可利用边缘计算与增量静态再生（如适用）提升性能。</li><li>环境变量：在项目设置中配置环境变量，支持按域名或路径分组。</li><li>参考来源</li><li><a href="file://package.json#L1-L33">package.json:1-33</a></li><li><a href="file://vite.config.js#L1-L8">vite.config.js:1-8</a></li></ul>
+<h3>CI/CD流水线与自动化部署</h3>
+<ul><li>触发条件</li><li>主分支推送、标签创建或Pull Request合并触发流水线。</li><li>步骤建议</li><li>代码检出 → 依赖安装 → Lint与测试 → 构建 → 产物上传/部署 → 健康检查 → 回滚保护。</li><li>回滚策略</li><li>保留最近N个版本；失败自动回滚至上一个稳定版本；支持蓝绿/金丝雀发布。</li><li>监控与日志</li><li>集成平台日志与指标；设置告警阈值；记录关键事件（登录、路由跳转、错误）。</li><li>参考来源</li><li><a href="file://package.json#L1-L33">package.json:1-33</a></li><li><a href="file://eslint.config.js#L1-L30">eslint.config.js:1-30</a></li></ul>
+      </article>
+      
+      <footer class="page-footer">
+        <p>React Login App 项目文档</p>
+      </footer>
+    </main>
+  </div>
+  
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true
+      }
+    });
+  </script>
+</body>
+</html>
