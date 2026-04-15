@@ -1,0 +1,46 @@
+# Dependencies
+## Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+## Backend
+backend/venv/
+backend/.venv/
+backend/__pycache__/
+backend/**/*.pyc
+backend/.pytest_cache/
+
+# Environment variables
+backend/.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build outputs
+*.log
+*.tmp
+
+# Data files (if contains user uploads)
+backend/data/uploads/
+
+# Test coverage
+coverage/
+.coverage
+htmlcov/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Python
+*.egg-info/
+dist/
+build/
