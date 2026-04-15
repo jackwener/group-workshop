@@ -1,0 +1,35 @@
+[
+  {
+    "record_id": "rec_1776154535726",
+    "session_id": "64fe77ac-f4cb-4bd9-8de5-46c52e44ef56",
+    "query": "最近一周热门研报有哪些？",
+    "answer": "[离线演示] 您询问了：最近一周热门研报有哪些？。当前为演示模式，请配置 LLM 密钥获取真实回答。",
+    "llm_used": false,
+    "model": null,
+    "response_time_ms": 0,
+    "answer_source": "demo",
+    "timestamp": "2026-04-14T08:15:35.726107+00:00"
+  },
+  {
+    "record_id": "rec_1776154830220",
+    "session_id": "4969d162-4fb6-4909-aaff-a4464edd779f",
+    "query": "最近一周热门研报有哪些？",
+    "answer": "[离线演示] 您询问了：最近一周热门研报有哪些？。当前为演示模式，请配置 LLM 密钥获取真实回答。",
+    "llm_used": false,
+    "model": null,
+    "response_time_ms": 0,
+    "answer_source": "demo",
+    "timestamp": "2026-04-14T08:20:30.220299+00:00"
+  },
+  {
+    "record_id": "rec_1776156144122",
+    "session_id": "4969d162-4fb6-4909-aaff-a4464edd779f",
+    "query": "今天涨幅多少",
+    "answer": "[离线演示] 您询问了：今天涨幅多少。当前为演示模式，请配置 LLM 密钥获取真实回答。",
+    "llm_used": false,
+    "model": null,
+    "response_time_ms": 0,
+    "answer_source": "demo",
+    "timestamp": "2026-04-14T08:42:24.122643+00:00"
+  }
+]

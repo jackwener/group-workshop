@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>方块系统 - React Login App 文档</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>📚 项目文档</h1>
+      </div>
+      <nav class="sidebar-nav">
+        <ul><li><a href="项目概述.html">项目概述</a></li><li><a href="快速开始.html">快速开始</a></li><li class="has-submenu"><span class="submenu-title">架构设计</span><ul class="submenu"><li><a href="架构设计/组件架构.html">组件架构</a></li><li><a href="架构设计/状态管理.html">状态管理</a></li><li><a href="架构设计/路由系统.html">路由系统</a></li><li><a href="架构设计/构建配置.html">构建配置</a></li></ul></li><li class="has-submenu"><span class="submenu-title">认证系统</span><ul class="submenu"><li><a href="认证系统/认证状态管理.html">认证状态管理</a></li><li><a href="认证系统/登录表单验证.html">登录表单验证</a></li><li><a href="认证系统/路由保护机制.html">路由保护机制</a></li><li><a href="认证系统/认证流程详解.html">认证流程详解</a></li></ul></li><li><a href="仪表板功能.html">仪表板功能</a></li><li class="has-submenu"><span class="submenu-title">俄罗斯方块游戏</span><ul class="submenu"><li><a href="俄罗斯方块游戏/游戏引擎核心.html">游戏引擎核心</a></li><li><a href="俄罗斯方块游戏/方块系统.html">方块系统</a></li><li><a href="俄罗斯方块游戏/物理机制.html">物理机制</a></li><li><a href="俄罗斯方块游戏/输入处理.html">输入处理</a></li><li><a href="俄罗斯方块游戏/界面渲染.html">界面渲染</a></li><li><a href="俄罗斯方块游戏/游戏状态管理.html">游戏状态管理</a></li></ul></li><li class="has-submenu"><span class="submenu-title">开发工具配置</span><ul class="submenu"><li><a href="开发工具配置/Vite 构建配置.html">Vite 构建配置</a></li><li><a href="开发工具配置/ESLint 代码规范.html">ESLint 代码规范</a></li><li><a href="开发工具配置/包依赖管理.html">包依赖管理</a></li><li><a href="开发工具配置/版本控制忽略规则.html">版本控制忽略规则</a></li></ul></li><li><a href="样式系统.html">样式系统</a></li><li><a href="部署指南.html">部署指南</a></li></ul>
+      </nav>
+    </aside>
+    
+    <main class="main-content">
+      <div class="breadcrumb">
+        <a href="index.html">首页</a> / <span>俄罗斯方块游戏\方块系统</span>
+      </div>
+      
+      <article class="content">
+        <h1>方块系统</h1>
+<div class="cite-block">
+<strong>本文档引用的文件</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx">TetrisPage.jsx</a></li><li><a href="file://src/pages/TetrisPage.css">TetrisPage.css</a></li><li><a href="file://src/App.jsx">App.jsx</a></li><li><a href="file://src/routes/ProtectedRoute.jsx">ProtectedRoute.jsx</a></li><li><a href="file://src/store/authStore.js">authStore.js</a></li><li><a href="file://src/components/LoginForm.jsx">LoginForm.jsx</a></li><li><a href="file://src/pages/DashboardPage.jsx">DashboardPage.jsx</a></li><li><a href="file://src/pages/LoginPage.jsx">LoginPage.jsx</a></li><li><a href="file://src/main.jsx">main.jsx</a></li><li><a href="file://package.json">package.json</a></li></ul>
+</div>
+<h2>目录</h2>
+1. <a href="#简介">简介</a>
+2. <a href="#项目结构">项目结构</a>
+3. <a href="#核心组件">核心组件</a>
+4. <a href="#架构概览">架构概览</a>
+5. <a href="#详细组件分析">详细组件分析</a>
+6. <a href="#依赖关系分析">依赖关系分析</a>
+7. <a href="#性能考虑">性能考虑</a>
+8. <a href="#故障排除指南">故障排除指南</a>
+9. <a href="#结论">结论</a>
+<h2>简介</h2>
+<p>本项目是一个基于React的俄罗斯方块游戏实现，提供了完整的方块系统功能。该系统包含七种标准俄罗斯方块（I、O、T、S、Z、J、L），实现了随机生成算法、旋转机制、碰撞检测和边界情况处理等核心功能。</p>
+<h2>项目结构</h2>
+<p>该项目采用React + Vite的现代前端架构，主要文件组织如下：</p>
+<div class="mermaid">graph TB
+subgraph "应用根目录"
+Root[项目根目录]
+Package[package.json]
+Vite[vite.config.js]
+Index[index.html]
+end
+subgraph "源代码(src)"
+App[App.jsx]
+Main[main.jsx]
+subgraph "页面(pages)"
+LoginPage[LoginPage.jsx]
+DashboardPage[DashboardPage.jsx]
+TetrisPage[TetrisPage.jsx]
+TetrisCSS[TetrisPage.css]
+end
+subgraph "组件(components)"
+LoginForm[LoginForm.jsx]
+end
+subgraph "路由(routes)"
+ProtectedRoute[ProtectedRoute.jsx]
+end
+subgraph "状态管理(store)"
+AuthStore[authStore.js]
+end
+end
+Root --> App
+Root --> Main
+Root --> Package
+Root --> Vite
+Root --> Index
+App --> LoginPage
+App --> DashboardPage
+App --> TetrisPage
+App --> ProtectedRoute
+TetrisPage --> TetrisCSS
+LoginPage --> LoginForm
+DashboardPage --> TetrisPage</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/App.jsx#L1-L44">App.jsx:1-44</a></li><li><a href="file://src/main.jsx#L1-L11">main.jsx:1-11</a></li><li><a href="file://package.json#L1-L33">package.json:1-33</a></li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://src/App.jsx#L1-L44">App.jsx:1-44</a></li><li><a href="file://src/main.jsx#L1-L11">main.jsx:1-11</a></li><li><a href="file://package.json#L1-L33">package.json:1-33</a></li></ul>
+<h2>核心组件</h2>
+<h3>方块定义系统</h3>
+<p>系统定义了七种标准俄罗斯方块，每种方块都有其独特的形状矩阵和颜色标识：</p>
+<table><thead><tr><th>方块名称</th><th>形状矩阵</th><th>颜色标识</th></tr></thead><tbody><tr><td>I方块</td><td><code>[[1,1,1,1]]</code></td><td><code>I</code></td></tr><tr><td>O方块</td><td><code>[[1,1],[1,1]]</code></td><td><code>O</code></td></tr><tr><td>T方块</td><td><code>[[0,1,0],[1,1,1]]</code></td><td><code>T</code></td></tr><tr><td>S方块</td><td><code>[[0,1,1],[1,1,0]]</code></td><td><code>S</code></td></tr><tr><td>Z方块</td><td><code>[[1,1,0],[0,1,1]]</code></td><td><code>Z</code></td></tr><tr><td>J方块</td><td><code>[[1,0,0],[1,1,1]]</code></td><td><code>J</code></td></tr><tr><td>L方块</td><td><code>[[0,0,1],[1,1,1]]</code></td><td><code>L</code></td></tr></tbody></table>
+<h3>随机生成算法</h3>
+<p>系统实现了简单的随机生成算法，确保方块分布的随机性和平衡性：</p>
+<div class="mermaid">flowchart TD
+Start([开始生成]) --> GetNames["获取所有方块名称数组"]
+GetNames --> RandomIndex["生成0-6的随机索引"]
+RandomIndex --> SelectPiece["根据索引选择对应方块"]
+SelectPiece --> CloneObject["克隆方块对象"]
+CloneObject --> AddName["添加名称属性"]
+AddName --> ReturnPiece["返回生成的方块"]
+ReturnPiece --> End([结束])</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L23-L26">TetrisPage.jsx:23-26</a></li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L8-L16">TetrisPage.jsx:8-16</a></li><li><a href="file://src/pages/TetrisPage.jsx#L18">TetrisPage.jsx:18</a></li><li><a href="file://src/pages/TetrisPage.jsx#L23-L26">TetrisPage.jsx:23-26</a></li></ul>
+<h2>架构概览</h2>
+<h3>游戏系统架构</h3>
+<div class="mermaid">graph TB
+subgraph "用户界面层"
+UI[用户界面]
+Controls[控制面板]
+Stats[统计信息]
+end
+subgraph "游戏逻辑层"
+GameState[游戏状态管理]
+PieceSystem[方块系统]
+CollisionDetection[碰撞检测]
+RotationSystem[旋转系统]
+end
+subgraph "数据层"
+Board[(游戏板)]
+NextPiece[(下一个方块)]
+Score[(分数系统)]
+end
+subgraph "输入处理层"
+Keyboard[键盘输入]
+Timer[定时器]
+end
+UI --> GameState
+Controls --> GameState
+Stats --> GameState
+GameState --> PieceSystem
+PieceSystem --> CollisionDetection
+PieceSystem --> RotationSystem
+CollisionDetection --> Board
+RotationSystem --> Board
+GameState --> Board
+NextPiece --> PieceSystem
+Score --> GameState
+Keyboard --> Controls
+Timer --> GameState</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L63-L413">TetrisPage.jsx:63-413</a></li></ul>
+<h3>状态管理系统</h3>
+<div class="mermaid">stateDiagram-v2
+[<em>] --> 未开始
+未开始 --> 进行中 : 开始游戏
+进行中 --> 暂停 : 暂停
+暂停 --> 进行中 : 继续
+进行中 --> 游戏结束 : 游戏结束
+游戏结束 --> 进行中 : 重新开始
+state 进行中 {
+[</em>] --> 下落中
+下落中 --> 碰撞检测
+碰撞检测 --> 锁定方块
+锁定方块 --> 清理行
+清理行 --> 生成新方块
+生成新方块 --> 下落中
+}</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L63-L413">TetrisPage.jsx:63-413</a></li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L63-L413">TetrisPage.jsx:63-413</a></li></ul>
+<h2>详细组件分析</h2>
+<h3>方块系统核心实现</h3>
+<h4>形状矩阵定义</h4>
+<p>每个方块都使用二维数组表示其形状，其中1表示方块单元，0表示空位：</p>
+<div class="mermaid">classDiagram
+class Tetromino {
++Array[] shape
++string color
++string name
+}
+class I<em>Piece {
++Array[] shape = [[1,1,1,1]]
++string color = "I"
+}
+class O</em>Piece {
++Array[] shape = [[1,1],[1,1]]
++string color = "O"
+}
+class T<em>Piece {
++Array[] shape = [[0,1,0],[1,1,1]]
++string color = "T"
+}
+class S</em>Piece {
++Array[] shape = [[0,1,1],[1,1,0]]
++string color = "S"
+}
+class Z<em>Piece {
++Array[] shape = [[1,1,0],[0,1,1]]
++string color = "Z"
+}
+class J</em>Piece {
++Array[] shape = [[1,0,0],[1,1,1]]
++string color = "J"
+}
+class L<em>Piece {
++Array[] shape = [[0,0,1],[1,1,1]]
++string color = "L"
+}
+Tetromino <|-- I</em>Piece
+Tetromino <|-- O<em>Piece
+Tetromino <|-- T</em>Piece
+Tetromino <|-- S<em>Piece
+Tetromino <|-- Z</em>Piece
+Tetromino <|-- J<em>Piece
+Tetromino <|-- L</em>Piece</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L8-L16">TetrisPage.jsx:8-16</a></li></ul>
+<h4>随机生成算法实现</h4>
+<p>系统使用均匀分布的随机算法确保每种方块的出现概率相等：</p>
+<div class="mermaid">sequenceDiagram
+participant Game as 游戏引擎
+participant RNG as 随机数生成器
+participant Pieces as 方块集合
+participant Output as 输出结果
+Game->>Pieces : 获取方块名称数组
+Game->>RNG : 生成0-6的随机索引
+RNG-->>Game : 返回随机索引
+Game->>Pieces : 根据索引获取对应方块
+Game->>Output : 克隆并返回方块对象
+Output-->>Game : 返回生成的方块</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L23-L26">TetrisPage.jsx:23-26</a></li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L8-L16">TetrisPage.jsx:8-16</a></li><li><a href="file://src/pages/TetrisPage.jsx#L23-L26">TetrisPage.jsx:23-26</a></li></ul>
+<h3>旋转机制实现</h3>
+<h4>顺时针旋转算法</h4>
+<p>旋转算法基于矩阵转置和行列翻转的数学原理：</p>
+<div class="mermaid">flowchart TD
+Start([开始旋转]) --> GetDimensions["获取矩阵维度<br/>rows × cols"]
+GetDimensions --> CreateMatrix["创建新矩阵<br/>cols × rows"]
+CreateMatrix --> LoopRows["遍历原矩阵行"]
+LoopRows --> LoopCols["遍历原矩阵列"]
+LoopCols --> Transform["应用旋转公式:<br/>rotated[col][rows-1-row] = original[row][col]"]
+Transform --> LoopCols
+LoopCols --> LoopRows
+LoopRows --> Validate["验证旋转后位置"]
+Validate --> PositionValid{"位置有效?"}
+PositionValid --> |是| ReturnRotated["返回旋转后的矩阵"]
+PositionValid --> |否| TryKick["尝试踢墙机制"]
+TryKick --> ReturnOriginal["返回原始矩阵"]
+ReturnRotated --> End([结束])
+ReturnOriginal --> End</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L28-L38">TetrisPage.jsx:28-38</a></li><li><a href="file://src/pages/TetrisPage.jsx#L184-L197">TetrisPage.jsx:184-197</a></li></ul>
+<h4>踢墙机制实现</h4>
+<p>当旋转导致方块超出边界时，系统会尝试向左或向右移动方块：</p>
+<div class="mermaid">sequenceDiagram
+participant Player as 玩家
+participant Game as 游戏系统
+participant Rotation as 旋转函数
+participant Validation as 位置验证
+participant KickTest as 踢墙测试
+Player->>Game : 请求旋转
+Game->>Rotation : 执行顺时针旋转
+Rotation-->>Game : 返回旋转后的形状
+Game->>Validation : 验证新位置
+Validation-->>Game : 位置无效
+Game->>KickTest : 尝试向左踢墙
+KickTest-->>Game : 踢墙失败
+Game->>KickTest : 尝试向右踢墙
+KickTest-->>Game : 踢墙成功
+Game-->>Player : 更新方块位置</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L184-L197">TetrisPage.jsx:184-197</a></li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L28-L38">TetrisPage.jsx:28-38</a></li><li><a href="file://src/pages/TetrisPage.jsx#L184-L197">TetrisPage.jsx:184-197</a></li></ul>
+<h3>碰撞检测算法</h3>
+<h4>位置验证机制</h4>
+<p>碰撞检测算法通过检查方块的每个单元格来确定是否可以移动到新位置：</p>
+<div class="mermaid">flowchart TD
+Start([开始碰撞检测]) --> IterateCells["遍历方块的所有单元格"]
+IterateCells --> CheckCell{"单元格有值?"}
+CheckCell --> |否| NextCell["检查下一个单元格"]
+CheckCell --> |是| CalcPosition["计算在游戏板上的实际位置"]
+CalcPosition --> BoundsCheck{"位置在边界内?"}
+BoundsCheck --> |否| ReturnFalse["返回false"]
+BoundsCheck --> |是| OccupancyCheck{"目标位置被占用?"}
+OccupancyCheck --> |是| ReturnFalse
+OccupancyCheck --> |否| NextCell
+NextCell --> MoreCells{"还有更多单元格?"}
+MoreCells --> |是| IterateCells
+MoreCells --> |否| ReturnTrue["返回true"]
+ReturnFalse --> End([结束])
+ReturnTrue --> End</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L40-L51">TetrisPage.jsx:40-51</a></li></ul>
+<h4>幽灵方块实现</h4>
+<p>幽灵方块显示方块将要落下的位置，帮助玩家做出决策：</p>
+<div class="mermaid">sequenceDiagram
+participant Game as 游戏系统
+participant GhostCalc as 幽灵计算
+participant Validation as 位置验证
+participant Display as 显示更新
+Game->>GhostCalc : 计算幽灵位置
+GhostCalc->>Validation : 检查下方位置
+Validation-->>GhostCalc : 位置有效
+GhostCalc->>GhostCalc : 继续向下检查
+Validation-->>GhostCalc : 位置无效
+GhostCalc-->>Display : 返回幽灵位置
+Display-->>Game : 更新幽灵显示</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L53-L59">TetrisPage.jsx:53-59</a></li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L40-L51">TetrisPage.jsx:40-51</a></li><li><a href="file://src/pages/TetrisPage.jsx#L53-L59">TetrisPage.jsx:53-59</a></li></ul>
+<h3>游戏状态管理</h3>
+<h4>分数和等级系统</h4>
+<p>系统实现了基于行清除数量的分数计算和等级提升机制：</p>
+<table><thead><tr><th>行清除数量</th><th>基础分数</th><th>等级倍数</th><th>总分</th></tr></thead><tbody><tr><td>0行</td><td>0</td><td>n级</td><td>0</td></tr><tr><td>1行</td><td>100</td><td>n级</td><td>100n</td></tr><tr><td>2行</td><td>300</td><td>n级</td><td>300n</td></tr><tr><td>3行</td><td>500</td><td>n级</td><td>500n</td></tr><tr><td>4行</td><td>800</td><td>n级</td><td>800n</td></tr></tbody></table>
+<h4>硬降机制</h4>
+<p>硬降功能允许玩家直接将方块落到最底部：</p>
+<div class="mermaid">flowchart TD
+Start([开始硬降]) --> FindGhost["找到幽灵位置"]
+FindGhost --> CalcDistance["计算下落距离"]
+CalcDistance --> ApplyScore["按距离增加分数"]
+ApplyScore --> MoveToGhost["移动到幽灵位置"]
+MoveToGhost --> LockPiece["锁定方块"]
+LockPiece --> End([结束])</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L199-L209">TetrisPage.jsx:199-209</a></li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L125-L133">TetrisPage.jsx:125-133</a></li><li><a href="file://src/pages/TetrisPage.jsx#L199-L209">TetrisPage.jsx:199-209</a></li></ul>
+<h2>依赖关系分析</h2>
+<h3>外部依赖</h3>
+<p>项目使用现代化的React生态系统，主要依赖包括：</p>
+<div class="mermaid">graph TB
+subgraph "核心框架"
+React[React 19.2.4]
+ReactDOM[React DOM 19.2.4]
+end
+subgraph "路由系统"
+Router[React Router 7.14.0]
+end
+subgraph "状态管理"
+Zustand[Zustand 5.0.12]
+end
+subgraph "表单处理"
+HookForm[React Hook Form 7.72.1]
+Zod[Zod 4.3.6]
+Resolver[@hookform/resolvers 5.2.2]
+end
+subgraph "构建工具"
+Vite[Vite 8.0.4]
+ReactPlugin[@vitejs/plugin-react 6.0.1]
+end
+subgraph "开发工具"
+ESLint[ESLint 9.39.4]
+Typescript[@types/react 19.2.14]
+end
+React --> Router
+React --> HookForm
+HookForm --> Zod
+HookForm --> Resolver
+Zustand --> React
+ReactDOM --> React
+Vite --> ReactPlugin</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://package.json#L12-L31">package.json:12-31</a></li></ul>
+<h3>内部模块依赖</h3>
+<div class="mermaid">graph TB
+App[App.jsx] --> LoginPage[LoginPage.jsx]
+App --> DashboardPage[DashboardPage.jsx]
+App --> TetrisPage[TetrisPage.jsx]
+App --> ProtectedRoute[ProtectedRoute.jsx]
+LoginPage --> LoginForm[LoginForm.jsx]
+DashboardPage --> TetrisPage
+ProtectedRoute --> AuthStore[authStore.js]
+TetrisPage --> TetrisCSS[TetrisPage.css]
+LoginForm --> AuthStore
+DashboardPage --> AuthStore</div>
+<strong>图表来源</strong>
+<ul><li><a href="file://src/App.jsx#L1-L44">App.jsx:1-44</a></li><li><a href="file://src/components/LoginForm.jsx#L1-L78">LoginForm.jsx:1-78</a></li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://package.json#L12-L31">package.json:12-31</a></li><li><a href="file://src/App.jsx#L1-L44">App.jsx:1-44</a></li></ul>
+<h2>性能考虑</h2>
+<h3>游戏循环优化</h3>
+<p>系统使用定时器驱动的游戏循环，根据等级动态调整下落速度：</p>
+<ul><li><strong>基础速度</strong>: 800毫秒</li><li><strong>速度递增</strong>: 每级减少70毫秒</li><li><strong>最小速度</strong>: 100毫秒</li></ul>
+<h3>内存管理</h3>
+<ul><li>使用不可变数据结构更新游戏状态</li><li>通过引用缓存避免不必要的重渲染</li><li>合理的垃圾回收策略</li></ul>
+<h3>渲染优化</h3>
+<ul><li>CSS Grid用于高效的游戏板渲染</li><li>条件渲染减少DOM节点数量</li><li>幽灵方块使用透明度而非额外DOM元素</li></ul>
+<h2>故障排除指南</h2>
+<h3>常见问题及解决方案</h3>
+<h4>方块无法旋转</h4>
+<strong>症状</strong>: 方块旋转时立即回到原位置
+<strong>可能原因</strong>:
+1. 旋转后位置超出边界
+2. 踢墙机制失败
+3. 碰撞检测逻辑错误
+<strong>解决方法</strong>:
+<ul><li>检查旋转矩阵计算</li><li>验证踢墙偏移量</li><li>确认边界检查逻辑</li></ul>
+<h4>方块卡住不动</h4>
+<strong>症状</strong>: 方块在空中悬停不落
+<strong>可能原因</strong>:
+1. 定时器未正确启动
+2. 状态更新异常
+3. 碰撞检测误判
+<strong>解决方法</strong>:
+<ul><li>检查游戏状态切换</li><li>验证定时器清理逻辑</li><li>调试碰撞检测函数</li></ul>
+<h4>分数计算错误</h4>
+<strong>症状</strong>: 分数与预期不符
+<strong>可能原因</strong>:
+1. 行清除计数错误
+2. 等级倍数计算问题
+3. 硬降分数计算
+<strong>解决方法</strong>:
+<ul><li>验证行清除检测逻辑</li><li>检查等级提升条件</li><li>确认硬降分数加成</li></ul>
+<strong>章节来源</strong>
+<ul><li><a href="file://src/pages/TetrisPage.jsx#L155-L164">TetrisPage.jsx:155-164</a></li><li><a href="file://src/pages/TetrisPage.jsx#L125-L133">TetrisPage.jsx:125-133</a></li></ul>
+<h2>结论</h2>
+<p>本项目的方块系统实现了俄罗斯方块的核心功能，具有以下特点：</p>
+<h3>技术优势</h3>
+<p>1. <strong>清晰的架构设计</strong>: 模块化组件结构，职责分离明确
+2. <strong>高效的算法实现</strong>: 优化的碰撞检测和旋转算法
+3. <strong>良好的用户体验</strong>: 实时反馈和视觉效果
+4. <strong>可扩展性</strong>: 易于添加新功能和改进现有功能</p>
+<h3>功能完整性</h3>
+<ul><li>完整的七种标准方块支持</li><li>均匀分布的随机生成算法</li><li>标准化的旋转和踢墙机制</li><li>实时的碰撞检测和边界处理</li><li>完善的分数和等级系统</li></ul>
+<h3>改进建议</h3>
+<p>1. <strong>增加音效系统</strong>: 为各种游戏事件添加音效反馈
+2. <strong>实现预览功能</strong>: 展示多个后续方块
+3. <strong>添加难度选择</strong>: 提供不同的游戏难度级别
+4. <strong>优化移动端体验</strong>: 改进触摸控制和响应式设计</p>
+<p>该系统为学习React应用开发和游戏逻辑实现提供了优秀的参考案例，展示了现代前端技术在游戏开发中的应用。</p>
+      </article>
+      
+      <footer class="page-footer">
+        <p>React Login App 项目文档</p>
+      </footer>
+    </main>
+  </div>
+  
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true
+      }
+    });
+  </script>
+</body>
+</html>

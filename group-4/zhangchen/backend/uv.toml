@@ -1,0 +1,11 @@
+# uv 配置文件
+
+# 使用系统 Python
+python-preference = "system"
+
+# 使用国内 PyPI 镜像源
+index-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+
+[pip]
+# 生成 requirements.txt 时的选项
+generate-hashes = false

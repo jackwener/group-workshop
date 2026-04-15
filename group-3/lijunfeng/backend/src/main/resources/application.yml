@@ -1,0 +1,20 @@
+server:
+  port: 8080
+
+app:
+  data-dir: ./data
+  # LLM Provider 开关（true=模拟可用, false=模拟不可用）
+  copaw:
+    enabled: true
+    url: http://mock-copaw:8000
+    timeout-seconds: 20
+  bailian:
+    enabled: true
+    api-key: mock-key
+    timeout-seconds: 120
+
+spring:
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
