@@ -2,6 +2,27 @@
 
 本仓库用于小组工作坊，包含 8 个小组的工作目录。
 
+## Day 3 Lab 提交要求
+
+- 每个小组通过**分支**提交作业，**禁止直接 push 到 `main`**
+- 分支命名：`day3-group<N>`，例如 `day3-group8`
+- 代码位置：`group<N>/day3/` 目录下
+- 每个大组包含 **2 个项目组**，所以 `group<N>/day3/` 下应有 **2 个 project**，建议命名 `project-1/` 和 `project-2/`（或按项目主题命名）
+- 完成后开 **Pull Request** 到 `main`，PR 标题格式：`[day3] group<N>: <项目简述>`
+
+示例目录结构：
+
+```
+group-8/
+└── day3/
+    ├── project-1/     # 项目组 A 的前后端代码
+    │   ├── frontend/
+    │   └── backend/
+    └── project-2/     # 项目组 B 的前后端代码
+        ├── frontend/
+        └── backend/
+```
+
 ## 小组目录
 
 | 组别 | 目录 |
