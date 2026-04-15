@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>沙雕塔罗 - 命运揭示</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-bright": "#2d2a39",
+                    "on-tertiary-fixed-variant": "#446700",
+                    "on-secondary": "#005359",
+                    "inverse-primary": "#9a00d0",
+                    "tertiary-fixed": "#abfc00",
+                    "on-background": "#f5eefc",
+                    "surface-container": "#1b1823",
+                    "tertiary-fixed-dim": "#a0ed00",
+                    "on-tertiary-container": "#3c5c00",
+                    "surface-container-highest": "#272431",
+                    "on-primary-fixed-variant": "#4b0068",
+                    "surface-container-high": "#211e2a",
+                    "on-surface": "#f5eefc",
+                    "secondary-dim": "#00deec",
+                    "on-tertiary": "#436600",
+                    "background": "#0f0d16",
+                    "inverse-on-surface": "#57535f",
+                    "surface-tint": "#df8eff",
+                    "surface-container-lowest": "#000000",
+                    "primary-container": "#d878ff",
+                    "tertiary-dim": "#a0ed00",
+                    "tertiary-container": "#abfc00",
+                    "on-secondary-fixed": "#003f43",
+                    "primary": "#df8eff",
+                    "inverse-surface": "#fdf7ff",
+                    "secondary-fixed-dim": "#00deec",
+                    "on-primary-fixed": "#000000",
+                    "error-container": "#a70138",
+                    "surface-container-low": "#14121c",
+                    "primary-dim": "#bb00fc",
+                    "outline": "#78737f",
+                    "on-surface-variant": "#aea9b6",
+                    "surface-dim": "#0f0d16",
+                    "primary-fixed": "#d878ff",
+                    "outline-variant": "#494651",
+                    "on-secondary-fixed-variant": "#005e64",
+                    "on-primary-container": "#3d0055",
+                    "surface-variant": "#272431",
+                    "primary-fixed-dim": "#d061ff",
+                    "secondary-fixed": "#00eefc",
+                    "on-error": "#490013",
+                    "error-dim": "#d73357",
+                    "tertiary": "#deffab",
+                    "surface": "#0f0d16",
+                    "on-secondary-container": "#e3fdff",
+                    "on-primary": "#4f006d",
+                    "error": "#ff6e84",
+                    "secondary-container": "#006970",
+                    "on-tertiary-fixed": "#2e4800",
+                    "secondary": "#00eefc",
+                    "on-error-container": "#ffb2b9"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Space Grotesk"],
+                    "body": ["Manrope"],
+                    "label": ["Plus Jakarta Sans"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .perspective-1000 { perspective: 1000px; }
+        .glass-panel {
+            background: rgba(27, 24, 35, 0.6);
+            backdrop-filter: blur(20px);
+        }
+        .grainy-bg {
+            background-image: radial-gradient(circle at 20% 20%, rgba(223, 142, 255, 0.05) 0%, transparent 40%),
+                              radial-gradient(circle at 80% 80%, rgba(0, 238, 252, 0.05) 0%, transparent 40%);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body min-h-screen overflow-hidden grainy-bg">
+<!-- TopNavBar Cluster -->
+<nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 py-4 bg-transparent">
+<div class="text-2xl font-bold tracking-tighter text-purple-400 dark:text-purple-300 drop-shadow-[0_0_8px_rgba(223,142,255,0.6)] font-headline">
+            沙雕塔罗
+        </div>
+<div class="flex gap-6 items-center">
+<button class="material-symbols-outlined text-purple-400 hover:text-cyan-400 transition-colors duration-300" data-icon="auto_fix_high">auto_fix_high</button>
+<button class="material-symbols-outlined text-purple-400 hover:text-cyan-400 transition-colors duration-300" data-icon="settings">settings</button>
+</div>
+</nav>
+<!-- SideNavBar (Hidden on small) -->
+<aside class="hidden md:flex flex-col h-full w-72 fixed left-0 py-8 bg-slate-950/80 backdrop-blur-xl border-r border-white/10 z-40">
+<div class="px-6 mb-10">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container" data-icon="psychology_alt">psychology_alt</span>
+</div>
+<div>
+<h3 class="text-xl font-black text-purple-400 font-headline">沙雕祭司</h3>
+<p class="text-xs text-slate-400 font-label">当前业力：极高</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 text-cyan-400 bg-cyan-400/10 border-r-2 border-cyan-400 font-label" href="#">
+<span class="material-symbols-outlined" data-icon="auto_stories">auto_stories</span>
+<span>命运之书</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 transition-all font-label" href="#">
+<span class="material-symbols-outlined" data-icon="brightness_7">brightness_7</span>
+<span>混沌祭坛</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 transition-all font-label" href="#">
+<span class="material-symbols-outlined" data-icon="casino">casino</span>
+<span>荒诞图鉴</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 transition-all font-label" href="#">
+<span class="material-symbols-outlined" data-icon="psychology_alt">psychology_alt</span>
+<span>因果设置</span>
+</a>
+</nav>
+<div class="px-6 mt-auto">
+<button class="w-full py-3 bg-primary text-on-primary rounded-full font-bold text-sm hover:scale-95 transition-transform duration-200">
+                查看改命记录
+            </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="h-screen flex items-center justify-center relative px-4 md:pl-80">
+<!-- Background Particle Effects (Decorative) -->
+<div class="absolute inset-0 pointer-events-none overflow-hidden">
+<div class="absolute top-1/4 left-1/3 w-96 h-96 bg-primary/10 rounded-full blur-[120px]"></div>
+<div class="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[150px]"></div>
+</div>
+<!-- The Three Fateful Cards Container -->
+<div class="flex flex-wrap justify-center gap-6 md:gap-12 relative z-10 opacity-40 scale-95 pointer-events-none">
+<!-- PAST CARD -->
+<div class="relative w-48 h-72 md:w-56 md:h-80 perspective-1000 rotate-[-8deg] transform transition-all">
+<div class="w-full h-full bg-surface-container-high rounded-2xl border border-white/5 overflow-hidden flex flex-col p-4 shadow-2xl">
+<div class="text-[10px] font-bold uppercase tracking-wider font-label text-slate-500 mb-2">过去 / PAST</div>
+<div class="flex-1 bg-surface-container-lowest rounded-lg mb-3 relative overflow-hidden">
+<img class="w-full h-full object-cover grayscale opacity-60" data-alt="a sad cartoon fish trying to flip itself back into the ocean but landing on a beach chair with sunglasses, mystical neon aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAs8XNAI41FWZQbxxxCDwOpsJ7PlFpteT9efXsdCOZPaWDymGAdkbzs5c55rhHEftbbYNVqG_CmHAhT_YsggBf9L8M2IPw14xTjPQlP0lmnLnQqej057oRxBOUW6vuvd5IUBEebgv7_BFdma2Guo1DanRkZdbbWzrVf38vRYPcunp12qItGp2-yTM1GAL7Prw7Fse0jxmOVC3jOnf4HMQM1FYnCMcLHwATmcBgcakKqE6HcBw6tpEf9ZAiw6oGEj8Ct5FbFy1mzhH2y"/>
+<div class="absolute top-2 right-2 px-2 py-0.5 bg-slate-700 text-slate-200 text-[8px] font-bold rounded-full border border-white/10 uppercase font-label">普通</div>
+</div>
+<div class="text-center">
+<h4 class="text-sm font-headline font-bold text-slate-400">咸鱼翻身失败</h4>
+<p class="text-[10px] text-slate-600 mt-1">翻了个身，还是咸鱼。</p>
+</div>
+</div>
+</div>
+<!-- PRESENT CARD -->
+<div class="relative w-48 h-72 md:w-56 md:h-80 perspective-1000 transform transition-all">
+<div class="w-full h-full bg-surface-container-high rounded-2xl border border-secondary/20 overflow-hidden flex flex-col p-4 shadow-[0_0_30px_rgba(0,238,252,0.15)]">
+<div class="text-[10px] font-bold uppercase tracking-wider font-label text-secondary mb-2">现在 / PRESENT</div>
+<div class="flex-1 bg-surface-container-lowest rounded-lg mb-3 relative overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="a lazy cat lying on a keyboard with neon matrix code reflected in its fur, vibrant turquoise lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCI47CoCMKT4zYqwch1xpUQl6xTB2ySQz46Qm0vZ7FmHBBLnAz0-R2UcmyR8iqWI1RpCCryWE6ylJBm1QtnJ1pEEuoxMP_r6wgMiU5vzu4mSjLCqcK5rfisP0sSqaorqLOJpme1XKP5KmIvunjWmFWdM1iqghUGZ_huv63mDnzHMc_MlhEi37nGq_zs761tUWIF-GbGSue704EM0SrM2TUg7sfYemjeweQeagJN9jRby3rqthgqv7rYr3f7MGfljOHOVTwC8jLJeb0n"/>
+<div class="absolute top-2 right-2 px-2 py-0.5 bg-secondary/20 text-secondary text-[8px] font-bold rounded-full border border-secondary/40 uppercase font-label">稀有</div>
+</div>
+<div class="text-center">
+<h4 class="text-sm font-headline font-bold text-secondary">疯狂摸鱼中</h4>
+<p class="text-[10px] text-secondary/60 mt-1">鱼没摸到，水被搅浑了。</p>
+</div>
+</div>
+</div>
+<!-- FUTURE CARD -->
+<div class="relative w-48 h-72 md:w-56 md:h-80 perspective-1000 rotate-[8deg] transform transition-all">
+<div class="w-full h-full bg-surface-container-high rounded-2xl border border-primary/20 overflow-hidden flex flex-col p-4 shadow-[0_0_40px_rgba(223,142,255,0.2)]">
+<div class="text-[10px] font-bold uppercase tracking-wider font-label text-primary mb-2">未来 / FUTURE</div>
+<div class="flex-1 bg-surface-container-lowest rounded-lg mb-3 relative overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="a human figure floating in outer space surrounded by pizza slices and game controllers, psychedelic nebula colors" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDt0m8Gxf-f4KOOtyLfpDLUPYivrO-niQgOmjZxit6qepfbwwpTimrFHduKZbIQ4hHKiiZXc3SyMbBLbqGBne-g4FSNZxo7_WuLDgH_VmM0v9pslSZnZUYEnD6nqu9bx0D-_46i-VpcECXeDYuMLfUA9jat1xCCe2ZdBh6Wlj1oNEYegCaxpZu5v7ZNhOO7doMXQybsEo0gViJQZfE6N02Ez81SyTapa0X8iHS5O7BVn8nDlKyvCe1dzaPqUtuuZSwR3HzrYf7feGyn"/>
+<div class="absolute top-2 right-2 px-2 py-0.5 bg-primary/20 text-primary text-[8px] font-bold rounded-full border border-primary/40 uppercase font-label">传说</div>
+</div>
+<div class="text-center">
+<h4 class="text-sm font-headline font-bold text-primary">宇宙级摆烂</h4>
+<p class="text-[10px] text-primary/60 mt-1">万物归寂，我亦不动。</p>
+</div>
+</div>
+</div>
+</div>
+<!-- FATE DIALOG OVERLAY -->
+<div class="absolute inset-0 flex items-center justify-center z-50 p-6">
+<div class="max-w-md w-full glass-panel rounded-[2rem] p-8 text-center border border-white/10 shadow-[0_0_100px_rgba(15,13,22,1)] relative overflow-hidden">
+<!-- Dialog Accents -->
+<div class="absolute -top-10 -left-10 w-32 h-32 bg-secondary/20 blur-3xl"></div>
+<div class="absolute -bottom-10 -right-10 w-32 h-32 bg-primary/20 blur-3xl"></div>
+<div class="mb-6 inline-flex p-4 rounded-full bg-secondary-container/30 text-secondary">
+<span class="material-symbols-outlined text-4xl" data-icon="electric_bolt" style="font-variation-settings: 'FILL' 1;">electric_bolt</span>
+</div>
+<h2 class="text-3xl font-black font-headline mb-2 leading-tight">
+                    检测到业力波动...<br/>你要改命吗？
+                </h2>
+<p class="text-on-surface-variant font-label text-xs uppercase tracking-[0.2em] mb-8">
+                    DO YOU DARE TO CHANGE YOUR FATE?
+                </p>
+<div class="flex flex-col gap-4">
+<button class="group relative flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-primary to-primary-container text-on-primary rounded-full font-black font-headline text-lg overflow-hidden transition-all hover:shadow-[0_0_30px_rgba(223,142,255,0.6)]">
+<span class="material-symbols-outlined group-hover:rotate-180 transition-transform duration-500" data-icon="autorenew">autorenew</span>
+<span>逆天改命！</span>
+<div class="absolute top-0 right-4 h-full flex items-center">
+<span class="text-[10px] font-label bg-white/20 px-2 py-0.5 rounded-full">发疯值 -50</span>
+</div>
+</button>
+<button class="py-4 border border-outline-variant/30 text-on-surface-variant hover:text-on-surface hover:bg-white/5 rounded-full font-bold transition-all font-label text-sm">
+                        不改了，认命
+                    </button>
+</div>
+<div class="mt-8 flex justify-center items-center gap-2 text-[10px] text-slate-500 font-label uppercase tracking-widest">
+<span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+                    命运线极其不稳定
+                </div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-slate-950/60 backdrop-blur-md rounded-t-3xl border-t border-white/5 shadow-[0_-10px_30px_rgba(223,142,255,0.15)]">
+<a class="flex flex-col items-center justify-center bg-purple-500/20 text-purple-300 rounded-2xl px-4 py-1 shadow-[0_0_15px_rgba(223,142,255,0.3)]" href="#">
+<span class="material-symbols-outlined" data-icon="style" style="font-variation-settings: 'FILL' 1;">style</span>
+<span class="text-[10px] font-bold uppercase tracking-wider font-label mt-1">抽牌</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-lime-300 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="text-[10px] font-bold uppercase tracking-wider font-label mt-1">历史</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-lime-300 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span class="text-[10px] font-bold uppercase tracking-wider font-label mt-1">排行</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-lime-300 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-[10px] font-bold uppercase tracking-wider font-label mt-1">我的</span>
+</a>
+</nav>
+</body></html>

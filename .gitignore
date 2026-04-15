@@ -1,3 +1,9 @@
 .spec-workflow/
 node_modules/
 __pycache__/
+.gstack/
+
+# IDE and system files
+.DS_Store
+.idea/
+.qoder/

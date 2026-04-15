@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>沙雕塔罗 - 命运抽测</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&amp;family=Manrope:wght@400;600&amp;family=Plus+Jakarta+Sans:wght@400;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#2d2a39",
+                        "on-tertiary-fixed-variant": "#446700",
+                        "on-secondary": "#005359",
+                        "inverse-primary": "#9a00d0",
+                        "tertiary-fixed": "#abfc00",
+                        "on-background": "#f5eefc",
+                        "surface-container": "#1b1823",
+                        "tertiary-fixed-dim": "#a0ed00",
+                        "on-tertiary-container": "#3c5c00",
+                        "surface-container-highest": "#272431",
+                        "on-primary-fixed-variant": "#4b0068",
+                        "surface-container-high": "#211e2a",
+                        "on-surface": "#f5eefc",
+                        "secondary-dim": "#00deec",
+                        "on-tertiary": "#436600",
+                        "background": "#0f0d16",
+                        "inverse-on-surface": "#57535f",
+                        "surface-tint": "#df8eff",
+                        "surface-container-lowest": "#000000",
+                        "primary-container": "#d878ff",
+                        "tertiary-dim": "#a0ed00",
+                        "tertiary-container": "#abfc00",
+                        "on-secondary-fixed": "#003f43",
+                        "primary": "#df8eff",
+                        "inverse-surface": "#fdf7ff",
+                        "secondary-fixed-dim": "#00deec",
+                        "on-primary-fixed": "#000000",
+                        "error-container": "#a70138",
+                        "surface-container-low": "#14121c",
+                        "primary-dim": "#bb00fc",
+                        "outline": "#78737f",
+                        "on-surface-variant": "#aea9b6",
+                        "surface-dim": "#0f0d16",
+                        "primary-fixed": "#d878ff",
+                        "outline-variant": "#494651",
+                        "on-secondary-fixed-variant": "#005e64",
+                        "on-primary-container": "#3d0055",
+                        "surface-variant": "#272431",
+                        "primary-fixed-dim": "#d061ff",
+                        "secondary-fixed": "#00eefc",
+                        "on-error": "#490013",
+                        "error-dim": "#d73357",
+                        "tertiary": "#deffab",
+                        "surface": "#0f0d16",
+                        "on-secondary-container": "#e3fdff",
+                        "on-primary": "#4f006d",
+                        "error": "#ff6e84",
+                        "secondary-container": "#006970",
+                        "on-tertiary-fixed": "#2e4800",
+                        "secondary": "#00eefc",
+                        "on-error-container": "#ffb2b9"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Manrope"],
+                        "label": ["Plus Jakarta Sans"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .nebula-bg {
+            background: radial-gradient(circle at 20% 30%, rgba(223, 142, 255, 0.08) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 70%, rgba(0, 238, 252, 0.08) 0%, transparent 40%),
+                        radial-gradient(circle at 50% 50%, rgba(222, 255, 171, 0.03) 0%, transparent 60%);
+            position: relative;
+            overflow: hidden;
+        }
+        .nebula-bg::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(154, 0, 208, 0.03) 1px, rgba(154, 0, 208, 0.03) 2px);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 1;
+            animation: scan 8s linear infinite;
+        }
+        @keyframes scan {
+            from { transform: translateY(0); }
+            to { transform: translateY(100%); }
+        }
+
+        .tarot-grid {
+            perspective: 1200px;
+        }
+        .tarot-card {
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .tarot-card:not(.locked):hover {
+            transform: rotateY(10deg) rotateX(10deg) translateZ(20px);
+        }
+        .card-back-pattern {
+            background-image: 
+                linear-gradient(30deg, rgba(223, 142, 255, 0.1) 12%, transparent 12.5%, transparent 87%, rgba(223, 142, 255, 0.1) 87.5%, rgba(223, 142, 255, 0.1)),
+                linear-gradient(150deg, rgba(223, 142, 255, 0.1) 12%, transparent 12.5%, transparent 87%, rgba(223, 142, 255, 0.1) 87.5%, rgba(223, 142, 255, 0.1)),
+                linear-gradient(60deg, rgba(0, 238, 252, 0.05) 25%, transparent 25.5%, transparent 75%, rgba(0, 238, 252, 0.05) 75%, rgba(0, 238, 252, 0.05));
+            background-size: 40px 70px;
+        }
+
+        /* 3D Dice Styling */
+        .scene {
+            width: 120px;
+            height: 120px;
+            perspective: 600px;
+        }
+        .dice {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1s ease-out;
+            cursor: pointer;
+        }
+        .dice-face {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border: 2px solid rgba(223, 142, 255, 0.4);
+            background: rgba(15, 13, 22, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: bold;
+            color: #df8eff;
+            box-shadow: inset 0 0 20px rgba(223, 142, 255, 0.2);
+        }
+        .front  { transform: rotateY(0deg) translateZ(60px); }
+        .back   { transform: rotateY(180deg) translateZ(60px); }
+        .right  { transform: rotateY(90deg) translateZ(60px); }
+        .left   { transform: rotateY(-90deg) translateZ(60px); }
+        .top    { transform: rotateX(90deg) translateZ(60px); }
+        .bottom { transform: rotateX(-90deg) translateZ(60px); }
+
+        .dice.rolling {
+            animation: roll-infinite 0.6s linear infinite;
+        }
+        @keyframes roll-infinite {
+            from { transform: rotateX(0) rotateY(0) rotateZ(0); }
+            to { transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg); }
+        }
+
+        .chaos-pulse {
+            animation: pulse-border 2s ease-in-out infinite;
+        }
+        @keyframes pulse-border {
+            0%, 100% { border-color: rgba(223, 142, 255, 0.2); box-shadow: 0 0 0px rgba(223, 142, 255, 0); }
+            50% { border-color: rgba(0, 238, 252, 0.8); box-shadow: 0 0 20px rgba(0, 238, 252, 0.4); }
+        }
+        
+        .floating-spark {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #df8eff;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 60;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary selection:text-on-primary overflow-x-hidden">
+<!-- Sidebar Shell (SideNavBar) -->
+<aside class="hidden md:flex flex-col h-full py-8 bg-slate-950/80 backdrop-blur-xl h-full w-72 fixed left-0 border-r border-white/10 z-50 shadow-[20px_0_50px_rgba(15,13,22,0.8)]">
+<div class="px-6 mb-12">
+<h1 class="text-xl font-black text-purple-400 dark:text-purple-300 font-headline">沙雕祭司</h1>
+<p class="text-xs font-label uppercase tracking-widest text-slate-500 mt-1">当前业力：极高</p>
+</div>
+<nav class="flex-1 space-y-2 px-3">
+<div class="px-3 mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600 font-label">神谕控制台</div>
+<a class="group flex items-center gap-3 px-4 py-3 text-cyan-400 bg-cyan-400/10 border-r-2 border-cyan-400 transition-all font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="auto_stories">auto_stories</span>
+<span class="font-label uppercase tracking-wider text-sm">命运之书</span>
+</a>
+<a class="group flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 transition-all font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="brightness_7">brightness_7</span>
+<span class="font-label uppercase tracking-wider text-sm">混沌祭坛</span>
+</a>
+<a class="group flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 transition-all font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="casino">casino</span>
+<span class="font-label uppercase tracking-wider text-sm">荒诞图鉴</span>
+</a>
+<a class="group flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 transition-all font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="psychology_alt">psychology_alt</span>
+<span class="font-label uppercase tracking-wider text-sm">因果设置</span>
+</a>
+</nav>
+<div class="px-6 pt-6 mt-auto border-t border-white/5">
+<button class="w-full py-3 bg-primary/20 hover:bg-primary/30 text-primary-fixed font-bold rounded-xl transition-all font-label text-xs uppercase tracking-tighter">
+            查看改命记录
+        </button>
+</div>
+</aside>
+<!-- Top Navigation -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 py-4 bg-transparent md:pl-80">
+<div class="flex items-center gap-3">
+<span class="text-2xl font-bold tracking-tighter text-purple-400 dark:text-purple-300 drop-shadow-[0_0_8px_rgba(223,142,255,0.6)] font-headline">沙雕塔罗</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-purple-400 cursor-pointer hover:scale-110 transition-transform" data-icon="auto_fix_high">auto_fix_high</span>
+<span class="material-symbols-outlined text-purple-400 cursor-pointer hover:scale-110 transition-transform" data-icon="settings">settings</span>
+</div>
+</header>
+<!-- Chaos Dice Overlay -->
+<div class="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-background/80 backdrop-blur-md transition-opacity duration-1000" id="dice-overlay">
+<div class="text-center mb-12 max-w-md px-6">
+<h2 class="text-3xl font-bold font-headline text-primary mb-4">混沌仪式：扰动量子场</h2>
+<p class="text-slate-400 font-body text-sm">在揭示命运之前，你必须通过混沌骰子打破因果的连续性。</p>
+</div>
+<div class="scene mb-12">
+<div class="dice" id="chaos-dice">
+<div class="dice-face front">1</div>
+<div class="dice-face back">6</div>
+<div class="dice-face right">3</div>
+<div class="dice-face left">4</div>
+<div class="dice-face top">2</div>
+<div class="dice-face bottom">5</div>
+</div>
+</div>
+<button class="px-8 py-4 bg-transparent border-2 border-secondary text-secondary rounded-full font-headline font-bold text-lg hover:bg-secondary hover:text-on-secondary transition-all shadow-[0_0_20px_rgba(0,238,252,0.2)]" id="roll-btn">
+        投掷以扰动量子场
+    </button>
+</div>
+<!-- Main Content Area -->
+<main class="min-h-screen nebula-bg md:pl-72 pb-24 md:pb-12 pt-20 px-6 flex flex-col items-center">
+<!-- Ritual Progress Header -->
+<div class="w-full max-w-4xl flex flex-col items-center mb-12 text-center relative z-10">
+<div class="px-4 py-1.5 bg-secondary/10 border border-secondary/20 rounded-full mb-4">
+<span class="text-[10px] font-black uppercase tracking-[0.3em] text-secondary font-label" id="ritual-phase">等待混沌开启...</span>
+</div>
+<h2 class="text-4xl md:text-5xl font-bold font-headline mb-4 tracking-tight text-on-background">
+            触碰<span class="text-secondary drop-shadow-[0_0_15px_rgba(0,238,252,0.4)]">以太</span>，提取你的<span class="text-primary italic">荒诞记忆</span>
+</h2>
+<div class="flex items-center gap-6 mt-2">
+<div class="flex flex-col items-center">
+<span class="text-[10px] uppercase tracking-widest text-slate-500 font-label mb-1">当前进度</span>
+<div class="flex gap-2">
+<div class="w-3 h-3 rounded-full bg-slate-800 border border-white/10"></div>
+<div class="w-3 h-3 rounded-full bg-slate-800 border border-white/10"></div>
+<div class="w-3 h-3 rounded-full bg-slate-800 border border-white/10"></div>
+</div>
+</div>
+<div class="h-8 w-px bg-white/10"></div>
+<div class="flex flex-col items-start">
+<span class="text-[10px] uppercase tracking-widest text-slate-500 font-label mb-1">骰子加持</span>
+<span class="text-tertiary font-bold font-headline text-lg italic" id="dice-status">尚未观测</span>
+</div>
+</div>
+</div>
+<!-- 3x3 Card Matrix -->
+<div class="tarot-grid grid grid-cols-3 gap-4 md:gap-8 w-full max-w-3xl mb-12 relative z-10">
+<!-- Cards (Locked until dice roll) -->
+<div class="tarot-card locked relative aspect-[2/3] group cursor-not-allowed opacity-50 grayscale transition-all duration-700">
+<div class="absolute inset-0 bg-surface-container-highest rounded-2xl border border-white/10 shadow-2xl flex flex-col items-center justify-center card-back-pattern overflow-hidden">
+<div class="w-16 h-16 rounded-full border border-primary/30 flex items-center justify-center relative z-10">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="vortex">vertex_cluster</span>
+</div>
+</div>
+</div>
+<div class="tarot-card locked relative aspect-[2/3] group cursor-not-allowed opacity-50 grayscale transition-all duration-700">
+<div class="absolute inset-0 bg-surface-container-highest rounded-2xl border border-white/10 shadow-2xl flex flex-col items-center justify-center card-back-pattern overflow-hidden">
+<div class="w-16 h-16 rounded-full border border-secondary/30 flex items-center justify-center relative z-10">
+<span class="material-symbols-outlined text-secondary text-3xl" data-icon="vortex">vertex_cluster</span>
+</div>
+</div>
+</div>
+<div class="tarot-card locked relative aspect-[2/3] group cursor-not-allowed opacity-50 grayscale transition-all duration-700">
+<div class="absolute inset-0 bg-surface-container-highest rounded-2xl border border-white/10 shadow-2xl flex flex-col items-center justify-center card-back-pattern overflow-hidden">
+<div class="w-16 h-16 rounded-full border border-tertiary/30 flex items-center justify-center relative z-10">
+<span class="material-symbols-outlined text-tertiary text-3xl" data-icon="vortex">vertex_cluster</span>
+</div>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="tarot-card locked relative aspect-[2/3] group cursor-not-allowed opacity-50 grayscale transition-all duration-700">
+<div class="absolute inset-0 bg-surface-container-highest rounded-2xl border border-white/10 shadow-2xl flex flex-col items-center justify-center card-back-pattern overflow-hidden">
+<div class="w-16 h-16 rounded-full border border-primary/30 flex items-center justify-center relative z-10">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="vortex">vertex_cluster</span>
+</div>
+</div>
+</div>
+<div class="tarot-card locked relative aspect-[2/3] group cursor-not-allowed opacity-50 grayscale transition-all duration-700">
+<div class="absolute inset-0 bg-surface-container-highest rounded-2xl border border-white/10 shadow-2xl flex flex-col items-center justify-center card-back-pattern overflow-hidden">
+<div class="w-16 h-16 rounded-full border border-secondary/30 flex items-center justify-center relative z-10">
+<span class="material-symbols-outlined text-secondary text-3xl" data-icon="vortex">vertex_cluster</span>
+</div>
+</div>
+</div>
+<div class="tarot-card locked relative aspect-[2/3] group cursor-not-allowed opacity-50 grayscale transition-all duration-700">
+<div class="absolute inset-0 bg-surface-container-highest rounded-2xl border border-white/10 shadow-2xl flex flex-col items-center justify-center card-back-pattern overflow-hidden">
+<div class="w-16 h-16 rounded-full border border-tertiary/30 flex items-center justify-center relative z-10">
+<span class="material-symbols-outlined text-tertiary text-3xl" data-icon="vortex">vertex_cluster</span>
+</div>
+</div>
+</div>
+<!-- Row 3 -->
+<div class="tarot-card locked relative aspect-[2/3] group cursor-not-allowed opacity-50 grayscale transition-all duration-700">
+<div class="absolute inset-0 bg-surface-container-highest rounded-2xl border border-white/10 shadow-2xl flex flex-col items-center justify-center card-back-pattern overflow-hidden">
+<div class="w-16 h-16 rounded-full border border-primary/30 flex items-center justify-center relative z-10">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="vortex">vertex_cluster</span>
+</div>
+</div>
+</div>
+<div class="tarot-card locked relative aspect-[2/3] group cursor-not-allowed opacity-50 grayscale transition-all duration-700">
+<div class="absolute inset-0 bg-surface-container-highest rounded-2xl border border-white/10 shadow-2xl flex flex-col items-center justify-center card-back-pattern overflow-hidden">
+<div class="w-16 h-16 rounded-full border border-secondary/30 flex items-center justify-center relative z-10">
+<span class="material-symbols-outlined text-secondary text-3xl" data-icon="vortex">vertex_cluster</span>
+</div>
+</div>
+</div>
+<div class="tarot-card locked relative aspect-[2/3] group cursor-not-allowed opacity-50 grayscale transition-all duration-700">
+<div class="absolute inset-0 bg-surface-container-highest rounded-2xl border border-white/10 shadow-2xl flex flex-col items-center justify-center card-back-pattern overflow-hidden">
+<div class="w-16 h-16 rounded-full border border-tertiary/30 flex items-center justify-center relative z-10">
+<span class="material-symbols-outlined text-tertiary text-3xl" data-icon="vortex">vertex_cluster</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Ritual Controls -->
+<div class="flex flex-col items-center gap-6 relative z-10">
+<button class="px-10 py-5 bg-slate-800 text-slate-500 cursor-not-allowed rounded-full font-headline font-bold text-xl shadow-lg transition-all" id="main-ritual-btn">
+            开启灵觉 (请先投骰子)
+        </button>
+<p class="text-slate-500 text-sm italic font-body max-w-xs text-center">
+            “当你凝视卡牌时，卡牌也在凝视你的余额。”
+        </p>
+</div>
+</main>
+<!-- Bottom Navigation for Mobile -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-slate-950/60 backdrop-blur-md rounded-t-3xl border-t border-white/5 shadow-[0_-10px_30px_rgba(223,142,255,0.15)]">
+<a class="flex flex-col items-center justify-center bg-purple-500/20 text-purple-300 rounded-2xl px-4 py-1 shadow-[0_0_15px_rgba(223,142,255,0.3)]" href="#">
+<span class="material-symbols-outlined" data-icon="style">style</span>
+<span class="text-[10px] font-bold uppercase tracking-wider font-label mt-1">抽牌</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-lime-300 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="text-[10px] font-bold uppercase tracking-wider font-label mt-1">历史</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-lime-300 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span class="text-[10px] font-bold uppercase tracking-wider font-label mt-1">排行</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-lime-300 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-[10px] font-bold uppercase tracking-wider font-label mt-1">我的</span>
+</a>
+</nav>
+<!-- Background Elements -->
+<div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+<div class="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/5 blur-[120px] rounded-full"></div>
+<div class="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-secondary/5 blur-[150px] rounded-full"></div>
+</div>
+<script>
+    const rollBtn = document.getElementById('roll-btn');
+    const dice = document.getElementById('chaos-dice');
+    const diceOverlay = document.getElementById('dice-overlay');
+    const ritualPhase = document.getElementById('ritual-phase');
+    const diceStatus = document.getElementById('dice-status');
+    const mainRitualBtn = document.getElementById('main-ritual-btn');
+    const tarotCards = document.querySelectorAll('.tarot-card');
+
+    const diceResults = [
+        { label: "1: 命定之虚无", rot: "rotateX(0deg) rotateY(0deg)" },
+        { label: "2: 二元对立", rot: "rotateX(-90deg) rotateY(0deg)" },
+        { label: "3: 三重真理", rot: "rotateX(0deg) rotateY(-90deg)" },
+        { label: "4: 四大基本力", rot: "rotateX(0deg) rotateY(90deg)" },
+        { label: "5: 五维震荡", rot: "rotateX(90deg) rotateY(0deg)" },
+        { label: "6: 命运超活跃", rot: "rotateX(0deg) rotateY(180deg)" }
+    ];
+
+    function createSpark() {
+        const spark = document.createElement('div');
+        spark.className = 'floating-spark';
+        const rect = dice.getBoundingClientRect();
+        const startX = rect.left + rect.width / 2;
+        const startY = rect.top + rect.height / 2;
+        
+        spark.style.left = startX + 'px';
+        spark.style.top = startY + 'px';
+        
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 100 + Math.random() * 150;
+        const tx = Math.cos(angle) * dist;
+        const ty = Math.sin(angle) * dist;
+        
+        document.body.appendChild(spark);
+        
+        spark.animate([
+            { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+            { transform: `translate(${tx}px, ${ty}px) scale(0)`, opacity: 0 }
+        ], {
+            duration: 800 + Math.random() * 400,
+            easing: 'cubic-bezier(0, .9, .57, 1)'
+        }).onfinish = () => spark.remove();
+    }
+
+    rollBtn.addEventListener('click', () => {
+        rollBtn.disabled = true;
+        rollBtn.classList.add('opacity-0');
+        dice.classList.add('rolling');
+        
+        // Start sparks during roll
+        const sparkInterval = setInterval(createSpark, 50);
+
+        setTimeout(() => {
+            clearInterval(sparkInterval);
+            dice.classList.remove('rolling');
+            
+            const resultIndex = Math.floor(Math.random() * 6);
+            const result = diceResults[resultIndex];
+            
+            // Random extra spins for realism
+            dice.style.transform = `rotateX(${720 + 360}deg) rotateY(${720 + 360}deg) ${result.rot}`;
+            
+            setTimeout(() => {
+                // Flash effect
+                document.body.style.backgroundColor = 'rgba(223, 142, 255, 0.2)';
+                setTimeout(() => document.body.style.backgroundColor = '', 100);
+
+                // Reveal logic
+                diceOverlay.classList.add('opacity-0', 'pointer-events-none');
+                
+                // Update UI state
+                ritualPhase.textContent = "第一步：揭示过去";
+                diceStatus.textContent = result.label;
+                
+                // Unlock cards
+                tarotCards.forEach((card, idx) => {
+                    setTimeout(() => {
+                        card.classList.remove('locked', 'opacity-50', 'grayscale');
+                        card.classList.add('chaos-pulse', 'cursor-pointer');
+                        // Cards "re-shuffle" pulse effect
+                    }, idx * 100);
+                });
+
+                // Update main button
+                mainRitualBtn.classList.remove('bg-slate-800', 'text-slate-500', 'cursor-not-allowed');
+                mainRitualBtn.classList.add('bg-gradient-to-r', 'from-primary', 'to-primary-container', 'text-on-primary', 'shadow-[0_0_30px_rgba(223,142,255,0.4)]', 'hover:scale-105');
+                mainRitualBtn.textContent = "开启灵觉";
+                
+            }, 1000);
+        }, 2000);
+    });
+</script>
+</body></html>
