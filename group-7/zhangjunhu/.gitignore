@@ -10,7 +10,7 @@ dist-ssr/
 .vite/
 
 # Environment files
-.env
+# .env
 .env.local
 .env.*.local
 
