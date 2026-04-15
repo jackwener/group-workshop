@@ -199,8 +199,8 @@ function IRAApp() {
       {/* Header */}
       <Header className="ira-header">
         <Space align="center">
-          <RobotOutlined style={{ fontSize: 22, color: token.colorPrimary }} />
-          <Title level={4} style={{ margin: 0, color: '#fff' }}>投研问答助手 IRA</Title>
+          <RobotOutlined style={{ fontSize: 22, color: '#6366f1' }} />
+          <Title level={4} style={{ margin: 0, color: '#e0e6ed' }}>IRA · 智能投研助手</Title>
         </Space>
         <Space>{getCapabilityTag()}</Space>
       </Header>
@@ -229,7 +229,7 @@ function IRAApp() {
                   onClick={() => handleSelectSession(session)}
                 >
                   <div className="session-item-content">
-                    <MessageOutlined style={{ color: token.colorPrimary, marginRight: 8, flexShrink: 0 }} />
+                    <MessageOutlined style={{ color: '#6366f1', marginRight: 8, flexShrink: 0 }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <Text ellipsis strong style={{ display: 'block', fontSize: 13 }}>
                         {session.title}
@@ -259,7 +259,7 @@ function IRAApp() {
           {!currentSession ? (
             <div className="center-placeholder">
               <Empty
-                image={<RobotOutlined style={{ fontSize: 64, color: token.colorPrimary }} />}
+                image={<RobotOutlined style={{ fontSize: 64, color: '#6366f1' }} />}
                 description={
                   <Space direction="vertical" size={4}>
                     <Text type="secondary" style={{ fontSize: 16 }}>欢迎使用投研问答助手</Text>
@@ -275,7 +275,7 @@ function IRAApp() {
           ) : records.length === 0 && !loading ? (
             <div className="faq-container">
               <div className="faq-header">
-                <QuestionCircleOutlined style={{ fontSize: 20, color: token.colorPrimary }} />
+                <QuestionCircleOutlined style={{ fontSize: 20, color: '#6366f1' }} />
                 <Title level={5} style={{ margin: 0 }}>试试问我这些问题</Title>
               </div>
               <div className="faq-grid">
@@ -386,9 +386,16 @@ export default function App() {
     <ConfigProvider
       locale={zhCN}
       theme={{
+        algorithm: theme.darkAlgorithm,
         token: {
-          colorPrimary: '#1677ff',
+          colorPrimary: '#6366f1',
           borderRadius: 8,
+          colorBgContainer: '#111827',
+          colorBgElevated: '#1a2233',
+          colorBgLayout: '#0b0f19',
+          colorBorder: 'rgba(255,255,255,0.06)',
+          colorText: '#e0e6ed',
+          colorTextSecondary: '#6b7280',
         },
       }}
     >
