@@ -1,0 +1,105 @@
+examples:
+  - id: dashboard-ui
+    title:
+      zh: 企业级仪表板界面设计
+      en: Enterprise Dashboard UI Design
+    description:
+      zh: 设计现代化的企业数据分析仪表板界面
+      en: Design modern enterprise data analysis dashboard interfaces
+    prompt:
+      zh: |-
+        我需要为金融数据分析平台设计一个专业的仪表板界面。
+
+        设计要求：
+        - 目标用户：金融分析师和投资经理
+        - 核心功能：实时数据展示、趋势分析、风险监控
+        - 设计风格：极简主义，深色主题
+        - 技术栈：React + TypeScript + TailwindCSS
+
+        界面元素：
+        1. 实时股票价格卡片
+        2. 交互式图表区域
+        3. 风险预警面板
+        4. 数据筛选和搜索功能
+        5. 响应式布局适配
+
+        请帮我：
+        1. 设计整体视觉风格和色彩体系
+        2. 创建组件化的界面架构
+        3. 实现流畅的交互动效
+        4. 确保无障碍访问标准
+        5. 提供设计规范文档
+      en: |-
+        I need to design a professional dashboard interface for a financial data analysis platform.
+
+        Design requirements:
+        - Target users: Financial analysts and investment managers
+        - Core functions: Real-time data display, trend analysis, risk monitoring
+        - Design style: Minimalism, dark theme
+        - Tech stack: React + TypeScript + TailwindCSS
+
+        Interface elements:
+        1. Real-time stock price cards
+        2. Interactive chart areas
+        3. Risk warning panels
+        4. Data filtering and search functions
+        5. Responsive layout adaptation
+
+        Please help me:
+        1. Design overall visual style and color system
+        2. Create component-based interface architecture
+        3. Implement smooth interactive animations
+        4. Ensure accessibility standards
+        5. Provide design specification documentation
+  - id: landing-page
+    title:
+      zh: 创意营销落地页设计
+      en: Creative Marketing Landing Page Design
+    description:
+      zh: 设计富有创意的品牌营销落地页面
+      en: Design creative brand marketing landing pages
+    prompt:
+      zh: |-
+        我要为一家创新型设计工作室制作官网落地页。
+
+        品牌特色：
+        - 专注用户体验设计
+        - 服务涵盖UI/UX、品牌设计、动效设计
+        - 目标客户：科技创业公司和创新品牌
+        - 品牌调性：前卫、创意、专业
+
+        页面要求：
+        1. 视觉冲击力强的首屏设计
+        2. 流畅的滚动交互动画
+        3. 作品展示画廊
+        4. 服务介绍和案例展示
+        5. 联系咨询表单
+
+        请帮我：
+        1. 确定独特的设计美学方向
+        2. 设计引人入胜的视觉叙事
+        3. 创建响应式的交互动效
+        4. 优化页面加载性能
+        5. 确保移动端完美体验
+      en: |-
+        I want to create a homepage landing page for an innovative design studio.
+
+        Brand characteristics:
+        - Focus on user experience design
+        - Services include UI/UX, brand design, motion design
+        - Target clients: Tech startups and innovative brands
+        - Brand tone: Avant-garde, creative, professional
+
+        Page requirements:
+        1. Visually impactful hero screen design
+        2. Smooth scrolling interactive animations
+        3. Portfolio showcase gallery
+        4. Service introduction and case display
+        5. Contact inquiry form
+
+        Please help me:
+        1. Determine unique design aesthetic direction
+        2. Design engaging visual storytelling
+        3. Create responsive interactive animations
+        4. Optimize page loading performance
+        5. Ensure perfect mobile experience
