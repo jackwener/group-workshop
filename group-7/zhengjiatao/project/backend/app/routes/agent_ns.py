@@ -41,7 +41,20 @@ created_session_model = agent_ns.model('CreatedSessionResponse', {
 delete_session_model = agent_ns.model('DeleteSessionResponse', {
     'traceId': fields.String(description='链路追踪ID'),
     'deleted': fields.Boolean(description='是否删除成功'),
-    'deleted_records_count': fields.Integer(description='删除的记录数量')
+    'session_id': fields.String(description='被删除的会话ID')
+})
+
+# 更新会话请求模型
+update_session_model = agent_ns.model('UpdateSessionRequest', {
+    'title': fields.String(description='新的会话标题（必填，最大100字符）', example='宁德时代财报分析', required=True, max_length=100)
+})
+
+# 更新会话响应模型
+update_session_response_model = agent_ns.model('UpdateSessionResponse', {
+    'traceId': fields.String(description='链路追踪ID'),
+    'session_id': fields.String(description='会话ID'),
+    'title': fields.String(description='更新后的标题'),
+    'updated_at': fields.String(description='更新时间')
 })
 
 # 问答记录模型
@@ -138,6 +151,19 @@ class SessionList(Resource):
 @agent_ns.param('session_id', '会话ID（UUID格式）', example='550e8400-e29b-41d4-a716-446655440000')
 class Session(Resource):
     """单个会话管理"""
+    
+    @agent_ns.doc('update_session')
+    @agent_ns.expect(update_session_model)
+    @agent_ns.response(200, '更新成功', update_session_response_model)
+    @agent_ns.response(400, '标题无效或会话ID格式错误', error_response_model)
+    @agent_ns.response(404, '会话不存在', error_response_model)
+    def put(self, session_id):
+        """
+        更新会话标题
+        
+        更新指定会话的标题，用于首次问答后自动命名
+        """
+        pass
     
     @agent_ns.doc('delete_session')
     @agent_ns.response(200, '删除成功', delete_session_model)

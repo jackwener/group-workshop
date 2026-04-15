@@ -100,6 +100,67 @@ def create_session():
     }), 201
 
 
+@agent_bp.route("/sessions/<session_id>", methods=["PUT"])
+def update_session(session_id):
+    """
+    更新会话标题
+    PUT /api/v1/agent/sessions/<session_id>
+    
+    请求体:
+    {
+        "title": "新标题" (必填, ≤100字符)
+    }
+    """
+    # 验证session_id格式
+    if not session_id or not is_valid_uuid(session_id):
+        return error_response(
+            "INVALID_SESSION_ID",
+            "会话ID格式无效",
+            {},
+            400
+        )
+    
+    # 检查会话是否存在
+    session = storage.get_session(session_id)
+    if not session:
+        return error_response(
+            "SESSION_NOT_FOUND",
+            "会话不存在",
+            {"session_id": session_id},
+            404
+        )
+    
+    # 获取请求数据
+    data = request.get_json() or {}
+    title = data.get("title", "").strip()
+    
+    # 验证title
+    if not title:
+        return error_response(
+            "INVALID_TITLE",
+            "会话标题不能为空",
+            {},
+            400
+        )
+    
+    if len(title) > 100:
+        return error_response(
+            "INVALID_TITLE",
+            "会话标题过长",
+            {"max_length": 100},
+            400
+        )
+    
+    # 更新会话
+    updated_session = storage.update_session(session_id, {"title": title})
+    
+    return success_response({
+        "session_id": updated_session["session_id"],
+        "title": updated_session["title"],
+        "updated_at": updated_session["updated_at"]
+    })
+
+
 @agent_bp.route("/sessions/<session_id>", methods=["DELETE"])
 def delete_session(session_id):
     """
@@ -130,7 +191,7 @@ def delete_session(session_id):
     
     return success_response({
         "deleted": True,
-        "deleted_records_count": deleted_records_count
+        "session_id": session_id
     })
 
 
