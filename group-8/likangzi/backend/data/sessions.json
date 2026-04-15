@@ -40,5 +40,19 @@
     "created_at": "2026-04-14T09:00:44Z",
     "updated_at": "2026-04-14T09:00:44Z",
     "query_count": 0
+  },
+  {
+    "session_id": "73e50dfa-24ce-4308-bc54-d76963cfc395",
+    "title": "新会话",
+    "created_at": "2026-04-15T02:15:21Z",
+    "updated_at": "2026-04-15T02:15:21Z",
+    "query_count": 0
+  },
+  {
+    "session_id": "412204a9-c07c-4529-a6d5-dd5364dc4470",
+    "title": "新会话",
+    "created_at": "2026-04-15T02:55:12Z",
+    "updated_at": "2026-04-15T02:55:12Z",
+    "query_count": 0
   }
 ]

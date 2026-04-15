@@ -378,7 +378,7 @@ function App() {
 
       {/* Header 区域 */}
       <header className="header">
-        <h1>投研问答助手</h1>
+        <h1><svg className="logo-icon" width="26" height="26" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2L4 8v12l10 6 10-6V8L14 2z" stroke="#fff" strokeWidth="1.5" fill="none" opacity="0.9"/><circle cx="14" cy="14" r="4" fill="#fff" opacity="0.95"/><line x1="14" y1="10" x2="14" y2="4" stroke="#fff" strokeWidth="1.2" opacity="0.7"/><line x1="17.5" y1="12" x2="22" y2="8" stroke="#fff" strokeWidth="1.2" opacity="0.7"/><line x1="17.5" y1="16" x2="22" y2="20" stroke="#fff" strokeWidth="1.2" opacity="0.7"/><line x1="14" y1="18" x2="14" y2="24" stroke="#fff" strokeWidth="1.2" opacity="0.7"/><line x1="10.5" y1="16" x2="6" y2="20" stroke="#fff" strokeWidth="1.2" opacity="0.7"/><line x1="10.5" y1="12" x2="6" y2="8" stroke="#fff" strokeWidth="1.2" opacity="0.7"/></svg>投研小策</h1>
         <div className="capability-chips">{renderCapabilityChips()}</div>
       </header>
 
@@ -450,7 +450,7 @@ function App() {
             {/* 状态 B：有会话但无记录 */}
             {currentSession && activeTab === 'chat' && records.length === 0 && (
               <div className="welcome-state">
-                <h3>👋 欢迎使用投研问答助手</h3>
+                <h3>👋 欢迎使用投研小策</h3>
                 <p>选择一个常见问题开始，或直接输入您的问题</p>
                 <div className="suggested-questions">
                   {SUGGESTED_QUESTIONS.map((question, index) => (
