@@ -1,0 +1,472 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "投研问答助手 (IRA) API",
+    "description": "Investment Research Assistant - 投研问答助手后端 API 接口文档",
+    "version": "1.0.0",
+    "contact": {
+      "name": "IRA Team"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5001/api/v1/agent",
+      "description": "本地开发服务器"
+    }
+  ],
+  "tags": [
+    {
+      "name": "能力探测",
+      "description": "系统能力探测与健康检查"
+    },
+    {
+      "name": "会话管理",
+      "description": "会话的创建、查询、删除"
+    },
+    {
+      "name": "问答",
+      "description": "投研问答核心功能"
+    },
+    {
+      "name": "记录查询",
+      "description": "问答历史记录查询"
+    }
+  ],
+  "paths": {
+    "/capabilities": {
+      "get": {
+        "tags": ["能力探测"],
+        "summary": "获取系统能力配置状态",
+        "description": "返回 CoPaw、百炼、Demo 模式的配置状态",
+        "responses": {
+          "200": {
+            "description": "成功获取能力配置",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "traceId": {
+                      "type": "string",
+                      "example": "tr_a1b2c3d4e5f6"
+                    },
+                    "capabilities": {
+                      "type": "object",
+                      "properties": {
+                        "copaw_configured": {
+                          "type": "boolean",
+                          "description": "CoPaw 是否已配置",
+                          "example": true
+                        },
+                        "bailian_configured": {
+                          "type": "boolean",
+                          "description": "百炼是否已配置",
+                          "example": false
+                        },
+                        "demo_available": {
+                          "type": "boolean",
+                          "description": "Demo 模式是否可用",
+                          "example": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": ["能力探测"],
+        "summary": "健康检查与降级级别查询",
+        "description": "返回系统健康状态和当前降级级别 (normal/degraded/demo)",
+        "responses": {
+          "200": {
+            "description": "健康状态",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "traceId": {"type": "string"},
+                    "status": {
+                      "type": "string",
+                      "example": "healthy"
+                    },
+                    "copaw_available": {"type": "boolean", "example": true},
+                    "bailian_available": {"type": "boolean", "example": false},
+                    "demo_available": {"type": "boolean", "example": true},
+                    "current_level": {
+                      "type": "string",
+                      "description": "当前降级级别",
+                      "enum": ["normal", "degraded", "demo"],
+                      "example": "normal"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ask": {
+      "post": {
+        "tags": ["问答"],
+        "summary": "提交投研问答",
+        "description": "接收用户问题和会话ID，返回AI回答",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["query", "session_id"],
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "用户提问内容",
+                    "maxLength": 500,
+                    "example": "如何分析财报？"
+                  },
+                  "session_id": {
+                    "type": "string",
+                    "description": "会话 ID",
+                    "example": "sess_abc123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "问答成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "traceId": {"type": "string"},
+                    "answer": {
+                      "type": "string",
+                      "description": "AI 回答内容",
+                      "example": "分析财报主要关注以下几个方面..."
+                    },
+                    "llm_used": {
+                      "type": "boolean",
+                      "description": "是否使用了 LLM",
+                      "example": true
+                    },
+                    "model": {
+                      "type": "string",
+                      "description": "使用的模型名称",
+                      "example": "gpt-4"
+                    },
+                    "response_time_ms": {
+                      "type": "integer",
+                      "description": "响应时间（毫秒）",
+                      "example": 2345
+                    },
+                    "answer_source": {
+                      "type": "string",
+                      "description": "回答来源",
+                      "enum": ["copaw", "bailian", "demo"],
+                      "example": "copaw"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "会话不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sessions": {
+      "get": {
+        "tags": ["会话管理"],
+        "summary": "获取会话列表",
+        "description": "返回所有会话的列表，按更新时间倒序排序",
+        "responses": {
+          "200": {
+            "description": "成功获取会话列表",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "traceId": {"type": "string"},
+                    "sessions": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Session"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["会话管理"],
+        "summary": "创建新会话",
+        "description": "创建一个新的问答会话",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "会话标题",
+                    "maxLength": 23,
+                    "default": "新会话",
+                    "example": "财报分析"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "会话创建成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Session"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "标题过长",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sessions/{session_id}": {
+      "delete": {
+        "tags": ["会话管理"],
+        "summary": "删除会话",
+        "description": "删除指定会话及其所有问答记录",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "description": "会话 ID",
+            "schema": {
+              "type": "string"
+            },
+            "example": "sess_abc123"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "删除成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "traceId": {"type": "string"},
+                    "success": {"type": "boolean", "example": true},
+                    "deleted_session_id": {"type": "string", "example": "sess_abc123"}
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "会话不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sessions/{session_id}/records": {
+      "get": {
+        "tags": ["记录查询"],
+        "summary": "获取会话问答记录",
+        "description": "返回指定会话的所有问答历史记录",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "description": "会话 ID",
+            "schema": {
+              "type": "string"
+            },
+            "example": "sess_abc123"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功获取记录",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "traceId": {"type": "string"},
+                    "records": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/QARecord"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "会话不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Session": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "example": "sess_abc123"
+          },
+          "title": {
+            "type": "string",
+            "example": "新会话"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-15T08:30:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-15T09:15:00Z"
+          },
+          "query_count": {
+            "type": "integer",
+            "example": 5
+          }
+        }
+      },
+      "QARecord": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "rec_xyz789"
+          },
+          "query": {
+            "type": "string",
+            "example": "如何分析财报？"
+          },
+          "answer": {
+            "type": "string",
+            "example": "分析财报主要关注以下几个方面..."
+          },
+          "llm_used": {
+            "type": "boolean",
+            "example": true
+          },
+          "model": {
+            "type": "string",
+            "example": "gpt-4"
+          },
+          "answer_source": {
+            "type": "string",
+            "enum": ["copaw", "bailian", "demo"],
+            "example": "copaw"
+          },
+          "response_time_ms": {
+            "type": "integer",
+            "example": 2345
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-15T08:35:00Z"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "example": "SESSION_NOT_FOUND"
+              },
+              "message": {
+                "type": "string",
+                "example": "会话不存在"
+              },
+              "details": {
+                "type": "object"
+              },
+              "traceId": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
