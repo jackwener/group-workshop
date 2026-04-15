@@ -5,7 +5,9 @@ from flask import Blueprint, request, current_app
 from .helpers import ok, err
 from .storage import Storage
 from .agent import CoPawAgent
-from .report_parser import parse_report
+from .report_parser import parse_report, normalize_v1_data
+from .stock_mock import get_stock_detail as fetch_stock_detail
+from .opinion_analyzer import find_common_and_diff_opinions
 
 agent_bp = Blueprint("agent", __name__)
 
@@ -349,6 +351,43 @@ def get_records(id):
     return ok({"records": records})
 
 
+# ==================== 股票端点 ====================
+
+@agent_bp.route("/stock/<code>/detail", methods=["GET"])
+def get_stock_detail(code):
+    """
+    获取Mock股票详情
+    ---
+    tags:
+      - 股票
+    parameters:
+      - in: path
+        name: code
+        type: string
+        required: true
+        description: 股票代码（SH/SZ+6位数字）
+    responses:
+      200:
+        description: 股票详情
+      400:
+        description: 无效的股票代码格式
+      404:
+        description: 股票代码不存在
+    """
+    import re
+    # 1. 校验 code 格式
+    if not re.match(r'^(SH|SZ)\d{6}$', code):
+        return err("INVALID_STOCK_CODE", "无效的股票代码格式", status=400)
+    
+    # 2. 查询 Mock 数据
+    detail = fetch_stock_detail(code)
+    if not detail:
+        return err("STOCK_NOT_FOUND", "股票代码不存在", status=404)
+    
+    # 3. 返回成功
+    return ok(detail)
+
+
 # ==================== 研报端点 ====================
 
 @agent_bp.route("/reports/upload", methods=["POST"])
@@ -466,8 +505,14 @@ def get_reports():
     safe_reports = []
     for r in reports:
         safe_r = {k: v for k, v in r.items() if k not in ("file_path",)}
-        if safe_r.get("extracted_data") and "raw_text" in safe_r["extracted_data"]:
-            safe_r["extracted_data"] = {k: v for k, v in safe_r["extracted_data"].items() if k != "raw_text"}
+        ed = safe_r.get("extracted_data")
+        if ed:
+            # V1 -> V2 兼容转换
+            ed = normalize_v1_data(ed)
+            # 去掉原文字段
+            if "raw_text" in ed:
+                ed = {k: v for k, v in ed.items() if k != "raw_text"}
+            safe_r["extracted_data"] = ed
         safe_reports.append(safe_r)
     return ok({"reports": safe_reports})
 
@@ -496,7 +541,47 @@ def get_report_detail(report_id):
         return err("REPORT_NOT_FOUND", "研报不存在", status=404)
     # 不暴露 file_path
     safe_report = {k: v for k, v in report.items() if k != "file_path"}
+    # 对旧格式数据进行兼容转换
+    if safe_report.get("extracted_data"):
+        safe_report["extracted_data"] = normalize_v1_data(safe_report["extracted_data"])
     return ok({"report": safe_report})
+
+
+@agent_bp.route("/reports/<report_id>", methods=["DELETE"])
+def delete_report(report_id):
+    """
+    删除研报
+    ---
+    tags:
+      - 研报
+    parameters:
+      - in: path
+        name: report_id
+        type: string
+        required: true
+        description: 研报ID（rpt_前缀）
+    responses:
+      200:
+        description: 删除成功
+      404:
+        description: 研报不存在
+      500:
+        description: 删除失败
+    """
+    storage = Storage(current_app.config["DATA_DIR"])
+    
+    # 检查该研报是否存在
+    report = storage.get_report_by_id(report_id)
+    if not report:
+        return err("REPORT_NOT_FOUND", "研报不存在", status=404)
+    
+    # 执行级联删除
+    success = storage.delete_report(report_id)
+    if not success:
+        return err("DELETE_FAILED", "删除失败", status=500)
+    
+    # 返回确认
+    return ok({"message": f"研报 {report_id} 已删除"})
 
 
 @agent_bp.route("/reports/compare", methods=["POST"])
@@ -553,6 +638,8 @@ def compare_reports():
     
     for report in reports:
         ed = report.get("extracted_data") or {}
+        # 对旧格式数据进行兼容转换
+        ed = normalize_v1_data(ed)
         comparison_table["reports"].append({
             "report_id": report["report_id"],
             "file_name": report["file_name"],
@@ -561,4 +648,54 @@ def compare_reports():
             "key_points": ed.get("key_points", []),
         })
     
-    return ok({"comparison_table": comparison_table})
+    # 计算共同观点和差异观点
+    common_opinions = []
+    diff_opinions = []
+    
+    if len(reports) >= 2:
+        # 对所有研报组合进行两两对比
+        for i in range(len(reports)):
+            for j in range(i + 1, len(reports)):
+                report_a = reports[i]
+                report_b = reports[j]
+                
+                # 获取并规范化 extracted_data
+                ed_a = normalize_v1_data(report_a.get("extracted_data") or {})
+                ed_b = normalize_v1_data(report_b.get("extracted_data") or {})
+                
+                # 提取 key_points（已是 object[] 格式）
+                kp_a = ed_a.get("key_points", [])
+                kp_b = ed_b.get("key_points", [])
+                
+                # 调用观点分析
+                result = find_common_and_diff_opinions(kp_a, kp_b, threshold=0.7)
+                
+                # 构造共同观点响应格式
+                for common in result.get("common_opinions", []):
+                    common_opinions.append({
+                        "text": common.get("text", ""),
+                        "reports": [
+                            {"report_id": report_a["report_id"], "file_name": report_a["file_name"]},
+                            {"report_id": report_b["report_id"], "file_name": report_b["file_name"]}
+                        ]
+                    })
+                
+                # 构造差异观点响应格式
+                if result.get("diff_opinions_a"):
+                    diff_opinions.append({
+                        "report_id": report_a["report_id"],
+                        "file_name": report_a["file_name"],
+                        "opinions": result["diff_opinions_a"]
+                    })
+                if result.get("diff_opinions_b"):
+                    diff_opinions.append({
+                        "report_id": report_b["report_id"],
+                        "file_name": report_b["file_name"],
+                        "opinions": result["diff_opinions_b"]
+                    })
+    
+    return ok({
+        "comparison_table": comparison_table,
+        "common_opinions": common_opinions,
+        "diff_opinions": diff_opinions
+    })

@@ -1,26 +1,5 @@
 [
   {
-    "session_id": "e03e5b58-4c55-41ba-a125-1ce25321c4ea",
-    "title": "基金投资入门",
-    "created_at": "2026-04-14T08:15:10Z",
-    "updated_at": "2026-04-14T08:15:10Z",
-    "query_count": 4
-  },
-  {
-    "session_id": "6d30fe43-82f4-4bc9-9bca-70aa88bc585c",
-    "title": "A股市场分析",
-    "created_at": "2026-04-14T08:15:10Z",
-    "updated_at": "2026-04-14T08:15:10Z",
-    "query_count": 3
-  },
-  {
-    "session_id": "4b94e2c6-18ed-4b90-853c-9def9bab4dff",
-    "title": "量化交易策略",
-    "created_at": "2026-04-14T08:15:10Z",
-    "updated_at": "2026-04-14T08:15:10Z",
-    "query_count": 3
-  },
-  {
     "session_id": "9160f15c-e7bf-492e-b34a-897bd7442c79",
     "title": "贵州茅台最新评级？...",
     "created_at": "2026-04-14T08:28:18Z",
@@ -33,12 +12,5 @@
     "created_at": "2026-04-14T08:29:50Z",
     "updated_at": "2026-04-14T08:30:24Z",
     "query_count": 1
-  },
-  {
-    "session_id": "6d0edd1c-e8ca-416a-adf4-9a188a69b077",
-    "title": "新会话",
-    "created_at": "2026-04-14T09:00:44Z",
-    "updated_at": "2026-04-14T09:00:44Z",
-    "query_count": 0
   }
 ]
