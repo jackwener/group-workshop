@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>沙雕塔罗 - 最终命运报告</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#2d2a39",
+                        "on-tertiary-fixed-variant": "#446700",
+                        "on-secondary": "#005359",
+                        "inverse-primary": "#9a00d0",
+                        "tertiary-fixed": "#abfc00",
+                        "on-background": "#f5eefc",
+                        "surface-container": "#1b1823",
+                        "tertiary-fixed-dim": "#a0ed00",
+                        "on-tertiary-container": "#3c5c00",
+                        "surface-container-highest": "#272431",
+                        "on-primary-fixed-variant": "#4b0068",
+                        "surface-container-high": "#211e2a",
+                        "on-surface": "#f5eefc",
+                        "secondary-dim": "#00deec",
+                        "on-tertiary": "#436600",
+                        "background": "#0f0d16",
+                        "inverse-on-surface": "#57535f",
+                        "surface-tint": "#df8eff",
+                        "surface-container-lowest": "#000000",
+                        "primary-container": "#d878ff",
+                        "tertiary-dim": "#a0ed00",
+                        "tertiary-container": "#abfc00",
+                        "on-secondary-fixed": "#003f43",
+                        "primary": "#df8eff",
+                        "inverse-surface": "#fdf7ff",
+                        "secondary-fixed-dim": "#00deec",
+                        "on-primary-fixed": "#000000",
+                        "error-container": "#a70138",
+                        "surface-container-low": "#14121c",
+                        "primary-dim": "#bb00fc",
+                        "outline": "#78737f",
+                        "on-surface-variant": "#aea9b6",
+                        "surface-dim": "#0f0d16",
+                        "primary-fixed": "#d878ff",
+                        "outline-variant": "#494651",
+                        "on-secondary-fixed-variant": "#005e64",
+                        "on-primary-container": "#3d0055",
+                        "surface-variant": "#272431",
+                        "primary-fixed-dim": "#d061ff",
+                        "secondary-fixed": "#00eefc",
+                        "on-error": "#490013",
+                        "error-dim": "#d73357",
+                        "tertiary": "#deffab",
+                        "surface": "#0f0d16",
+                        "on-secondary-container": "#e3fdff",
+                        "on-primary": "#4f006d",
+                        "error": "#ff6e84",
+                        "secondary-container": "#006970",
+                        "on-tertiary-fixed": "#2e4800",
+                        "secondary": "#00eefc",
+                        "on-error-container": "#ffb2b9"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Manrope"],
+                        "label": ["Plus Jakarta Sans"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(33, 30, 42, 0.6);
+            backdrop-filter: blur(20px);
+        }
+        .neon-glow-primary {
+            box-shadow: 0 0 20px rgba(223, 142, 255, 0.2);
+        }
+        .neon-text-secondary {
+            text-shadow: 0 0 8px rgba(0, 238, 252, 0.5);
+        }
+        .perspective-card {
+            perspective: 1000px;
+        }
+        .perspective-card:hover .card-inner {
+            transform: rotateY(10deg) rotateX(5deg);
+        }
+        .card-inner {
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 py-4 bg-transparent">
+<div class="text-2xl font-bold tracking-tighter text-purple-400 dark:text-purple-300 drop-shadow-[0_0_8px_rgba(223,142,255,0.6)] font-headline">
+            沙雕塔罗
+        </div>
+<div class="flex gap-4">
+<button class="text-slate-500 dark:text-slate-400 hover:text-cyan-400 transition-colors duration-300">
+<span class="material-symbols-outlined">auto_fix_high</span>
+</button>
+<button class="text-slate-500 dark:text-slate-400 hover:text-cyan-400 transition-colors duration-300">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<main class="min-h-screen pt-24 pb-32 px-4 md:px-8 max-w-6xl mx-auto">
+<!-- Result Report Section -->
+<div class="relative grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- Left: Card Spread (3-Stage) -->
+<div class="lg:col-span-7 space-y-8">
+<div class="flex flex-col gap-6">
+<h2 class="font-headline text-4xl font-bold tracking-tight text-primary neon-text-secondary">最终命运裁决</h2>
+<p class="font-label text-sm uppercase tracking-[0.2em] text-on-surface-variant">Three-Phase Destiny Synthesis</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<!-- Phase 1 Card -->
+<div class="perspective-card group">
+<div class="card-inner relative aspect-[2/3] rounded-2xl overflow-hidden bg-surface-container-highest border border-white/5 shadow-2xl transition-all duration-500 group-hover:shadow-primary/20">
+<img class="w-full h-full object-cover opacity-80" data-alt="abstract psychedelic tarot card illustration with neon purple swirls and eye motif dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAujDv_t-_boGNvwB19WCmiCRFIquzEl5gpO-_vLQ9ar_66UgoPRSPFA3Av_BrOyHdpgw0__HxCSOJVuEPE2McL2D5G63K_4CK3n9XDyr3xzKcHH7ZrQueBjBRv2ZBJhqTgmULUuMWX8KkkQfghJBxIXzI8hRMUrfwtESCF08Tw2bVt4slu04-YRXxCV3sqQYrBZobJV5htESSA-YJDLcj8etY-ju892hKiQcJOGr4qbgQla0VtpLoSRIivzn6jjSlMTsTkc0xr7M0g"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest to-transparent opacity-90"></div>
+<div class="absolute bottom-4 left-4 right-4">
+<span class="font-label text-[10px] text-primary uppercase tracking-widest block mb-1">过去 · 起因</span>
+<h3 class="font-headline text-xl font-bold text-white">进击的咸鱼</h3>
+</div>
+</div>
+</div>
+<!-- Phase 2 Card -->
+<div class="perspective-card group scale-105 z-10">
+<div class="card-inner relative aspect-[2/3] rounded-2xl overflow-hidden bg-surface-container-highest border border-secondary/30 shadow-[0_0_30px_rgba(0,238,252,0.15)] transition-all duration-500">
+<img class="w-full h-full object-cover opacity-80" data-alt="cosmic nebula art with cyan and electric blue colors mystical digital painting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBK27CZ9foxPWA4A2uL0vyJBjtTdEaFgqqFWCmAjGXn-7NwBVxlT8utGpGwQptG8jLnfhbcYIKYzmm7bVKuM9eJFh7pGne8y7maDjJnP6GvWsOaOKjnixSGWBtD7lsKSurH5QpTbw0gNu3qenOkCv9BGiQpi1PojUHPdp4J5dL2fET--wmw6yvNwIgraKwbIcWmBTIruQNx0AOWyxiTJWoCruq6uAiF6XJA3SbFI3q70JbM2RqUM2_EHPp4GHKWT8snuYRSeKs7NX8A"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest to-transparent opacity-90"></div>
+<div class="absolute bottom-4 left-4 right-4 text-center">
+<span class="font-label text-[10px] text-secondary uppercase tracking-widest block mb-1">现在 · 纠缠</span>
+<h3 class="font-headline text-xl font-bold text-white">凌晨三点的猫头鹰</h3>
+</div>
+</div>
+</div>
+<!-- Phase 3 Card -->
+<div class="perspective-card group">
+<div class="card-inner relative aspect-[2/3] rounded-2xl overflow-hidden bg-surface-container-highest border border-white/5 shadow-2xl transition-all duration-500">
+<img class="w-full h-full object-cover opacity-80" data-alt="modern abstract art with geometric shapes and neon green accents dark mystical style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCndwLMSro0wkhkGB6ar_i6X0XzA9V2aKPpP3EX3Rbp1gqVSCttxzoTKnpoBHFDsvFDYOoHXPAQFEh66EDHx5iMl64OvP9AZVbYc8gGssiDPfI0t0LsdS227GtkN7MubSuXMDVUgxwQIYMAAXiSboUeNl7C54mpbjbdG1VHNXnqsQQSIuXqcOHw6AmnAnyxYYBbeQkI2bhBYI3-YUuL5I_jnPxtGdyf6hulwvoVSpIlxQYNqr7rUyvaiNwcxOWQQbG7DTxGcSfekz-Z"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest to-transparent opacity-90"></div>
+<div class="absolute bottom-4 left-4 right-4 text-right">
+<span class="font-label text-[10px] text-tertiary uppercase tracking-widest block mb-1">未来 · 劫数</span>
+<h3 class="font-headline text-xl font-bold text-white">发光的热干面</h3>
+</div>
+</div>
+</div>
+</div>
+<!-- Summary Text -->
+<div class="mt-12 p-8 rounded-3xl bg-surface-container-low border border-white/5 relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-6xl">format_quote</span>
+</div>
+<p class="text-2xl md:text-3xl font-headline font-medium leading-relaxed text-on-surface">
+                        “你的命运就像掉在沙滩上的<span class="text-tertiary">冰淇淋</span>，虽然可惜，但很有<span class="text-secondary italic underline decoration-secondary/30 underline-offset-8">艺术感</span>。”
+                    </p>
+<div class="mt-6 flex items-center gap-3">
+<div class="w-8 h-[1px] bg-outline-variant"></div>
+<span class="font-label text-xs tracking-widest text-on-surface-variant">祭司的最终批注</span>
+</div>
+</div>
+</div>
+<!-- Right: Status & Actions -->
+<div class="lg:col-span-5 space-y-6 lg:sticky lg:top-32">
+<!-- Status Bars -->
+<div class="glass-panel p-8 rounded-[2rem] border border-white/5 shadow-2xl">
+<h4 class="font-label text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-8 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">analytics</span> 今日魂魄状态
+                    </h4>
+<div class="space-y-8">
+<!-- Luck -->
+<div class="space-y-3">
+<div class="flex justify-between items-end">
+<label class="text-sm font-medium text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg" style="font-variation-settings: 'FILL' 1;">star</span> 运势
+                                </label>
+<span class="font-headline text-lg font-bold text-primary">88%</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary to-primary-container w-[88%] rounded-full shadow-[0_0_10px_rgba(223,142,255,0.4)]"></div>
+</div>
+</div>
+<!-- Madness -->
+<div class="space-y-3">
+<div class="flex justify-between items-end">
+<label class="text-sm font-medium text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary text-lg" style="font-variation-settings: 'FILL' 1;">psychology</span> 发疯值
+                                </label>
+<span class="font-headline text-lg font-bold text-tertiary">MAX</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-tertiary w-full rounded-full shadow-[0_0_10px_rgba(222,255,171,0.4)]"></div>
+</div>
+</div>
+<!-- Action -->
+<div class="space-y-3">
+<div class="flex justify-between items-end">
+<label class="text-sm font-medium text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-lg" style="font-variation-settings: 'FILL' 1;">bolt</span> 行动力
+                                </label>
+<span class="font-headline text-lg font-bold text-secondary">12%</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[12%] rounded-full shadow-[0_0_10px_rgba(0,238,252,0.4)]"></div>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-8 border-t border-white/5 flex gap-4">
+<div class="flex-1 bg-surface-container rounded-2xl p-4 text-center">
+<div class="text-xs text-on-surface-variant font-label mb-1">业力积分</div>
+<div class="text-xl font-headline font-bold text-on-surface">+1,204</div>
+</div>
+<div class="flex-1 bg-surface-container rounded-2xl p-4 text-center">
+<div class="text-xs text-on-surface-variant font-label mb-1">次元等级</div>
+<div class="text-xl font-headline font-bold text-on-surface">混沌</div>
+</div>
+</div>
+</div>
+<!-- CTA Actions -->
+<div class="grid grid-cols-1 gap-4">
+<button class="w-full py-6 bg-gradient-to-r from-primary to-primary-container text-on-primary font-headline text-xl font-bold rounded-3xl flex items-center justify-center gap-3 shadow-2xl hover:scale-[1.02] active:scale-95 transition-all duration-300">
+<span class="material-symbols-outlined text-2xl">refresh</span>
+                        再来一次
+                    </button>
+<button class="w-full py-5 bg-surface-container-highest text-secondary border border-secondary/20 font-label text-sm font-bold uppercase tracking-widest rounded-3xl flex items-center justify-center gap-3 hover:bg-secondary/10 transition-all duration-300">
+<span class="material-symbols-outlined">share_reviews</span>
+                        一键生成“精美分享卡”
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- Share Card Floating Action (Optional Hybrid) -->
+<div class="fixed bottom-24 right-8 z-40 hidden md:block">
+<div class="group relative">
+<div class="absolute -inset-1 bg-gradient-to-r from-secondary to-tertiary rounded-full blur opacity-40 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+<button class="relative bg-surface-container-highest p-4 rounded-full border border-white/10 text-white flex items-center justify-center">
+<span class="material-symbols-outlined">photo_library</span>
+</button>
+</div>
+</div>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-slate-950/60 backdrop-blur-md rounded-t-3xl border-t border-white/5 shadow-[0_-10px_30px_rgba(223,142,255,0.15)]">
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-lime-300 transition-all" href="#">
+<span class="material-symbols-outlined">style</span>
+<span class="text-[10px] font-bold uppercase tracking-wider font-label mt-1">抽牌</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-purple-500/20 text-purple-300 rounded-2xl px-4 py-1 shadow-[0_0_15px_rgba(223,142,255,0.3)]" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="text-[10px] font-bold uppercase tracking-wider font-label mt-1">历史</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-lime-300 transition-all" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="text-[10px] font-bold uppercase tracking-wider font-label mt-1">排行</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 hover:text-lime-300 transition-all" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-bold uppercase tracking-wider font-label mt-1">我的</span>
+</a>
+</nav>
+<!-- Background Decorative Elements -->
+<div class="fixed top-0 left-0 w-full h-full -z-50 pointer-events-none overflow-hidden">
+<div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/10 blur-[120px]"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-secondary/10 blur-[120px]"></div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full opacity-20" style="background-image: radial-gradient(#494651 1px, transparent 1px); background-size: 40px 40px;"></div>
+</div>
+</body></html>
