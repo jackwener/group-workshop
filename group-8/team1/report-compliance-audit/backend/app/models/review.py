@@ -69,6 +69,7 @@ class Review(db.Model):
             'mode': self.mode,
             'status': self.status,
             'score': self.score,
+            'fileName': self.file_name,
             'complianceIssues': self.compliance_issues,
             'contentIssues': self.content_issues,
             'submittedAt': self.submitted_at.isoformat() + '+08:00' if self.submitted_at else None,

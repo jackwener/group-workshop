@@ -305,6 +305,49 @@ def list_reviews():
     return paginated_response(items, total, page, page_size), 200
 
 
+@review_bp.route('/<review_id>/file', methods=['GET'])
+def get_review_file(review_id):
+    """
+    获取原始研报文件
+    ---
+    tags:
+      - Reviews
+    parameters:
+      - name: review_id
+        in: path
+        type: string
+        required: true
+        description: 审核记录ID
+    produces:
+      - application/pdf
+      - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+    responses:
+      200:
+        description: 成功返回原始文件
+      404:
+        description: 审核记录或文件不存在
+    """
+    import os
+    from flask import send_file
+    
+    review = review_service.get_review(review_id)
+    
+    # file_path 存的是相对路径，转为绝对路径
+    abs_path = os.path.abspath(review.file_path) if review.file_path else None
+    if not abs_path or not os.path.exists(abs_path):
+        raise NotFoundError(ErrorCodes.REVIEW_NOT_FOUND, "原始文件不存在")
+    
+    _, ext = os.path.splitext(abs_path.lower())
+    mimetype = 'application/pdf' if ext == '.pdf' else \
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    
+    return send_file(
+        abs_path,
+        mimetype=mimetype,
+        download_name=review.file_name or f'report{ext}'
+    )
+
+
 @review_bp.route('/<review_id>/export', methods=['GET'])
 def export_review(review_id):
     """

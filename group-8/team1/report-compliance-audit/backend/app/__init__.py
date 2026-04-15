@@ -49,12 +49,18 @@ def create_app(config_name='default'):
     app.register_blueprint(review_bp)
     app.register_blueprint(rule_bp)
     
+    # 初始化服务
+    from app.services import file_service, review_service, ai_service, export_service, rule_service
+    file_service.init_app(app)
+    for svc in [review_service, ai_service, export_service]:
+        if hasattr(svc, 'init_app'):
+            svc.init_app(app)
+    
     # 初始化数据库
     with app.app_context():
         db.create_all()
         
         # 初始化内置规则
-        from app.services import rule_service
         rule_service.init_builtin_rules()
     
     return app
