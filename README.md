@@ -8,6 +8,9 @@
 - 分支命名：`day3-group<N>`，例如 `day3-group8`
 - 代码位置：`group<N>/day3/` 目录下
 - 每个大组包含 **2 个项目组**，所以 `group<N>/day3/` 下应有 **2 个 project**，建议命名 `project-1/` 和 `project-2/`（或按项目主题命名）
+- 每个 project 必须有 `README.md`，包含：
+  - **小组名单**（姓名 + GitHub 账号）
+  - **分工**（谁负责前端/后端/spec/测试/文档等）
 - 完成后开 **Pull Request** 到 `main`，PR 标题格式：`[day3] group<N>: <项目简述>`
 
 示例目录结构：
@@ -15,10 +18,12 @@
 ```
 group-8/
 └── day3/
-    ├── project-1/     # 项目组 A 的前后端代码
+    ├── project-1/         # 项目组 A
+    │   ├── README.md      # 小组名单 + 分工
     │   ├── frontend/
     │   └── backend/
-    └── project-2/     # 项目组 B 的前后端代码
+    └── project-2/         # 项目组 B
+        ├── README.md      # 小组名单 + 分工
         ├── frontend/
         └── backend/
 ```
