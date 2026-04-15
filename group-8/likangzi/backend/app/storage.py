@@ -293,18 +293,36 @@ class Storage:
         self._write(self.reports_file, reports)
         return report
 
-    def get_reports(self, session_id=None):
+    def get_reports(self, session_id=None, search=None, institution=None, stock_code=None):
         """
-        获取研报列表，可选按 session_id 过滤
-
+        获取研报列表，支持多维筛选
+    
         Args:
             session_id: 可选，按会话 ID 过滤
+            search: 可选，文件名模糊搜索
+            institution: 可选，按机构筛选
+            stock_code: 可选，按股票代码筛选
         Returns:
             研报 dict 列表
         """
         reports = self._read(self.reports_file)
+            
+        # session_id 过滤（不传则返回全部）
         if session_id:
-            return [r for r in reports if r.get("session_id") == session_id]
+            reports = [r for r in reports if r.get('session_id') == session_id]
+            
+        # 文件名模糊搜索
+        if search:
+            reports = [r for r in reports if search.lower() in r.get('file_name', '').lower()]
+            
+        # 机构筛选
+        if institution:
+            reports = [r for r in reports if r.get('extracted_data', {}).get('institution') == institution]
+            
+        # 股票代码筛选
+        if stock_code:
+            reports = [r for r in reports if stock_code in r.get('extracted_data', {}).get('stock_codes', [])]
+            
         return reports
 
     def get_report_by_id(self, report_id):

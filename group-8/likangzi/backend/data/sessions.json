@@ -12,7 +12,6 @@
     "created_at": "2026-04-14T08:29:50Z",
     "updated_at": "2026-04-14T08:30:24Z",
     "query_count": 1
-
   },
   {
     "session_id": "6d0edd1c-e8ca-416a-adf4-9a188a69b077",
@@ -33,6 +32,13 @@
     "title": "新会话",
     "created_at": "2026-04-15T02:55:12Z",
     "updated_at": "2026-04-15T02:55:12Z",
+    "query_count": 0
+  },
+  {
+    "session_id": "df51be03-eb22-40df-86f0-4a5eeff6d6f8",
+    "title": "新会话",
+    "created_at": "2026-04-15T04:41:34Z",
+    "updated_at": "2026-04-15T04:41:34Z",
     "query_count": 0
   }
 ]

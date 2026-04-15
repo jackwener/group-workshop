@@ -494,13 +494,43 @@ def get_reports():
         type: string
         required: false
         description: 按会话ID过滤
+      - in: query
+        name: search
+        type: string
+        required: false
+        description: 文件名模糊搜索（≤50字符）
+      - in: query
+        name: institution
+        type: string
+        required: false
+        description: 按机构筛选
+      - in: query
+        name: stock_code
+        type: string
+        required: false
+        description: 按股票代码筛选
     responses:
       200:
         description: 研报列表
+      400:
+        description: 搜索关键词过长
     """
     session_id = request.args.get("session_id")
+    search = request.args.get("search")
+    institution = request.args.get("institution")
+    stock_code = request.args.get("stock_code")
+    
+    # 搜索关键词长度校验
+    if search and len(search) > 50:
+        return err("INVALID_QUERY", "搜索关键词过长", status=400)
+    
     storage = Storage(current_app.config["DATA_DIR"])
-    reports = storage.get_reports(session_id=session_id)
+    reports = storage.get_reports(
+        session_id=session_id,
+        search=search,
+        institution=institution,
+        stock_code=stock_code
+    )
     # 返回时不包含 file_path 和 raw_text（安全+性能）
     safe_reports = []
     for r in reports:
@@ -515,6 +545,52 @@ def get_reports():
             safe_r["extracted_data"] = ed
         safe_reports.append(safe_r)
     return ok({"reports": safe_reports})
+
+
+@agent_bp.route("/reports/aggregations", methods=["GET"])
+def get_report_aggregations():
+    """
+    获取研报聚合数据（用于筛选下拉框）
+    ---
+    tags:
+      - 研报
+    responses:
+      200:
+        description: 聚合数据
+        schema:
+          type: object
+          properties:
+            institutions:
+              type: array
+              items:
+                type: string
+            stock_codes:
+              type: array
+              items:
+                type: string
+      500:
+        description: 聚合计算失败
+    """
+    try:
+        storage = Storage(current_app.config["DATA_DIR"])
+        reports = storage.get_reports()
+        
+        institutions = set()
+        stock_codes = set()
+        
+        for report in reports:
+            data = report.get('extracted_data', {})
+            if data.get('institution'):
+                institutions.add(data['institution'])
+            for code in data.get('stock_codes', []):
+                stock_codes.add(code)
+        
+        return ok({
+            "institutions": sorted(list(institutions)),
+            "stock_codes": sorted(list(stock_codes))
+        })
+    except Exception as e:
+        return err("AGGREGATION_ERROR", str(e), status=500)
 
 
 @agent_bp.route("/reports/<report_id>", methods=["GET"])
