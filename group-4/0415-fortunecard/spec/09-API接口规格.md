@@ -6,292 +6,531 @@
 |---|---|
 | 模块编号 | VO-001 |
 | 模块名称 | Vibe Oracle 命运卡仪式体验 |
-| 文档版本 | v0.2 |
-| 阶段 | Design（契约真源） |
-| Base URL | N/A（纯前端应用，无后端 API） |
+| 文档版本 | v0.3 |
+| 阶段 | Design（API Contract） |
+| Base URL | `/api/v1` |
+|
 
 ---
 
-> **本文档说明**：Vibe Oracle 是一个纯前端应用，无后端服务。本文档定义应用内部的**模块间接口契约**，包括：
-> - React 自定义 Hooks 接口（状态管理）
-> - 数据结构定义
-> - 工具函数接口
-> - 存储接口（localStorage）
+> **本文档说明**：本文档将原“纯前端内部契约”升级为**前后端联调契约真源**。目标是把前端 `mockData.js`、`RevealPage.jsx`、`ReportPage.jsx` 中写死的数据，抽离为可实现、可测试、可并行开发的后端接口。
 
-## 1. 接口总览
+## 1. 设计目标
 
-| # | 接口类型 | 名称 | 功能 | 所在文件 |
-|---|----------|------|------|----------|
-| 1 | Hook | useRitualState | 全局仪式状态管理 | hooks/useRitualState.js |
-| 2 | Data | tarotCardPool | 塔罗牌池数据 | data/mockData.js |
-| 3 | Data | fatePhases | 命运三阶段配置 | data/mockData.js |
-| 4 | Data | diceResults | 骰子结果数据 | data/mockData.js |
-| 5 | Data | fateAttributes | 命运属性配置 | data/mockData.js |
-| 6 | Data | reportQuotes | 报告引言数据 | data/mockData.js |
-| 7 | Storage | localStorage | 历史记录持久化 | utils/storage.js |
+### 1.1 前端当前真实数据需求
 
-## 2. 状态枚举定义
+基于 `frontend/fate-cards` 当前实现，前端最终需要以下几类真实数据：
 
-### 2.1 GameState（游戏阶段）
+| 数据域 | 当前前端位置 | 需要后端化的内容 |
+|---|---|---|
+| 卡牌主数据 | `src/data/mockData.js` | 卡牌标题、摘要、类型、阶段、稀有度、配图 |
+| 骰子结果 | `mockData.js` + `DiceRitualPage.jsx` | 骰子面值、结果标签、旋转参数 |
+| 三阶段揭示结果 | `RevealPage.jsx` | past/present/future 三张牌详情 |
+| 最终命运报告 | `ReportPage.jsx` | 结局标题、结局解读、人格标签、状态条、引言、分享数据 |
+| 图鉴与历史 | 目前未实现 | 卡牌图鉴列表、卡牌详情、用户历史抽卡记录 |
 
-```typescript
-type GameState = 'loading' | 'dice' | 'draw' | 'reveal' | 'report';
+### 1.2 API 拆分原则
 
-const STATES = {
-  LOADING: 'loading',   // 加载页/入口页
-  DICE: 'dice',         // 骰子仪式
-  DRAW: 'draw',         // 抽卡阶段
-  REVEAL: 'reveal',     // 揭示命运
-  REPORT: 'report',     // 结局报告
-} as const;
-```
+- 抽卡域：负责“一次命运仪式”的会话、抽取、改命、报告生成。
+- 图鉴域：负责卡牌主数据查询与用户历史图鉴查询。
+- 前端联调：只消费契约，不再本地拼装报告内容。
 
-### 2.2 FateChoice（命运选择）
+## 2. API 总览
 
-```typescript
-type FateChoice = 'change' | 'accept' | null;
-```
+| 域 | 方法 | 路径 | 功能 |
+|---|---|---|---|
+| Ritual | `POST` | `/rituals` | 初始化一次抽卡会话 |
+| Ritual | `POST` | `/rituals/{ritualId}/dice-roll` | 生成或确认骰子结果 |
+| Ritual | `GET` | `/rituals/{ritualId}/draw-pool` | 获取本轮可选卡池 |
+| Ritual | `POST` | `/rituals/{ritualId}/reveal` | 提交三张卡并生成三阶段揭示结果 |
+| Ritual | `POST` | `/rituals/{ritualId}/choice` | 提交接受命运/改命选择 |
+| Ritual | `GET` | `/rituals/{ritualId}/report` | 获取最终命运报告 |
+| Gallery | `GET` | `/cards` | 获取图鉴卡牌列表 |
+| Gallery | `GET` | `/cards/{cardId}` | 获取单张卡详细信息 |
+| Gallery | `GET` | `/history` | 获取历史抽卡记录列表 |
+| Gallery | `GET` | `/history/{historyId}` | 获取单次抽卡历史详情 |
 
-| 值 | 说明 |
-|---|---|
-| 'change' | 用户选择改命 |
-| 'accept' | 用户接受命运 |
-| null | 尚未做出选择 |
+## 3. 通用约定
 
-## 3. 核心数据结构
+### 3.1 Header
 
-### 3.1 Card（塔罗牌）
+| Header | 必填 | 说明 |
+|---|---|---|
+| `Content-Type: application/json` | 是 | JSON 请求体 |
+| `X-Request-Id` | 否 | 调试追踪 |
+| `X-Client-Version` | 否 | 前端版本号 |
 
-```typescript
-interface Card {
-  id: number;           // 卡牌ID（1-9）
-  name: string;         // 卡牌名称，如"咸鱼翻身失败"
-  description: string;  // 卡牌描述
+### 3.2 通用响应包装
+
+成功响应：
+
+```json
+{
+  "code": "OK",
+  "message": "success",
+  "data": {}
 }
 ```
 
-| 字段 | 类型 | 说明 | 示例 |
-|------|------|------|------|
-| id | number | 卡牌唯一标识 | 1 |
-| name | string | 卡牌标题（2-10字符） | "咸鱼翻身失败" |
-| description | string | 卡牌描述（5-30字符） | "翻了个身，还是咸鱼。" |
+失败响应：
 
-### 3.2 FatePhase（命运阶段）
-
-```typescript
-interface FatePhase {
-  key: 'past' | 'present' | 'future';
-  label: string;        // 中文标签
-  labelEn: string;      // 英文标签
-  subLabel: string;     // 副标签
-  rarity: string;       // 稀有度
-}
-```
-
-| 字段 | 类型 | 说明 | 示例 |
-|------|------|------|------|
-| key | string | 阶段标识 | 'past' |
-| label | string | 中文标签 | "过去" |
-| labelEn | string | 英文标签 | "PAST" |
-| subLabel | string | 副标签 | "起因" |
-| rarity | string | 稀有度 | "普通" |
-
-### 3.3 DiceResult（骰子结果）
-
-```typescript
-interface DiceResult {
-  face: number;         // 骰子面值（1-6）
-  label: string;        // 结果标签
-  rot: string;          // 3D旋转CSS值
-}
-```
-
-| 字段 | 类型 | 说明 | 示例 |
-|------|------|------|------|
-| face | number | 骰子面值 | 1 |
-| label | string | 结果标签 | "命定之虚无" |
-| rot | string | 3D旋转值 | "rotateX(0deg) rotateY(0deg)" |
-
-### 3.4 FateAttribute（命运属性）
-
-```typescript
-interface FateAttribute {
-  key: string;          // 属性标识
-  label: string;        // 属性名称
-  icon: string;         // Material Icons图标名
-  value: number;        // 属性值（0-100）
-  color: 'primary' | 'secondary' | 'tertiary';  // 颜色主题
-  unit: string;         // 单位（"%" 或 "MAX"）
-}
-```
-
-| 字段 | 类型 | 说明 | 示例 |
-|------|------|------|------|
-| key | string | 属性标识 | 'luck' |
-| label | string | 属性名称 | "运势" |
-| icon | string | 图标名 | "star" |
-| value | number | 属性值 | 88 |
-| color | string | 颜色主题 | 'primary' |
-| unit | string | 单位 | "%" |
-
-### 3.5 ReportQuote（报告引言）
-
-```typescript
-interface ReportQuote {
-  text: string;         // 引言文本
-  highlights: {         // 高亮词配置
-    word: string;       // 高亮词
-    color: string;      // CSS类名
-  }[];
-}
-```
-
-## 4. useRitualState Hook 接口
-
-### 4.1 返回值类型
-
-```typescript
-interface UseRitualStateReturn {
-  // 状态
-  currentState: GameState;
-  selectedCards: number[];      // 选中的卡牌索引数组
-  diceResult: DiceResult | null;
-  fateChoice: FateChoice;
-  
-  // 状态常量
-  STATES: typeof STATES;
-  
-  // 操作方法
-  goToNextState: () => void;
-  skipDice: () => void;
-  selectCard: (cardIndex: number) => void;
-  changeFate: () => void;
-  acceptFate: () => void;
-  restart: () => void;
-  setDiceResult: (result: DiceResult) => void;
-}
-```
-
-### 4.2 方法清单
-
-| 方法 | 参数 | 返回值 | 说明 |
-|------|------|--------|------|
-| goToNextState | - | void | 进入下一阶段（loading→dice→draw→reveal→report） |
-| skipDice | - | void | 跳过骰子阶段，直接进入抽卡 |
-| selectCard | cardIndex: number | void | 选择/取消选择卡牌（toggle逻辑） |
-| changeFate | - | void | 选择改命，进入报告页 |
-| acceptFate | - | void | 接受命运，进入报告页 |
-| restart | - | void | 重置所有状态，回到加载页 |
-| setDiceResult | result: DiceResult | void | 设置骰子结果 |
-
-### 4.3 状态转换规则
-
-```
-loading → dice → draw → reveal → report → loading（循环）
-                  ↑
-                  └── skipDice 可直接跳到此处
-```
-
-| 当前状态 | goToNextState 目标 | 说明 |
-|----------|-------------------|------|
-| loading | dice | 加载完成进入骰子仪式 |
-| dice | draw | 骰子完成进入抽卡 |
-| draw | reveal | 抽卡完成进入揭示 |
-| reveal | report | 揭示完成进入报告 |
-| report | loading | 报告完成重新开始 |
-
-### 4.4 selectCard 行为
-
-```typescript
-// 选择逻辑：toggle模式，最多选3张
-selectCard(cardIndex: number) {
-  if (selectedCards.includes(cardIndex)) {
-    // 已选中则取消
-    selectedCards = selectedCards.filter(i => i !== cardIndex);
-  } else if (selectedCards.length < 3) {
-    // 未满3张则添加
-    selectedCards = [...selectedCards, cardIndex];
+```json
+{
+  "code": "VALIDATION_ERROR",
+  "message": "selectedCardIds must contain exactly 3 items",
+  "details": {
+    "field": "selectedCardIds"
   }
-  // 已满3张且不在数组中则忽略
 }
 ```
 
-## 5. 数据配置清单
+### 3.3 通用错误码
 
-### 5.1 tarotCardPool（塔罗牌池）
+| code | HTTP | 说明 |
+|---|---|---|
+| `OK` | 200 | 成功 |
+| `VALIDATION_ERROR` | 400 | 参数校验失败 |
+| `RITUAL_NOT_FOUND` | 404 | 抽卡会话不存在 |
+| `CARD_NOT_FOUND` | 404 | 卡牌不存在 |
+| `RITUAL_STATE_INVALID` | 409 | 当前会话状态不允许该操作 |
+| `RITUAL_ALREADY_FINALIZED` | 409 | 会话已完成，不可再次改命 |
+| `INTERNAL_ERROR` | 500 | 服务异常 |
 
-共9张卡牌，所有阶段共用：
+## 4. 核心数据结构
 
-| ID | 名称 | 描述 |
-|----|------|------|
-| 1 | 咸鱼翻身失败 | 翻了个身，还是咸鱼。 |
-| 2 | 疯狂摸鱼中 | 鱼没摸到，水被搅浑了。 |
-| 3 | 宇宙级摆烂 | 万物归寂，我亦不动。 |
-| 4 | 进击的咸鱼 | 虽然是咸鱼，但在冲刺。 |
-| 5 | 凌晨三点的猫头鹰 | 夜越深，我越清醒。 |
-| 6 | 发光的热干面 | 不是每碗面都值得发光。 |
-| 7 | 量子纠缠的袜子 | 总有一只在另一个维度。 |
-| 8 | 薛定谔的KPI | 不看就既完成又没完成。 |
-| 9 | 反向锦鲤 | 许的愿反着来。 |
+### 4.1 CardSummary
 
-### 5.2 fatePhases（命运阶段）
-
-| key | label | labelEn | subLabel | rarity |
-|-----|-------|---------|----------|--------|
-| past | 过去 | PAST | 起因 | 普通 |
-| present | 现在 | PRESENT | 纠缠 | 稀有 |
-| future | 未来 | FUTURE | 劫数 | 传说 |
-
-### 5.3 fateAttributes（命运属性）
-
-| key | label | icon | value | color | unit |
-|-----|-------|------|-------|-------|------|
-| luck | 运势 | star | 88 | primary | % |
-| madness | 发疯值 | psychology | 100 | tertiary | MAX |
-| action | 行动力 | bolt | 12 | secondary | % |
-
-## 6. Storage 接口
-
-```typescript
-interface StorageAPI {
-  get: <T>(key: string, defaultValue?: T) => T | null;
-  set: <T>(key: string, value: T) => boolean;
-  remove: (key: string) => void;
-  clear: () => void;
+```json
+{
+  "id": "card_001",
+  "title": "咸鱼翻身失败",
+  "subtitle": "翻了个身，还是咸鱼。",
+  "type": "state",
+  "phase": "past",
+  "rarity": "common",
+  "coverUrl": "/assets/cards/card-001.webp",
+  "tags": ["摆烂", "沙雕"]
 }
-
-const STORAGE_KEYS = {
-  HISTORY: 'vibe-oracle-history',
-  PREFERENCES: 'vibe-oracle-prefs',
-} as const;
 ```
 
-| 方法 | 键 | 说明 |
-|------|-----|------|
-| getHistory | vibe-oracle-history | 获取历史记录数组 |
-| setHistory | vibe-oracle-history | 保存历史记录数组 |
-| getPreferences | vibe-oracle-prefs | 获取用户偏好 |
-| setPreferences | vibe-oracle-prefs | 保存用户偏好 |
+| 字段 | 类型 | 必填 | 说明 |
+|---|---|---|---|
+| `id` | string | 是 | 卡牌唯一 ID |
+| `title` | string | 是 | 卡牌标题 |
+| `subtitle` | string | 是 | 卡牌短描述 |
+| `type` | enum | 是 | `state` / `desire` / `result` |
+| `phase` | enum | 是 | `past` / `present` / `future` |
+| `rarity` | enum | 是 | `common` / `rare` / `legendary` |
+| `coverUrl` | string | 否 | 卡面资源 |
+| `tags` | string[] | 否 | 标签 |
 
-## 7. 错误处理
+### 4.2 CardDetail
 
-| 场景 | 错误类型 | 处理方式 |
-|------|----------|----------|
-| 存储空间不足 | QuotaExceededError | 清理旧记录后重试 |
-| 数据解析失败 | SyntaxError | 返回默认值，console.warn |
-| localStorage不可用 | TypeError | 使用内存存储，无持久化 |
+```json
+{
+  "id": "card_001",
+  "title": "咸鱼翻身失败",
+  "subtitle": "翻了个身，还是咸鱼。",
+  "description": "你以为自己正在上岸，其实只是换了一个更优雅的躺法。",
+  "type": "state",
+  "phase": "past",
+  "rarity": "common",
+  "coverUrl": "/assets/cards/card-001.webp",
+  "illustrationUrl": "/assets/cards/card-001-detail.webp",
+  "tags": ["摆烂", "沙雕"],
+  "unlockStatus": "unlocked",
+  "timesDrawn": 3,
+  "lastDrawnAt": "2026-04-15T12:30:00+08:00"
+}
+```
 
-## 8. 参数校验规则
+### 4.3 DiceRoll
 
-| 接口 | 参数 | 规则 | 失败处理 |
-|------|------|------|----------|
-| selectCard | cardIndex | number类型，0-8范围内 | 忽略操作 |
-| setDiceResult | result | 非null对象 | 忽略操作 |
-| Storage.set | value | 可JSON序列化 | 返回false |
+```json
+{
+  "face": 6,
+  "label": "命运超活跃",
+  "rotation": "rotateY(180deg) rotateZ(0deg)"
+}
+```
+
+### 4.4 RevealedPhase
+
+```json
+{
+  "phase": "past",
+  "label": "过去",
+  "labelEn": "PAST",
+  "subLabel": "起因",
+  "rarity": "common",
+  "card": {
+    "id": "card_001",
+    "title": "咸鱼翻身失败",
+    "subtitle": "翻了个身，还是咸鱼。",
+    "type": "state",
+    "phase": "past",
+    "rarity": "common"
+  }
+}
+```
+
+### 4.5 ReportPayload
+
+```json
+{
+  "ritualId": "ritual_20260415_xxxx",
+  "fateChoice": "accept",
+  "diceRoll": {
+    "face": 6,
+    "label": "命运超活跃",
+    "rotation": "rotateY(180deg) rotateZ(0deg)"
+  },
+  "phases": [],
+  "ending": {
+    "id": "ending_epic_turn",
+    "title": "命运急转弯",
+    "summary": "宇宙给你准备了一个彩蛋，就在下个转角。",
+    "description": "保持开放，惊喜自来。",
+    "mood": "epic",
+    "themeColor": "#FFD700"
+  },
+  "personality": {
+    "id": "persona_midnight_philosopher",
+    "label": "深夜哲学家",
+    "description": "你在凌晨三点想通了一切，然后第二天全忘了。"
+  },
+  "attributes": [
+    {
+      "key": "luck",
+      "label": "运势",
+      "icon": "star",
+      "value": 72,
+      "color": "primary",
+      "unit": "%"
+    }
+  ],
+  "quote": {
+    "text": "你的命运就像掉在沙滩上的冰淇淋，虽然可惜，但很有艺术感。",
+    "highlights": [
+      { "word": "冰淇淋", "color": "text-tertiary" }
+    ]
+  },
+  "systemTerms": {
+    "karmaPoints": "+1,204",
+    "dimensionRank": "混沌"
+  },
+  "shareCard": {
+    "title": "今日命运裁决",
+    "subtitle": "深夜哲学家",
+    "imageUrl": "/assets/share/ritual_20260415_xxxx.png"
+  },
+  "historyId": "history_20260415_xxxx"
+}
+```
+
+## 5. Ritual 域接口
+
+### 5.1 初始化抽卡会话
+
+`POST /rituals`
+
+用途：
+- 前端从 LoadingPage 进入流程时创建本轮会话。
+- 返回 `ritualId`、基础配置、是否启用骰子。
+
+请求体：
+
+```json
+{
+  "source": "web",
+  "enableDice": true
+}
+```
+
+响应体：
+
+```json
+{
+  "code": "OK",
+  "message": "success",
+  "data": {
+    "ritualId": "ritual_20260415_xxxx",
+    "state": "initialized",
+    "enableDice": true,
+    "drawCount": 3
+  }
+}
+```
+
+### 5.2 生成骰子结果
+
+`POST /rituals/{ritualId}/dice-roll`
+
+用途：
+- 替代前端本地随机。
+- 返回用于动画展示的 label 和 rotation。
+
+请求体：
+
+```json
+{}
+```
+
+响应体：
+
+```json
+{
+  "code": "OK",
+  "message": "success",
+  "data": {
+    "ritualId": "ritual_20260415_xxxx",
+    "state": "dice_rolled",
+    "diceRoll": {
+      "face": 3,
+      "label": "三重真理",
+      "rotation": "rotateY(-90deg) rotateZ(0deg)"
+    }
+  }
+}
+```
+
+### 5.3 获取本轮卡池
+
+`GET /rituals/{ritualId}/draw-pool`
+
+用途：
+- 为 DrawCardsPage 提供 9 张可选卡。
+- 保证本轮卡池和后续 reveal/report 一致。
+
+响应体：
+
+```json
+{
+  "code": "OK",
+  "message": "success",
+  "data": {
+    "ritualId": "ritual_20260415_xxxx",
+    "state": "drawing",
+    "cards": []
+  }
+}
+```
+
+### 5.4 提交三张卡并生成揭示结果
+
+`POST /rituals/{ritualId}/reveal`
+
+请求体：
+
+```json
+{
+  "selectedCardIds": ["card_001", "card_005", "card_009"]
+}
+```
+
+校验规则：
+- 必须恰好 3 张。
+- 不允许重复。
+- 所有卡必须属于当前会话卡池。
+
+响应体：
+
+```json
+{
+  "code": "OK",
+  "message": "success",
+  "data": {
+    "ritualId": "ritual_20260415_xxxx",
+    "state": "revealed",
+    "phases": [],
+    "availableChoices": ["accept", "change"]
+  }
+}
+```
+
+### 5.5 提交命运选择
+
+`POST /rituals/{ritualId}/choice`
+
+请求体：
+
+```json
+{
+  "fateChoice": "change"
+}
+```
+
+说明：
+- `accept`：直接固化当前三张卡并生成最终报告。
+- `change`：允许后端执行一次改命逻辑，典型行为为重算第三阶段或重算结局。
+
+响应体：
+
+```json
+{
+  "code": "OK",
+  "message": "success",
+  "data": {
+    "ritualId": "ritual_20260415_xxxx",
+    "state": "finalized",
+    "fateChoice": "change",
+    "reportReady": true
+  }
+}
+```
+
+### 5.6 获取最终命运报告
+
+`GET /rituals/{ritualId}/report`
+
+用途：
+- ReportPage 的唯一数据源。
+- 不再由前端本地拼 `fatePhases`、`fateAttributes`、`reportQuotes`、`systemTerms`。
+
+响应体：
+
+```json
+{
+  "code": "OK",
+  "message": "success",
+  "data": {}
+}
+```
+
+`data` 字段必须符合 `ReportPayload`。
+
+## 6. Gallery 域接口
+
+### 6.1 获取图鉴卡牌列表
+
+`GET /cards`
+
+查询参数：
+
+| 参数 | 必填 | 说明 |
+|---|---|---|
+| `phase` | 否 | `past` / `present` / `future` |
+| `type` | 否 | `state` / `desire` / `result` |
+| `rarity` | 否 | `common` / `rare` / `legendary` |
+| `keyword` | 否 | 标题或描述搜索 |
+| `page` | 否 | 页码，默认 1 |
+| `pageSize` | 否 | 每页数量，默认 20 |
+
+响应体：
+
+```json
+{
+  "code": "OK",
+  "message": "success",
+  "data": {
+    "items": [],
+    "pagination": {
+      "page": 1,
+      "pageSize": 20,
+      "total": 9
+    }
+  }
+}
+```
+
+`items` 中每项必须符合 `CardSummary`。
+
+### 6.2 获取卡牌详情
+
+`GET /cards/{cardId}`
+
+响应体：
+
+```json
+{
+  "code": "OK",
+  "message": "success",
+  "data": {}
+}
+```
+
+`data` 必须符合 `CardDetail`。
+
+### 6.3 获取历史抽卡记录列表
+
+`GET /history`
+
+查询参数：
+
+| 参数 | 必填 | 说明 |
+|---|---|---|
+| `page` | 否 | 页码 |
+| `pageSize` | 否 | 每页数量 |
+
+响应体：
+
+```json
+{
+  "code": "OK",
+  "message": "success",
+  "data": {
+    "items": [
+      {
+        "historyId": "history_20260415_xxxx",
+        "ritualId": "ritual_20260415_xxxx",
+        "createdAt": "2026-04-15T12:30:00+08:00",
+        "endingTitle": "命运急转弯",
+        "personalityLabel": "深夜哲学家",
+        "coverCards": [
+          "card_001",
+          "card_005",
+          "card_009"
+        ]
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "pageSize": 20,
+      "total": 1
+    }
+  }
+}
+```
+
+### 6.4 获取单次历史详情
+
+`GET /history/{historyId}`
+
+说明：
+- 返回结构与 `GET /rituals/{ritualId}/report` 一致。
+- 用于图鉴历史详情页复用报告展示组件。
+
+## 7. 前后端联调注意事项
+
+### 7.1 前端需删除的本地硬编码数据
+
+| 文件 | 本地硬编码内容 | 替换方式 |
+|---|---|---|
+| `src/data/mockData.js` | 卡池、阶段、骰子、属性、引言、系统术语 | 逐步替换为 API 数据 |
+| `src/pages/RevealPage.jsx` | `fateCards` 常量 | 改为 `GET /rituals/{ritualId}/reveal` 返回值 |
+| `src/pages/ReportPage.jsx` | 本地拼接 `displayCards/quote/attributes` | 改为 `GET /rituals/{ritualId}/report` |
+
+### 7.2 联调阶段约束
+
+- 字段命名统一使用 camelCase。
+- 报告页一切展示性数据均以后端返回为准。
+- 图鉴页与抽卡页不得共享前端硬编码卡池。
+- 后端必须保证 `reveal` 与 `report` 的卡牌结果一致。
+
+## 8. 验收标准
+
+| 验收项 | 通过标准 |
+|---|---|
+| 抽卡流程 | 前端从 loading 到 report 全链路可走通，无本地 mock 参与结果生成 |
+| 报告数据 | `ReportPage` 仅依赖 `/rituals/{ritualId}/report` 渲染 |
+| 图鉴列表 | 可分页查询卡牌列表并查看详情 |
+| 历史记录 | 每次完成抽卡后均可在 `/history` 查到 |
+| 错误处理 | 参数错误、状态错误、资源不存在均有稳定错误码 |
 
 ---
 
 | 版本 | 日期 | 说明 |
-|------|------|------|
-| v0.2 | 2026-04-15 | 根据前端实现重构，简化接口设计 |
-| v0.1 | 2026-04-15 | 首版（纯前端应用，定义内部接口契约） |
+|---|---|---|
+| v0.1 | 2026-04-15 | 首版 |
+| v0.2 | 2026-04-15 | 纯前端内部契约版 |
+| v0.3 | 2026-04-15 | 升级为后端 API 契约，拆分 Ritual / Gallery 两个域 |
