@@ -1,0 +1,57 @@
+[
+  {
+    "id": "rec_1776153284091_9527",
+    "session_id": "e2ca2291-9463-4f73-bb3b-2a7df042a6e2",
+    "query": "分析新能源行业趋势",
+    "answer": "【Demo模式】我注意到您询问的是研报相关内容。在实际配置LLM服务后，我可以帮您：\n\n1. 抽取研报关键指标\n2. 对比多篇研报观点\n3. 归纳行业趋势\n\n请配置CoPaw或百炼服务以获得完整功能。",
+    "llm_used": false,
+    "model": null,
+    "response_time_ms": 0,
+    "answer_source": "demo",
+    "timestamp": "2026-04-14T07:54:44Z"
+  },
+  {
+    "id": "rec_1776153296187_3155",
+    "session_id": "e7b77192-4547-40e3-b6fe-0b0e2753f700",
+    "query": "对比半导体行业研报观点",
+    "answer": "【Demo模式】我注意到您询问的是研报相关内容。在实际配置LLM服务后，我可以帮您：\n\n1. 抽取研报关键指标\n2. 对比多篇研报观点\n3. 归纳行业趋势\n\n请配置CoPaw或百炼服务以获得完整功能。",
+    "llm_used": false,
+    "model": null,
+    "response_time_ms": 0,
+    "answer_source": "demo",
+    "timestamp": "2026-04-14T07:54:56Z"
+  },
+  {
+    "id": "rec_1776153299720_2139",
+    "session_id": "f3bcd3d2-d6c8-4b5f-a795-1d16bbcfaef2",
+    "query": "总结医药行业投资逻辑",
+    "answer": "【Demo模式】我注意到您询问的是研报相关内容。在实际配置LLM服务后，我可以帮您：\n\n1. 抽取研报关键指标\n2. 对比多篇研报观点\n3. 归纳行业趋势\n\n请配置CoPaw或百炼服务以获得完整功能。",
+    "llm_used": false,
+    "model": null,
+    "response_time_ms": 0,
+    "answer_source": "demo",
+    "timestamp": "2026-04-14T07:54:59Z"
+  },
+  {
+    "id": "rec_1776153311454_9461",
+    "session_id": "33bf0288-5f62-4675-bea4-c6c2fb6744c1",
+    "query": "分析新能源行业趋势",
+    "answer": "【Demo模式】我注意到您询问的是研报相关内容。在实际配置LLM服务后，我可以帮您：\n\n1. 抽取研报关键指标\n2. 对比多篇研报观点\n3. 归纳行业趋势\n\n请配置CoPaw或百炼服务以获得完整功能。",
+    "llm_used": false,
+    "model": null,
+    "response_time_ms": 0,
+    "answer_source": "demo",
+    "timestamp": "2026-04-14T07:55:11Z"
+  },
+  {
+    "id": "rec_1776153319419_2240",
+    "session_id": "33bf0288-5f62-4675-bea4-c6c2fb6744c1",
+    "query": "分析AI行业趋势",
+    "answer": "【Demo模式】我注意到您询问的是研报相关内容。在实际配置LLM服务后，我可以帮您：\n\n1. 抽取研报关键指标\n2. 对比多篇研报观点\n3. 归纳行业趋势\n\n请配置CoPaw或百炼服务以获得完整功能。",
+    "llm_used": false,
+    "model": null,
+    "response_time_ms": 0,
+    "answer_source": "demo",
+    "timestamp": "2026-04-14T07:55:19Z"
+  }
+]
